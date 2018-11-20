@@ -1,0 +1,20 @@
+<h1> Select Answer</h1>
+<div class="container">
+
+  <div class="row">
+    <div class="col-sm-4">
+      <img src="https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg" width="50px"/>
+    </div>
+    <div class="col-sm-6">
+      <h4>Correct Answer</h4>
+      <form [formGroup]="myForm">
+        <div *ngFor="let data of boxValues">
+          <input type="checkbox" name="multipleChoice" (change)="onChange(data.opt, $event.target.checked)"> {{data.opt}}<br>
+        </div>
+      </form>
+      <button (click)="submit()"> Next</button>
+    </div>
+  </div>
+</div>
+
+<pre>Form values: {{myForm.value | json}}</pre>
