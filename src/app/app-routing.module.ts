@@ -3,7 +3,14 @@ import { Routes, RouterModule } from '@angular/router';
 import { UploadComponent } from './upload/upload.component';
 
 const routes: Routes = [
-  { path: 'upload', component: UploadComponent }
+  {
+    path: 'navigator',
+    loadChildren: './navigation/navigation.module#NavigationModule'
+  },
+  {
+    path: '',
+    component: UploadComponent
+  }
 ];
 
 @NgModule({
