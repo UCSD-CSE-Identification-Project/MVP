@@ -10,6 +10,10 @@ const routes: Routes = [
   {
     path: '',
     component: UploadComponent
+  },
+  {
+    path: 'choose-answers',
+    loadChildren: './choose-answers/choose-answers.module#ChooseAnswersModule'
   }
 ];
 
