@@ -9,7 +9,7 @@
       <h4>Correct Answer</h4>
       <form [formGroup]="myForm">
         <div *ngFor="let data of boxValues">
-          <input type="checkbox" name="multipleChoice" (change)="onChange(data.opt, $event.target.checked)"> {{data.opt}}<br>
+          <input type="checkbox" name="multipleChoice" [checked]="checked(data.opt)"  (change)="onChange(data.opt, $event.target.checked)"> {{data.opt[0]}}<br>
         </div>
       </form>
       <button (click)="submit()"> Next</button>

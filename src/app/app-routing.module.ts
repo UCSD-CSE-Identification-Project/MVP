@@ -8,6 +8,8 @@ const routes: Routes = [
     path: 'choose-answers',
     loadChildren: './choose-answers/choose-answers.module#ChooseAnswersModule'
   },
+  {path: '',
+   loadChildren: './choose-answers/choose-answers.module#ChooseAnswersModule'}
 ];
 
 @NgModule({

@@ -37,8 +37,7 @@ export class UploadComponent implements OnInit {
         if (event.type === HttpEventType.UploadProgress) {
           this.percentage = Math.round(event.loaded / event.total * 100);
           console.log('Uploaded ' + this.percentage + '%');
-        }
-        else {
+        } else {
           console.log(event);
         }
       }
