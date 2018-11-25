@@ -4,7 +4,7 @@ import { NavigatorComponent } from './navigator/navigator.component';
 
 const routes: Routes = [
   {
-    path: '',
+    path: ':stage',
     component: NavigatorComponent
   }
 ];

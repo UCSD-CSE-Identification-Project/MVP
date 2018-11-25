@@ -5,7 +5,7 @@ import { NavigationRoutingModule } from './navigation-routing.module';
 import { NavigatorComponent } from './navigator/navigator.component';
 
 @NgModule({
-  declarations: [NavigatorComponent],
+  declarations: [ NavigatorComponent ],
   imports: [
     CommonModule,
     NavigationRoutingModule
