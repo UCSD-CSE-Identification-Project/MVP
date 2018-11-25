@@ -8,9 +8,9 @@ import {forEach} from '@angular/router/src/utils/collection';
   styleUrls: ['./choose-view.component.css']
 })
 export class ChooseViewComponent implements OnInit {
-  boxValues = [{opt: 'a'}, {opt: 'b'}, {opt: 'c'}, {opt: 'd'}, {opt: 'e'}];
+  boxValues = [{opt: 'A'}, {opt: 'B'}, {opt: 'C'}, {opt: 'D'}, {opt: 'E'}];
   myForm: FormGroup;
-  mappedAnswers = {a: [0, false, 'a'], b: [1, false, 'b'], c: [2, false, 'c'], d: [3, false, 'd'], e: [4, false, 'e']};
+  mappedAnswers = {A: [0, false, 'A'], B: [1, false, 'B'], C: [2, false, 'C'], D: [3, false, 'D'], E: [4, false, 'E']};
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
@@ -39,7 +39,7 @@ export class ChooseViewComponent implements OnInit {
     return this.mappedAnswers[option][1];
   }
   nextImage() {
-    if (this.imageIndex >= this.imageNames.length) {
+    if (this.imageIndex >= this.imageNames.length - 1) {
       this.imagesFinished = true;
       return;
     }
@@ -58,7 +58,9 @@ export class ChooseViewComponent implements OnInit {
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
-            'imagename1', 'imagename2', 'imagename3'];
+            'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
+            'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
+            'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
   }
 
 }

@@ -1,18 +1,24 @@
-<h1> Select Answer</h1>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
 <div class="container">
 
   <div class="row">
-    <div class="col-sm-4">
-      <img [src]="imageNames[imageIndex]" width="50px"/>
+    <div class="col-lg-6">
+      <h2> Select Answer</h2>
+      <img [src]="imageNames[imageIndex]" width="500px"/>
     </div>
-    <div class="col-sm-6">
+    <div class="col-lg-6">
       <h4>Correct Answer</h4>
       <form [formGroup]="myForm">
         <div *ngFor="let data of boxValues">
           <input type="checkbox" name="multipleChoice" [checked]="checked(data.opt)"  (change)="onChange(data.opt, $event.target.checked)"> {{data.opt[0]}}<br>
         </div>
       </form>
-      <button (click)="nextImage()"> Next</button>
+      <button [disabled]="imagesFinished" (click)="nextImage()"> Next</button>
       <button *ngIf="imagesFinished" routerLink="../upload"> Finish </button>
       <ng-container></ng-container>
     </div>
