@@ -3,7 +3,7 @@
 
   <div class="row">
     <div class="col-sm-4">
-      <img src="https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg" width="50px"/>
+      <img [src]="imageNames[imageIndex]" width="50px"/>
     </div>
     <div class="col-sm-6">
       <h4>Correct Answer</h4>
@@ -12,7 +12,9 @@
           <input type="checkbox" name="multipleChoice" [checked]="checked(data.opt)"  (change)="onChange(data.opt, $event.target.checked)"> {{data.opt[0]}}<br>
         </div>
       </form>
-      <button (click)="submit()"> Next</button>
+      <button (click)="nextImage()"> Next</button>
+      <button *ngIf="imagesFinished" routerLink="../upload"> Finish </button>
+      <ng-container></ng-container>
     </div>
   </div>
 </div>
