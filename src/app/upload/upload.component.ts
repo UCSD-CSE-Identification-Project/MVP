@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
+import { NavigationModule } from '../navigation/navigation.module';
 
 @Component({
   selector: 'app-upload',
