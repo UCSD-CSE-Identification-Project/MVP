@@ -1,15 +1,14 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { UploadComponent } from './upload/upload.component';
 
 const routes: Routes = [
   {
-    path: 'navigator',
-    loadChildren: './navigation/navigation.module#NavigationModule'
+    path: '',
+    loadChildren: './upload-data/upload-data.module#UploadDataModule'
   },
   {
-    path: '',
-    component: UploadComponent
+    path: 'navigator',
+    loadChildren: './navigation/navigation.module#NavigationModule'
   },
   {
     path: 'choose-answers',

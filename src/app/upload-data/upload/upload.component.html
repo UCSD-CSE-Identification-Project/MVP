@@ -1,0 +1,31 @@
+<div>
+  <h1>Upload clicker questions, images for past term and current term</h1>
+</div>
+
+<div class="container">
+  <div class="previous">
+    <h2>Previous Term</h2>
+    <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 0)" multiple /></div>
+    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)" multiple /></div>
+    <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 2)" multiple /></div>
+  </div>
+  <div class="current">
+    <h2>Current Term</h2>
+    <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 3)" multiple /></div>
+    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 4)" multiple /></div>
+    <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 5)" multiple /></div>
+  </div>
+  <button type="button" (click)="onUpload()">Submit</button>
+  <h2>Percentage is {{percentage}}%</h2>
+  <progress-bar [progress]=percentage [color]="'#488aff'"></progress-bar>
+  <div style="float: right;">
+    <nav>
+      <button routerLink="/navigator/upload">NEXT</button>
+    </nav>
+  </div>
+  <ul>
+    <li *ngFor="let name of fileNames">
+      {{ name }}
+    </li>
+  </ul>
+</div>

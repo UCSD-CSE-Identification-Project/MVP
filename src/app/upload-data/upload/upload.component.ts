@@ -1,33 +1,43 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
-import { NavigationModule } from '../navigation/navigation.module';
+import { UploadService } from '../upload.service';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css']
 })
-export class UploadComponent implements OnInit {
-  files: File[] = [];
-  percentage = 0;
 
-  constructor(private http: HttpClient) { }
+export class UploadComponent implements OnInit {
+  files: File[][] = [[], [], [], [], [], []];
+  percentage = 0;
+  fileNames: String[] = [];
+
+  constructor(private http: HttpClient, 
+              private uploadService: UploadService) { }
+  
+  get getData(): String[] {
+    return this.uploadService.fileNames;
+  }
+  set setData(value: String[]) {
+    this.uploadService.fileNames = value;
+  } 
 
   ngOnInit() {
   }
 
-  onFilesSelected(event) {
+  onFilesSelected(event, index) {
     const fileList = event.target.files;
-    for (let i = 0; i < fileList.length; i++) {
-      const file = fileList[i];
-      this.files.push(file);
-    }
+    this.files[index] = fileList;
   }
 
   onUpload() {
     const fd = new FormData();
     for (let i = 0; i < this.files.length; i++) {
-      fd.append('pdf', this.files[i], this.files[i].name);
+      for (let j = 0; j < this.files[i].length; j++) {
+        fd.append('csv', this.files[i][j], this.files[i][j].name);
+        this.fileNames.push(this.files[i][j].name);
+      }
     }
 
     this.http.post('http://localhost:8000/upload', fd, {
@@ -44,6 +54,10 @@ export class UploadComponent implements OnInit {
         }
       }
     );
+
+    this.setData = this.fileNames;
+
+    console.log(this.getData);
   }
 
 }
