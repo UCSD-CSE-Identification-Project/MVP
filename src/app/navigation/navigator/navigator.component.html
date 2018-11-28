@@ -1,0 +1,21 @@
+<div>
+  <h2>Next: {{stage[nextStage]}}</h2>
+  <h3>{{summary[nextStage]}}</h3>
+
+  <div class="container">
+    <ul class="progressbar">
+      <li [ngClass]="show[0] ? 'active' : ''">{{stage[0]}}</li>
+      <li [ngClass]="show[1] ? 'active' : ''">{{stage[1]}}</li>
+      <li [ngClass]="show[2] ? 'active' : ''">{{stage[2]}}</li>
+      <li [ngClass]="show[3] ? 'active' : ''">{{stage[3]}}</li>
+      <li [ngClass]="show[4] ? 'active' : ''">{{stage[4]}}</li>
+      <li [ngClass]="show[5] ? 'active' : ''">{{stage[5]}}</li>
+    </ul>
+  </div>
+
+  <div style="float: right;">
+    <nav>
+      <button (click)="proceed()" routerLink={{url}}>CONTINUE</button>
+    </nav>
+  </div>
+</div>
