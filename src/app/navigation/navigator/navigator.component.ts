@@ -32,6 +32,7 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
+        this.url = '/choose-grouping';
         break;
       case '/navigator/classify':
         this.nextStage = 2;

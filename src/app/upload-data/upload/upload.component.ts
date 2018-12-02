@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 
 @Component({
@@ -9,12 +11,27 @@ import { UploadService } from '../upload.service';
 })
 
 export class UploadComponent implements OnInit {
+  // Access to Observable, allow to pause, resume, cancel upload
+  task: AngularFireUploadTask;
+
+  // Upload progress
+  progress: Observable<number>;
+  snapshot: Observable<any>;
+
+  // Download URL
+  downloadURL: Observable<string>;
+
+  // Dropzone css toggling
+  isHovering: boolean;
+
+
   files: File[][] = [[], [], [], [], [], []];
   percentage = 0;
   fileNames: String[] = [];
 
   constructor(private http: HttpClient, 
-              private uploadService: UploadService) { }
+              private uploadService: UploadService, 
+              private storage: AngularFireStorage) { }
   
   get getData(): String[] {
     return this.uploadService.fileNames;
@@ -32,14 +49,31 @@ export class UploadComponent implements OnInit {
   }
 
   onUpload() {
+    //TODO
+    // File type checking
+
+    // Generate "unique" file path
+    //let path = `test/${new Date().getTime()}_${file.name}`;
+
     const fd = new FormData();
+
+    // Upload task
     for (let i = 0; i < this.files.length; i++) {
       for (let j = 0; j < this.files[i].length; j++) {
-        fd.append('csv', this.files[i][j], this.files[i][j].name);
         this.fileNames.push(this.files[i][j].name);
+        this.task = this.storage.upload(this.files[i][j].name, this.files[i][j]);
+        
+        // Progress monitoring
+        this.progress = this.task.percentageChanges();
+        this.snapshot = this.task.snapshotChanges();
+
+        // URL
+        //this.downloadURL = this.task.downloadURL();
+        
       }
     }
 
+    /* code from upload file tutorial
     this.http.post('http://localhost:8000/upload', fd, {
       reportProgress: true,
       observe: 'events'
@@ -53,11 +87,16 @@ export class UploadComponent implements OnInit {
           console.log(event);
         }
       }
-    );
+    );*/
 
     this.setData = this.fileNames;
 
     console.log(this.getData);
+  }
+
+  // Toggle CSS for upload task
+  isActive() {
+
   }
 
 }

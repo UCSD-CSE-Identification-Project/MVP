@@ -13,6 +13,9 @@ const routes: Routes = [
   {
     path: 'choose-answers',
     loadChildren: './choose-answers/choose-answers.module#ChooseAnswersModule'
+  },
+  {path: 'choose-grouping',
+    loadChildren: './choose-grouping/choose-grouping.module#ChooseGroupingModule'
   }
 ];
 

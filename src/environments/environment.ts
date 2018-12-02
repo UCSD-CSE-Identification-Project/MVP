@@ -12,7 +12,10 @@ export const environment = {
     storageBucket: 'ersp-identification.appspot.com',
     messagingSenderId: '897651924232'
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 7bc2faaca309735d41b7fc210b4fa60047d95f9e
 };
 
 
