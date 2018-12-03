@@ -1,0 +1,138 @@
+<!--<head>
+  <meta charset="utf-8" />
+  <title>Prediction Model</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+  <script src="./PapaParse-4.6.0/papaparse.js"></script>
+</head>
+-->
+<div>
+  <h1>Process the clicker data</h1>
+</div>
+
+<div>
+  <label class="container">
+    <input type="checkbox" [checked]='checked' (change)='toggleChecked()'>Enable more processing options
+    <span class="checkmark"></span>
+  </label>
+</div>
+
+<div *ngIf="checked">
+  <h2 align="center">Before processing the data, you can also select how many weeks of data to include:
+    <h2 style="display: inline-block;">
+      <form>
+        <select name="weeks">
+          <option value="0"></option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+          <option value="6">6</option>
+          <option value="7">7</option>
+          <option value="8">8</option>
+          <option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+      </form>
+    </h2>
+  </h2>
+
+  <h2 style="display: inline-block;">Add other score components:</h2>
+
+  <label class="container">Prerequisite
+    <input type="checkbox">
+    <span class="checkmark"></span>
+  </label>
+
+  <label class="container">Midterm
+    <input type="checkbox">
+    <span class="checkmark"></span>
+  </label>
+
+
+  <label class="container">Quiz
+    <input type="checkbox">
+    <span class="checkmark"></span>
+  </label>
+
+  <!--<div class="column">-->
+  <label class="container">Assignment
+    <input type="checkbox">
+    <span class="checkmark"></span>
+  </label>
+
+</div>
+
+<div class="center">
+  <progress-bar [progress]=percentage [color]="'#488aff'"></progress-bar>
+  <h2 align="center">Percentage is {{percentage}}%</h2>
+  <button (click)="onUpload()">Process</button>
+</div>
+
+<div style="float: right;">
+  <nav>
+    <button routerLink="/navigator/process">NEXT</button>
+  </nav>
+</div>
+
+
+<!--<div ng-app="preprocessApp" ng-controller="preprocessCtrl">
+  <div class="center">
+    <h1 align="center">Before processing the data, you can also:</h1>
+    <div class="numberCircle" style="display: inline-block;">1</div>
+    <h2 style="display: inline-block;">
+      <pre>  Select how many weeks of data to include:</pre>
+    </h2>
+    <select class="bigger" ng-model="selectedWeek" ng-options="x for x in weeks" ng-change="updateCompo()">
+    </select><br>
+    <div class="numberCircle" style="display: inline-block;">2</div>
+    <h2 style="display: inline-block;">
+      <pre>  (Optional) Add other score components:</pre>
+    </h2><br>
+
+    <label class="container">Prerequisite
+      <input type="checkbox" ng-model="prerequisite" ng-click="updateCompo()">
+      <span class="checkmark"></span>
+    </label>
+
+    <label class="container">Midterm
+      <input type="checkbox" ng-model="midterm" ng-click="updateCompo()">
+      <span class="checkmark"></span>
+    </label>
+
+    <label class="container">Quiz
+      <input type="checkbox" ng-model="quiz" ng-click="updateCompo()">
+      <span class="checkmark"></span>
+    </label>
+
+    <label class="container">Assignment
+      <input type="checkbox" ng-model="assignment" ng-click="updateCompo()">
+      <span class="checkmark"></span>
+    </label>
+
+  </div>
+
+  <div class="center" style="margin: auto; text-align: center;">
+    <h2>Summary: Get {{selectedWeek}} week(s) of data, add score components: {{component}}</h2>
+    <form action="/cgi-bin/test/script/prepdata.py" method="POST" target="_blank">
+      <input type="text" name="cutoffweek" ng-model="weekModel" ng-readonly="doneInput" ng-show="False">
+      <input type="text" name="components" ng-model="compModel" ng-readonly="doneInput" ng-show="False">
+      <input type="submit" class="newButton" value="Start Processing" />
+    </form>
+  </div>
+
+  <div class="center">
+    <div id="myProgress">
+      <div id="myBar"></div>
+    </div>
+    <button ng-click="move()">Run</button>
+  </div>
+
+  <div class="center" style="margin: auto; text-align: center;">
+    <a href="./dataframe.html"><button>Show Results</button></a>
+  </div>
+</div>
+-->
+<!--End of ng application-->
