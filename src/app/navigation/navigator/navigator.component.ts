@@ -12,7 +12,7 @@ export class NavigatorComponent implements OnInit {
 
   nextStage = 0;
 
-  url = '/choose-answers';
+  url = '';
 
   summary = [
     'Upload files',
@@ -39,6 +39,7 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
+        this.url = '/choose-answers';
         break;
       case '/navigator/choose-ans':
         this.nextStage = 3;

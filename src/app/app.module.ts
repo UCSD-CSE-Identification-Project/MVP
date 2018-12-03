@@ -18,6 +18,7 @@ import { AppComponent } from './app.component';
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
+    AngularFireStorageModule,
     AppRoutingModule
   ],
   providers: [AngularFireStorage],

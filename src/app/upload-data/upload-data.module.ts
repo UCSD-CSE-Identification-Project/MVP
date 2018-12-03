@@ -4,9 +4,10 @@ import { ProgressBarModule } from "angular-progress-bar"
 
 import { UploadDataRoutingModule } from './upload-data-routing.module';
 import { UploadComponent } from './upload/upload.component';
+import { DropZoneDirective } from './drop-zone.directive';
 
 @NgModule({
-  declarations: [UploadComponent],
+  declarations: [UploadComponent, DropZoneDirective],
   imports: [
     CommonModule,
     ProgressBarModule,
