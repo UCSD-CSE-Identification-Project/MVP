@@ -18,7 +18,7 @@ export class UploadComponent implements OnInit {
   progress: Observable<number>;
   snapshot: Observable<any>;
 
-  // Download URL
+  // Download URL, removed in the new firebase update, need to find a work-around
   downloadURL: Observable<string>;
 
   // Dropzone css toggling
@@ -32,6 +32,10 @@ export class UploadComponent implements OnInit {
   constructor(private http: HttpClient, 
               private uploadService: UploadService, 
               private storage: AngularFireStorage) { }
+
+  toggleHover(event: boolean) {
+    this.isHovering = event;
+  }
   
   get getData(): String[] {
     return this.uploadService.fileNames;
@@ -50,10 +54,12 @@ export class UploadComponent implements OnInit {
 
   onUpload() {
     //TODO
-    // File type checking
+    // File type checking, client side validation, mirror logic in backend storage rules
 
     // Generate "unique" file path
     //let path = `test/${new Date().getTime()}_${file.name}`;
+
+    // Optional metadata
 
     const fd = new FormData();
 
