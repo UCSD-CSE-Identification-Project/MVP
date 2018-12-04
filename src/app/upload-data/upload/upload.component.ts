@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
+import * as firebase from 'firebase';
 
 @Component({
   selector: 'app-upload',
@@ -28,10 +30,12 @@ export class UploadComponent implements OnInit {
   files: File[][] = [[], [], [], [], [], []];
   percentage = 0;
   fileNames: String[] = [];
+  path: string = '';
 
   constructor(private http: HttpClient, 
               private uploadService: UploadService, 
-              private storage: AngularFireStorage) { }
+              private storage: AngularFireStorage,
+              private db: AngularFirestore) { }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
@@ -67,7 +71,7 @@ export class UploadComponent implements OnInit {
     for (let i = 0; i < this.files.length; i++) {
       for (let j = 0; j < this.files[i].length; j++) {
         this.fileNames.push(this.files[i][j].name);
-        this.task = this.storage.upload(this.files[i][j].name, this.files[i][j]);
+        this.task = this.storage.upload('images/'+ this.files[i][j].name, this.files[i][j]);
         
         // Progress monitoring
         this.progress = this.task.percentageChanges();
@@ -76,28 +80,43 @@ export class UploadComponent implements OnInit {
         // URL
         //this.downloadURL = this.task.downloadURL();
         
+
+        // MAKE SURE LAST MINUTE
+
+        let data1 = {
+          class_term: ['CSE100FA18'],
+          name: 'test',
+          email: 'test@test'
+        };
+
+        //Term
+        let data2 = {
+          ind_images: ['image1.jpeg'],
+          group_images: ['image2.jpeg'],
+          iso_images: ['image3.jpeg'],
+          csv: ['csv1.csv']
+        };
+
+        let data3 = {
+          image_name_or_actual_image: 'name1',
+          correct_answers: ['a', 'b'],
+          grouping: 'iso_example',
+          matches: 'test.img'
+        };
+
+        this.db.collection('users').doc('test_user1').set(data1);
+
+        this.db.collection('terms').doc('test_FA2018').set(data2);
+        this.db.collection('images').doc('test_img1').set(data3);
+        
       }
     }
-
-    /* code from upload file tutorial
-    this.http.post('http://localhost:8000/upload', fd, {
-      reportProgress: true,
-      observe: 'events'
-    }).subscribe(
-      event => {
-        if (event.type === HttpEventType.UploadProgress) {
-          this.percentage = Math.round(event.loaded / event.total * 100);
-          console.log('Uploaded ' + this.percentage + '%');
-        }
-        else {
-          console.log(event);
-        }
-      }
-    );*/
+    firebase.storage().ref().child('20130721_141004.jpg').getDownloadURL().then(function (url) {
+      this.path = url;
+    });
 
     this.setData = this.fileNames;
 
-    console.log(this.getData);
   }
 
   // Toggle CSS for upload task
