@@ -6,18 +6,41 @@
   <div class="previous">
     <h2>Previous Term</h2>
     <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 0)" multiple /></div>
-    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)" multiple /></div>
+    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)"
+        multiple /></div>
     <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 2)" multiple /></div>
   </div>
   <div class="current">
     <h2>Current Term</h2>
     <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 3)" multiple /></div>
-    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 4)" multiple /></div>
+    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 4)"
+        multiple /></div>
     <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 5)" multiple /></div>
   </div>
   <button type="button" (click)="onUpload()">Submit</button>
   <h2>Percentage is {{percentage}}%</h2>
-  <progress-bar [progress]=percentage [color]="'#488aff'"></progress-bar>
+  <progress-bar class='progress' [progress]='progress | async' [color]="'#488aff'"></progress-bar>
+  <div class="dropzone" dropZone (hovered)="toggleHover($event)" (dropped)="startUpload($event)" [class.hovering]="isHovering">
+    <h3>AngularFire Drop Zone</h3>
+
+    <div class="file">
+      <label class="file-label">
+
+
+        <input class="file-input" type="file" (change)="startUpload($event.target.files)">
+
+
+        <span class="file-cta">
+          <span class="file-icon">
+            <i class="fa fa-upload"></i>
+          </span>
+          <span class="file-label">
+            or choose a file…
+          </span>
+        </span>
+      </label>
+    </div>
+  </div>
   <div style="float: right;">
     <nav>
       <button routerLink="/navigator/upload">NEXT</button>
