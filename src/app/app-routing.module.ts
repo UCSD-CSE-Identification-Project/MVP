@@ -14,8 +14,13 @@ const routes: Routes = [
     path: 'choose-answers',
     loadChildren: './choose-answers/choose-answers.module#ChooseAnswersModule'
   },
-  {path: 'choose-grouping',
+  {
+    path: 'choose-grouping',
     loadChildren: './choose-grouping/choose-grouping.module#ChooseGroupingModule'
+  },
+  {
+    path: 'process-data',
+    loadChildren: './process-data/process-data.module#ProcessDataModule'
   }
 ];
 
