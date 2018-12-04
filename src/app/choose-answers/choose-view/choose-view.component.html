@@ -19,13 +19,8 @@
         </div>
       </form>
       <button [disabled]="imagesFinished" (click)="nextImage()"> Next</button>
-      <button *ngIf="imagesFinished" routerLink="../upload"> Finish </button>
+      <button *ngIf="imagesFinished" routerLink="../navigator/process"> Finish </button>
       <ng-container></ng-container>
-    </div>
-     <div style="float: right;">
-      <nav>
-        <button routerLink="/navigator/choose-ans">NEXT</button>
-      </nav>
     </div>
   </div>
 </div>
