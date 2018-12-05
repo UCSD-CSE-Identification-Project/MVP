@@ -18,10 +18,12 @@ export class ChooseGroupsComponent implements OnInit {
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
+  alreadySeenImages;
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.alreadySeenImages = new Set();
   }
 
   ngOnInit() {
@@ -32,33 +34,46 @@ export class ChooseGroupsComponent implements OnInit {
 
   onChange(option: string, isChecked: boolean, box: number) {
     if ( isChecked && this.mappedAnswers[box][option][1] === false ) {
+      this.makeRestFalse(box, option);
       this.mappedAnswers[box][option][1] = true;
-    } else if (!isChecked && this.mappedAnswers[box][option][1] === true ) {
-      this.mappedAnswers[box][option][1] = false;
     }
 
   }
 
-  checked(option: string, box:number){
+  makeRestFalse(box: number, option: string) {
+    Object.values(this.mappedAnswers[box]).forEach(function (value) {
+      if ( value[2] !== option) {
+        value[1] = false;
+      }
+    });
+  }
+  checked(option: string, box:number) {
     return this.mappedAnswers[box][option][1];
   }
   nextImage() {
     var lastImage;
-  
+    var lastThreeAns = [];
+
     for (let i = 0; i < 3; i++){
       const emailFormArray = <FormArray>this.myForm.get('matches') as FormArray;
       const curAnswers = [];
-    
+
       Object.values(this.mappedAnswers[i]).forEach(function (value) {
         if ( value[1] === true) {
           curAnswers.push(value[2]);
           lastImage = value[2];
           value[1] = false;
+          lastThreeAns.push(value[2]);
         }
       });
 
-      //if (emailFormArray.get(this.imageNames))
-      emailFormArray.push(new FormControl([this.imageNames[this.imageIndex+i], curAnswers]));
+      // if (emailFormArray.get(this.imageNames))
+      let curImage = this.imageNames[this.imageIndex + i ];
+      if (!this.alreadySeenImages.has(curImage)) {
+        console.log(this.alreadySeenImages);
+        this.alreadySeenImages.add(curImage);
+        emailFormArray.push(new FormControl([this.imageNames[this.imageIndex+i], curAnswers]));
+      }
     }
 
     if ((this.imageIndex+2) >= this.imageNames.length - 1) {
@@ -66,19 +81,39 @@ export class ChooseGroupsComponent implements OnInit {
       return;
     }
 
-    // We need to change this line to incorporate different scenarios 
+    // We need to change this line to incorporate different scenarios
     if (lastImage === 'Individual') {
+      // just the last answer
       this.imageIndex += 2;
+      this.setCorrectValue(2, lastThreeAns);
+      lastThreeAns = [];
+
     } else if (lastImage === 'Group'){
+      // the last two
       this.imageIndex += 1;
+      this.setCorrectValue(1, lastThreeAns);
+      lastThreeAns = [];
     } else{
+      // all new
       this.imageIndex += 3;
+      lastThreeAns = [];
     }
-    
-    
+
+
 
   }
+  setCorrectValue( index: number, lastThreeAns){
+    if (index === 1) {
+      // go to box 1 and set it to box 2
+      this.mappedAnswers[0][lastThreeAns[1]][1] = true;
+      // go to box 2 and set it to box3
+      this.mappedAnswers[1][lastThreeAns[2]][1] = true;
+    } else if (index === 2) {
+      // go to box 1 and set it to box3
+      this.mappedAnswers[0][lastThreeAns[2]][1] = true;
 
+    }
+  }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
