@@ -27,9 +27,11 @@ export class ChooseViewComponent implements OnInit {
   }
 
   onChange(option: string, isChecked: boolean) {
+    alert(isChecked);
+    alert(this.mappedAnswers[option][1]);
     if ( isChecked && this.mappedAnswers[option][1] === false ) {
       this.mappedAnswers[option][1] = true;
-    } else if (!isChecked && this.mappedAnswers[option][1] !== true ) {
+    } else if (!isChecked && this.mappedAnswers[option][1] === true ) {
       this.mappedAnswers[option][1] = false;
     }
 
