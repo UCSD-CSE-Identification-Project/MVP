@@ -32,21 +32,21 @@ export class UploadComponent implements OnInit {
   fileNames: String[] = [];
   path: string = '';
 
-  constructor(private http: HttpClient, 
-              private uploadService: UploadService, 
+  constructor(private http: HttpClient,
+              private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore) { }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
   }
-  
+
   get getData(): String[] {
     return this.uploadService.fileNames;
   }
   set setData(value: String[]) {
     this.uploadService.fileNames = value;
-  } 
+  }
 
   ngOnInit() {
   }
@@ -72,14 +72,14 @@ export class UploadComponent implements OnInit {
       for (let j = 0; j < this.files[i].length; j++) {
         this.fileNames.push(this.files[i][j].name);
         this.task = this.storage.upload('images/'+ this.files[i][j].name, this.files[i][j]);
-        
+
         // Progress monitoring
         this.progress = this.task.percentageChanges();
         this.snapshot = this.task.snapshotChanges();
 
         // URL
         //this.downloadURL = this.task.downloadURL();
-        
+
 
         // MAKE SURE LAST MINUTE
 
@@ -108,15 +108,16 @@ export class UploadComponent implements OnInit {
 
         this.db.collection('terms').doc('test_FA2018').set(data2);
         this.db.collection('images').doc('test_img1').set(data3);
-        
+
       }
     }
     firebase.storage().ref().child('20130721_141004.jpg').getDownloadURL().then(function (url) {
-      this.path = url;
+      // this.path = url;
+      // this.setPath(url);
+      document.getElementById('one').setAttribute('src', url);
     });
 
     this.setData = this.fileNames;
-
   }
 
   // Toggle CSS for upload task

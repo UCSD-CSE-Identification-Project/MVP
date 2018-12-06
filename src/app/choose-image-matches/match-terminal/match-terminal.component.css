@@ -1,0 +1,21 @@
+.pad{
+  padding: 10px;
+}
+
+.over{
+  overflow-y: scroll;
+  position: absolute;
+  height: 100%;
+}
+
+.wid{
+  width: 650px;
+  height:50px;
+}
+
+.col{
+  background-color: #039be5;
+  height:50px;
+  width: 100px;
+  margin: 8px;
+}

@@ -7,7 +7,7 @@
 <div class="container">
   <h2> Classify Questions</h2>
   <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-4" *ngIf="imageIndex<imageNames.length">
       <h2> Question {{imageIndex+1}}</h2>
       <img [src]="imageNames[imageIndex]" width="300px"/>
       <form [formGroup]="myForm">
@@ -17,7 +17,7 @@
       </form>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-4" *ngIf="imageIndex+2<imageNames.length-1">
       <h2> Question {{imageIndex+2}}</h2>
       <img [src]="imageNames[imageIndex+1]" width="300px"/>
       <form [formGroup]="myForm">
@@ -27,7 +27,7 @@
       </form>
     </div>
 
-    <div class="col-lg-4">
+    <div class="col-lg-4" *ngIf="imageIndex+3<imageNames.length-1">
       <h2> Question {{imageIndex+3}}</h2>
       <img [src]="imageNames[imageIndex+2]" width="300px"/>
       <form [formGroup]="myForm">

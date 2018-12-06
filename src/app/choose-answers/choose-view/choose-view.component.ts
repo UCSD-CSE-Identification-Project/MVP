@@ -27,8 +27,6 @@ export class ChooseViewComponent implements OnInit {
   }
 
   onChange(option: string, isChecked: boolean) {
-    alert(isChecked);
-    alert(this.mappedAnswers[option][1]);
     if ( isChecked && this.mappedAnswers[option][1] === false ) {
       this.mappedAnswers[option][1] = true;
     } else if (!isChecked && this.mappedAnswers[option][1] === true ) {
@@ -41,10 +39,7 @@ export class ChooseViewComponent implements OnInit {
     return this.mappedAnswers[option][1];
   }
   nextImage() {
-    if (this.imageIndex >= this.imageNames.length - 1) {
-      this.imagesFinished = true;
-      return;
-    }
+    //if(this.imageIndex > this,imageNames.len)
     const emailFormArray = <FormArray>this.myForm.get('matches') as FormArray;
     const curAnswers = [];
 
@@ -56,7 +51,11 @@ export class ChooseViewComponent implements OnInit {
     });
     emailFormArray.push(new FormControl([this.imageNames[this.imageIndex], curAnswers]));
     this.imageIndex += 1;
-
+    if (this.imageIndex > this.imageNames.length-1 ) {
+      this.imagesFinished = true;
+      this.imageIndex-=1;
+      return;
+    }
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
