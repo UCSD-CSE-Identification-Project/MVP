@@ -8,113 +8,100 @@ import {forEach} from '@angular/router/src/utils/collection';
   styleUrls: ['./choose-groups.component.css']
 })
 export class ChooseGroupsComponent implements OnInit {
-  boxValues1 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  boxValues2 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  boxValues3 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  myForm: FormGroup;
-  mappedAnswers =  [{Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']},
-                    {Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']},
-                    {Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']}];
+  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
-  alreadySeenImages;
+
+  // new code
+  allGroupedAnswers: FormArray;
+  boxOne: FormGroup;
+  boxTwo: FormGroup;
+  boxThree: FormGroup;
+
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
-    this.alreadySeenImages = new Set();
   }
 
   ngOnInit() {
-    this.myForm = this.fb.group({
-      matches: this.fb.array([]),
+
+    this.boxOne = this.fb.group({
+     option: [''],
     });
-  }
 
-  onChange(option: string, isChecked: boolean, box: number) {
-    if ( isChecked && this.mappedAnswers[box][option][1] === false ) {
-      this.makeRestFalse(box, option);
-      this.mappedAnswers[box][option][1] = true;
-    }
-
-  }
-
-  makeRestFalse(box: number, option: string) {
-    Object.values(this.mappedAnswers[box]).forEach(function (value) {
-      if ( value[2] !== option) {
-        value[1] = false;
-      }
+    this.boxTwo = this.fb.group({
+     option: [''],
     });
+
+    this.boxThree = this.fb.group({
+     option: [''],
+    });
+
+    this.allGroupedAnswers = this.fb.array([]);
+
   }
-  checked(option: string, box:number) {
-    return this.mappedAnswers[box][option][1];
+
+  displayValue(){
+
+    console.log(this.boxOne);
+    console.log(this.boxTwo);
+    console.log(this.boxThree);
   }
+
   nextImage() {
-    var lastImage;
-    var lastThreeAns = [];
+    // different scenarios
+    const boxOneValue = this.boxOne.controls.option.value;
+    const boxTwoValue = this.boxTwo.controls.option.value;
+    const boxThreeValue = this.boxThree.controls.option.value;
+    if( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
 
-    for (let i = 0; i < 3; i++){
-      const emailFormArray = <FormArray>this.myForm.get('matches') as FormArray;
-      const curAnswers = [];
-
-      Object.values(this.mappedAnswers[i]).forEach(function (value) {
-        if ( value[1] === true) {
-          curAnswers.push(value[2]);
-          lastImage = value[2];
-          value[1] = false;
-          lastThreeAns.push(value[2]);
-        }
-      });
-
-      // if (emailFormArray.get(this.imageNames))
-      let curImage = this.imageNames[this.imageIndex + i ];
-      if (!this.alreadySeenImages.has(curImage)) {
-        console.log(this.alreadySeenImages);
-        this.alreadySeenImages.add(curImage);
-        emailFormArray.push(new FormControl([this.imageNames[this.imageIndex+i], curAnswers]));
-      }
-    }
-
-    if ((this.imageIndex+2) >= this.imageNames.length - 1) {
-      this.imagesFinished = true;
-      return;
-    }
-
-    // We need to change this line to incorporate different scenarios
-    if (lastImage === 'Individual') {
-      // just the last answer
-      this.imageIndex += 2;
-      this.setCorrectValue(2, lastThreeAns);
-      lastThreeAns = [];
-
-    } else if (lastImage === 'Group'){
-      // the last two
       this.imageIndex += 1;
-      this.setCorrectValue(1, lastThreeAns);
-      lastThreeAns = [];
-    } else{
-      // all new
+
+      this.allGroupedAnswers.push(this.boxOne);
+
+      this.boxOne = this.boxTwo;
+      this.boxTwo = this.boxThree;
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
+    }
+    else if( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual'){
+      this.imageIndex += 2;
+
+      this.allGroupedAnswers.push(this.boxOne);
+      this.allGroupedAnswers.push(this.boxTwo);
+
+      this.boxOne = this.boxThree;
+      this.boxTwo = this.fb.group({
+        option: [''],
+      });
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
+    }
+    else{
       this.imageIndex += 3;
-      lastThreeAns = [];
+
+      this.allGroupedAnswers.push(this.boxOne);
+      this.allGroupedAnswers.push(this.boxTwo);
+      this.allGroupedAnswers.push(this.boxThree);
+
+      this.boxOne = this.fb.group({
+        option: [''],
+      });
+      this.boxTwo = this.fb.group({
+        option: [''],
+      });
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
     }
 
-
-
   }
-  setCorrectValue( index: number, lastThreeAns){
-    if (index === 1) {
-      // go to box 1 and set it to box 2
-      this.mappedAnswers[0][lastThreeAns[1]][1] = true;
-      // go to box 2 and set it to box3
-      this.mappedAnswers[1][lastThreeAns[2]][1] = true;
-    } else if (index === 2) {
-      // go to box 1 and set it to box3
-      this.mappedAnswers[0][lastThreeAns[2]][1] = true;
 
-    }
-  }
-  getImageNames() {
+  getImageNames(){
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
             'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',

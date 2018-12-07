@@ -13,11 +13,12 @@
     </div>
     <div class="col-lg-6">
       <h4>Correct Answer</h4>
-      <form [formGroup]="myForm">
+      <form [formGroup]="specificAnswers">
         <div *ngFor="let data of boxValues">
-          <input type="checkbox" name="multipleChoice" [checked]="checked(data.opt)"  (change)="onChange(data.opt, $event.target.checked)"> {{data.opt[0]}}<br>
+          <input type="checkbox" name="multipleChoice" formControlName="{{data.opt[0]}}"> {{data.opt}}<br>
         </div>
       </form>
+      <button (click)="showVal()"> SHOW VALUES</button>
       <button [disabled]="imagesFinished" (click)="nextImage()"> Next</button>
       <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
       <ng-container></ng-container>
@@ -25,4 +26,4 @@
   </div>
 </div>
 
-<pre>Form values: {{myForm.value | json}}</pre>
+<pre>Form values: {{allAnswers.value | json}}</pre>
