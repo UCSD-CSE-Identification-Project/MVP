@@ -87,44 +87,46 @@ export class UploadComponent implements OnInit {
         });
 
         // MAKE SURE LAST MINUTE
+        // TODO: HAVE ALL OF THESE HERE AND THEN SEE IF WE JUST WANT TO PUSH AND UPDATE LATER
+        // OR IF WE WANT TO HAVE ALL FIELDS PUSHED WHEN WE FIRST PUSH
 
-        let data1 = {
-          class_term: ['CSE100FA18'],
-          name: 'test',
-          email: 'test@test'
+
+        let imageObj = {
+          image_name_or_actual_image: '',
+          correct_answers: [],
+          grouping: '',
+          matches: '',
+          // URL: this.path, // TODO DO WE WANT THIS HERE
         };
 
-        //Term
-        let data2 = {
-          ind_images: ['image1.jpeg'],
-          group_images: ['image2.jpeg'],
-          iso_images: ['image3.jpeg'],
-          csv: ['csv1.csv']
-        };
 
-        let data3 = {
-          image_name_or_actual_image: 'name1',
-          correct_answers: ['a', 'b'],
-          grouping: 'iso_example',
-          matches: 'test.img',
-          URL: this.path,
-        };
-
-        this.db.collection('users').doc('test_user1').set(data1);
-
-        this.db.collection('terms').doc('test_FA2018').set(data2);
-        this.db.collection('images').doc('test_img1').set(data3);
+        this.db.collection('images').doc(this.files[i][j].name).set(imageObj);
 
       }
     }
+    this.fileNames.push('20130721_141004.jpg');
+    let userObj = {
+      class_term: [],
+      name: '',
+      // username: '', DO WE WANT USER NAME ALSO
+      email: ''
+    };
 
+    //Term
+    let termObj = {
+      all_images: this.fileNames,
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    };
+
+    this.db.collection('users').doc('ravi_sheth').set(userObj);
+
+    this.db.collection('terms').doc('test_WI2018').set(termObj);
 
     this.setData = this.fileNames;
-
-  }
-
-  // Toggle CSS for upload task
-  isActive() {
 
   }
 

@@ -14,7 +14,7 @@ export class ChooseViewComponent implements OnInit {
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
-
+  imagePath; // image path of picture you want to choose
   // start of new code
   allAnswers: FormArray;
   specificAnswers: FormGroup;
@@ -22,11 +22,11 @@ export class ChooseViewComponent implements OnInit {
     this.imageIndex = 0;
     this.imagesFinished = false;
     this.imageNames = [];
-    console.log(this.imageNames);
+    this.imagePath = '';
   }
 
-  async ngOnInit() {
-    console.log(this.populateImageNames());
+  ngOnInit() {
+    this.populateImageNames();
     this.allAnswers = this.fb.array([]);
     this.specificAnswers = this.fb.group({
       A: [false],
@@ -37,7 +37,6 @@ export class ChooseViewComponent implements OnInit {
     });
   }
   nextImage() {
-
     this.allAnswers.push(this.specificAnswers);
     this.specificAnswers = this.fb.group({
       A: [false],
@@ -52,30 +51,29 @@ export class ChooseViewComponent implements OnInit {
       this.imageIndex -= 1;
       return;
     }
-
+    this.setImagePath(this.imageNames[this.imageIndex]);
+    this.addMCAnswerToImage(this.imageNames[this.imageIndex]);
   }
   async populateImageNames() {
     var self = this;
-    await this.s.getImageNames().then( (data) => {
+    await this.s.getImageNamesList().then( (data) => {
       // console.log("www."+data[self.imageIndex]);
-      self.imageNames = data.URL;
-      alert(self.imageNames);
+      self.imageNames = data.all_images;
       self.ref.detectChanges();
+      self.setImagePath(self.imageNames[self.imageIndex]);
     });
-    alert(this.imageNames);
-    // return await this.s.getImageNames();
-    /*
-    this.s.getImageNames().then(function (this, data) {
-      this.imageNames = data;
-    });
-    */
-    // console.log(images);
-    /*return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
-            'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
-            'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
-            'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];*/
   }
 
+  async setImagePath(name: string){
+    var self = this;
+    await this.s.getImageURL(name).then((url)=>{
+      self.imagePath = url;
+    });
+  }
+
+  addMCAnswerToImage(name: string,){
+    this.s.addMCAnswerToImage(name, this.imageNames[this.imageIndex]);
+  }
   showVal(){
     console.log(this.specificAnswers.value);
   }

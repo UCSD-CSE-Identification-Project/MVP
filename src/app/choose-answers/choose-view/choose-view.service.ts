@@ -5,23 +5,25 @@ import {UploadService} from '../../upload-data/upload.service';
 import {AngularFirestore, AngularFirestoreDocument} from '@angular/fire/firestore';
 import {DataSnapshot} from '@angular/fire/database-deprecated/interfaces';
 import {Observable} from 'rxjs';
+import * as firebase from 'firebase';
+import {FormBuilder, FormGroup} from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ChooseViewService {
+  store;
 
-  public items: Observable<any[]>;
   constructor(private http: HttpClient,
               private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore) {
-    this.items = db.collection('/terms').valueChanges();
+    this.store =  firebase.storage();
 
   }
 
-  async getImageNames(){
-    var docRef = this.db.collection("images").doc("test_img1").ref;
+  async getImageNamesList(){
+    var docRef = this.db.collection('terms').doc('test_WI2018').ref;
 
     return await docRef.get().then(async function(doc) {
       if (doc.exists) {
@@ -35,5 +37,17 @@ export class ChooseViewService {
       console.log("Error getting document:", error);
     });
 
+  }
+
+  async getImageURL( imageName: string ){
+    return await this.store.ref("/images").child(imageName).getDownloadURL().then(async function(url){
+      return await url;
+    });
+  }
+
+  addMCAnswerToImage( imageName: string, answers: FormGroup){
+    this.db.collection('images').doc(imageName).update({
+      correct_answers: answers,
+    });
   }
 }

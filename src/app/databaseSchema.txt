@@ -3,7 +3,7 @@ Term{
   individualImages: list of names
   groupImages:
   IsomorphicImages:
-  downloadURLList:
+  downloadURLList: // do we want this here or just an async function call later
   classData: list of csv file names
   results: name of csv results file
 }
@@ -21,7 +21,7 @@ Image{
   match: string
   ocrText: string
   imageHash: string
-  downloadURL: ??
+  downloadURL: ?? // DO WE WANT THIS HERE AS WELL
 }
 
 // will be specific to the user
