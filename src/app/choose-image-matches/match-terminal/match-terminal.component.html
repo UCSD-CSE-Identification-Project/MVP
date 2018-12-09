@@ -1,23 +1,30 @@
-<h3>Uniform size</h3>
-<cdk-virtual-scroll-viewport class="list-container list-group" [itemSize]="50">
-  <div *cdkVirtualFor="let item of items " class="list-group-item" [style.height.px]="500">
-   <p>{{item}}</p>
-  </div>
-</cdk-virtual-scroll-viewport>
 <div class="col-sm-6">
   <h3>Search Image: Term 1</h3>
   <!-- Search form -->
 
   <img src="https://i.imgur.com/YRuVl1w.jpg"  width="400px"> <br />
   <br />
-  <button mat-flat-button type="submit" (click)="clicked=clicked+1" class="col"> Next</button>
-  <button mat-flat-button type="submit" *ngIf="clicked > 0" class="col"> Finished </button>
+  <button type="submit" (click)="clicked=clicked+1" class="col"> Next</button>
+  <button type="submit" *ngIf="clicked > 0" class="col"> Finished </button> <br />
   <br />
+  <button mat-flat-button color="primary"  [matMenuTriggerFor]="menu" class="wid">Strict Matches</button><br/>
+  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu1" class="wid">Tier 1 Matches</button><br />
+  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu2" class = "wid"> Tier 2 Matches</button>
+</div>
 
-  <br />
-  <button mat-flat-button color="primary" class="selfDropdown"  (click)="this.displayImageRight = true;" [matMenuTriggerFor]="menu" class="wid">Strict Matches</button>
+<div class="col-sm-6">
+  <h3>Display: Term 2 Matches</h3>
   <mat-menu #menu="matMenu" class="dropdownWidth">
-    <button  mat-menu-item *ngFor="let hero of strictmatches$">
+    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400"
+                                 class="example-viewport">
+      <div *cdkVirtualFor="let item of items" class="example-item">{{item}}</div>
+    </cdk-virtual-scroll-viewport>
+  </mat-menu>
+</div>
+
+
+<!--
+<button  mat-menu-item *ngFor="let hero of strictmatches$">
       <div class="notification_row">
         <a (click)="matchFound(hero);">
           <img [src]="this.imageFolderPath + hero" width="50%" height="50%" >
@@ -25,24 +32,6 @@
       </div>
 
     </button>
-  </mat-menu>
-  <br/>
-
-
-  <button mat-flat-button color="primary" class="selfDropdown" (click)="this.displayImageRight = true;" [matMenuTriggerFor]="menu1" class="wid">Tier 1 Matches</button>
-  <mat-menu #menu1="matMenu" class="dropdownWidth">
-    <button  mat-menu-item *ngFor="let hero of tier1matches$">
-      <div class="notification_row">
-        <a (click)="matchFound(hero);">
-          <img [src]="this.imageFolderPath + hero" width="50%" height="50%" >
-        </a>
-      </div>
-
-    </button>
-  </mat-menu>
-  <br />
-
-  <button mat-flat-button color="primary" class="selfDropdown" (click)="this.displayImageRight = true;" [matMenuTriggerFor]="menu2" class = "wid"> Tier 2 Matches</button>
   <mat-menu #menu2="matMenu" class="dropdownWidth">
     <button  mat-menu-item *ngFor="let hero of tier2matches$">
       <div class="notification_row">
@@ -53,33 +42,12 @@
 
     </button>
   </mat-menu>
-</div>
 
-<div class="col-sm-6">
-  <h3>Display: Term 2 Matches</h3>
-  <img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad"><br />
+
+
+<img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad"><br />
   <img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad"><br />
   <img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad"><br />
   <img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad"><br />
   <img src="https://i.imgur.com/YRuVl1w.jpg" *ngIf="this.displayImageRight" width="400px" class="pad">
-
-  <!--
-  <cdk-virtual-scroll-viewport itemSize="50" class="example-viewport">
-    <div *cdkVirtualFor="let m of items" class="example-item">{{m}}</div>
-  </cdk-virtual-scroll-viewport>
-  -->
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-->

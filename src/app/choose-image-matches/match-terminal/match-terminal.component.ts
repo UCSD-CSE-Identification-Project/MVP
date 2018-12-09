@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-match-terminal',
   templateUrl: './match-terminal.component.html',
-  styleUrls: ['./match-terminal.component.css']
+  styleUrls: ['./match-terminal.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MatchTerminalComponent implements OnInit {
 
@@ -16,7 +17,7 @@ export class MatchTerminalComponent implements OnInit {
   displayPictures: boolean;
   displayImageRight: boolean;
   clicked: number;
-  items = [1,2,3,4,5,6,7,8,8,9,10];
+  items = Array.from({length: 100000}).map((_, i) => `Item #${i}`);
 
   constructor() {
     this.displayPictures = false;
