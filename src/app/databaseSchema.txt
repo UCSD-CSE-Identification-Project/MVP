@@ -1,6 +1,9 @@
 // name the term in the form classTermYear ex. CSE100FA2018
 Term{
-  clickerImages: list of names
+  individualImages: list of names
+  groupImages:
+  IsomorphicImages:
+  downloadURLList:
   classData: list of csv file names
   results: name of csv results file
 }
@@ -18,6 +21,7 @@ Image{
   match: string
   ocrText: string
   imageHash: string
+  downloadURL: ??
 }
 
 // will be specific to the user

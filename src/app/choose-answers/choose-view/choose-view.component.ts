@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
 import {forEach} from '@angular/router/src/utils/collection';
+import {ChooseViewService} from './choose-view.service';
 
 @Component({
   selector: 'app-choose-view',
@@ -17,14 +18,15 @@ export class ChooseViewComponent implements OnInit {
   // start of new code
   allAnswers: FormArray;
   specificAnswers: FormGroup;
-
-  constructor(private fb: FormBuilder) {
-    this.imageNames = this.getImageNames();
+  constructor(private fb: FormBuilder, private s: ChooseViewService, private ref: ChangeDetectorRef) {
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.imageNames = [];
+    console.log(this.imageNames);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    console.log(this.populateImageNames());
     this.allAnswers = this.fb.array([]);
     this.specificAnswers = this.fb.group({
       A: [false],
@@ -52,11 +54,26 @@ export class ChooseViewComponent implements OnInit {
     }
 
   }
-  getImageNames() {
-    return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
+  async populateImageNames() {
+    var self = this;
+    await this.s.getImageNames().then( (data) => {
+      // console.log("www."+data[self.imageIndex]);
+      self.imageNames = data.URL;
+      alert(self.imageNames);
+      self.ref.detectChanges();
+    });
+    alert(this.imageNames);
+    // return await this.s.getImageNames();
+    /*
+    this.s.getImageNames().then(function (this, data) {
+      this.imageNames = data;
+    });
+    */
+    // console.log(images);
+    /*return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
             'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
-            'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
+            'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];*/
   }
 
   showVal(){
