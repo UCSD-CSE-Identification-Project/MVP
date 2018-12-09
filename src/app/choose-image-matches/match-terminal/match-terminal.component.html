@@ -1,7 +1,9 @@
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+<h3>Uniform size</h3>
+<cdk-virtual-scroll-viewport class="list-container list-group" [itemSize]="50">
+  <div *cdkVirtualFor="let item of items " class="list-group-item" [style.height.px]="500">
+   <p>{{item}}</p>
+  </div>
+</cdk-virtual-scroll-viewport>
 <div class="col-sm-6">
   <h3>Search Image: Term 1</h3>
   <!-- Search form -->

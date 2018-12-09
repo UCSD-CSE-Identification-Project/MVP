@@ -13,7 +13,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material';
-import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -32,7 +32,7 @@ import {ScrollDispatchModule} from '@angular/cdk/scrolling';
     ReactiveFormsModule,
     MatToolbarModule,
     MatListModule,
-    ScrollDispatchModule,
+    ScrollingModule
   ],
   providers: [AngularFireStorage],
   bootstrap: [AppComponent]

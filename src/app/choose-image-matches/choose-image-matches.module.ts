@@ -7,7 +7,8 @@ import {HttpModule} from '@angular/http';
 import {FormsModule} from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import {MatButtonModule, MatFormFieldModule, MatInputModule, MatListModule, MatMenuModule} from '@angular/material';
-import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+import { ScrollingModule } from '@angular/cdk/scrolling';
+
 
 @NgModule({
   declarations: [MatchTerminalComponent],
@@ -20,6 +21,7 @@ import {ScrollDispatchModule} from '@angular/cdk/scrolling';
     MatInputModule,
     MatButtonModule,
     MatMenuModule,
+    ScrollingModule
     // MatSelectModulee
   ]
 })
