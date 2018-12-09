@@ -79,11 +79,8 @@ export class UploadComponent implements OnInit {
         this.snapshot = this.task.snapshotChanges();
 
         // URL
-        //this.downloadURL = this.task.downloadURL();
         await firebase.storage().ref().child('20130721_141004.jpg').getDownloadURL().then(function (url) {
           self.path = url;
-          alert(self.path);
-          // do what we did on the getDownloadURL thing
         });
 
         // MAKE SURE LAST MINUTE
