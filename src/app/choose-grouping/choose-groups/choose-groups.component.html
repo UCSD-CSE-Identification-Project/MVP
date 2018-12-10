@@ -14,7 +14,7 @@
       <img [src]="imageNames[imageIndex]" width="300px"/>
       <form [formGroup]="boxOne">
         <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}"> {{data.opt}}<br>
+          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null" (click)="updateChecked(1)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
@@ -26,7 +26,7 @@
       <img [src]="imageNames[imageIndex+1]" width="300px"/>
       <form [formGroup]="boxTwo">
         <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}"> {{data.opt}}<br>
+          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null" (click)="updateChecked(2)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
@@ -38,7 +38,7 @@
       <img [src]="imageNames[imageIndex+2]" width="300px"/>
       <form [formGroup]="boxThree">
         <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}"> {{data.opt}}<br>
+          <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(3)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
@@ -53,7 +53,7 @@
     <button (click)="displayValue()">Finish</button>
   </div>
   <div style="display:inline-block">
-    <button [disabled]="imagesFinished" (click)="nextImage()"> Next</button>
+    <button [disabled]="!allChecked() || imagesFinished" (click)="nextImage()"> Next</button>
   </div>
   &nbsp;
   <div style="display:inline-block">
