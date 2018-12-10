@@ -5,6 +5,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
+import { TreeNode } from '@angular/router/src/utils/tree';
 
 @Component({
   selector: 'app-upload',
@@ -26,11 +27,16 @@ export class UploadComponent implements OnInit {
   // Dropzone css toggling
   isHovering: boolean;
 
+  userName: string;
 
   files: File[][] = [[], [], [], [], [], []];
   percentage = 0;
-  fileNames: String[] = [];
+  fileNames: string[] = [];
   path: string = '';
+  prev_files: string[];
+  curr_files: string[];
+  imageIds: string[] = [];
+
 
   constructor(private http: HttpClient,
               private uploadService: UploadService,
@@ -49,6 +55,7 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userName = "Xingyu";
   }
 
   onFilesSelected(event, index) {
@@ -68,50 +75,9 @@ export class UploadComponent implements OnInit {
 
     const fd = new FormData();
 
-    // Upload task
-    for (let i = 0; i < this.files.length; i++) {
-      for (let j = 0; j < this.files[i].length; j++) {
-        this.fileNames.push(this.files[i][j].name);
-        this.task = this.storage.upload('images/'+ this.files[i][j].name, this.files[i][j]);
-
-        // Progress monitoring
-        this.progress = this.task.percentageChanges();
-        this.snapshot = this.task.snapshotChanges();
-
-        // URL
-        await firebase.storage().ref().child('20130721_141004.jpg').getDownloadURL().then(function (url) {
-          self.path = url;
-        });
-
-        // MAKE SURE LAST MINUTE
-        // TODO: HAVE ALL OF THESE HERE AND THEN SEE IF WE JUST WANT TO PUSH AND UPDATE LATER
-        // OR IF WE WANT TO HAVE ALL FIELDS PUSHED WHEN WE FIRST PUSH
-
-
-        let imageObj = {
-          image_name_or_actual_image: '',
-          correct_answers: [],
-          grouping: '',
-          matches: '',
-          // URL: this.path, // TODO DO WE WANT THIS HERE
-        };
-
-
-        this.db.collection('images').doc(this.files[i][j].name).set(imageObj);
-
-      }
-    }
-    this.fileNames.push('20130721_141004.jpg');
-    let userObj = {
-      class_term: [],
-      name: '',
-      // username: '', DO WE WANT USER NAME ALSO
-      email: ''
-    };
-
     //Term
-    let termObj = {
-      all_images: this.fileNames,
+    let prev_termObj = {
+      all_images: [],
       ind_images: [],
       group_images: [],
       iso_images: [],
@@ -119,9 +85,75 @@ export class UploadComponent implements OnInit {
       results: ''
     };
 
-    this.db.collection('users').doc('ravi_sheth').set(userObj);
+    let curr_termObj = {
+      all_images: [],
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    };
 
-    this.db.collection('terms').doc('test_WI2018').set(termObj);
+    let userObj = {
+      class_term: {},
+      name: this.userName,
+      // username: '', DO WE WANT USER NAME ALSO
+      email: ''
+    };
+
+    // Upload task
+    for (let i = 0; i < this.files.length; i++) {
+      for (let j = 0; j < this.files[i].length; j++) {
+        this.fileNames.push(this.files[i][j].name);
+        this.task = this.storage.upload(this.userName + '/' + this.files[i][j].name, this.files[i][j]);
+
+        // Progress monitoring
+        this.progress = this.task.percentageChanges();
+        this.snapshot = this.task.snapshotChanges();
+        console.log(this.files[i][j].name);
+
+        // URL
+        await firebase.storage().ref().child(this.userName + '/' +this.files[i][j].name).getDownloadURL().then(function (url) {
+          self.path = url;
+        });
+
+        // MAKE SURE LAST MINUTE
+        // TODO: HAVE ALL OF THESE HERE AND THEN SEE IF WE JUST WANT TO PUSH AND UPDATE LATER
+        // OR IF WE WANT TO HAVE ALL FIELDS PUSHED WHEN WE FIRST PUSH
+
+        console.log("File path is " + this.path);
+        let imageObj = {
+          correct_answers: [],
+          grouping: '',
+          matches: '',
+          downloadURL: this.path,
+          ocrText: '',
+          imageHash:''
+          // URL: this.path, // TODO DO WE WANT THIS HERE
+        };
+
+        await this.db.collection('images').add(imageObj).then(function(ref){
+          prev_termObj.all_images.push(ref.id);
+        });
+      }
+    }
+    //console.log("Before setting");
+    //console.log(this.imageIds);
+    //console.log(self.imageIds);
+    //prev_termObj.all_images = this.imageIds;
+    //console.log("After setting");
+
+    //this.fileNames.push('20130721_141004.jpg');
+    var termId;
+    await this.db.collection('terms').add(prev_termObj).then(function(ref){
+      termId = ref.id;
+    });
+
+    userObj.class_term["CSE100FALL2018"] = termId;
+    userObj.class_term["CSE101FALL2018"] = termId;
+
+
+    this.db.collection('users').doc(this.userName).set(userObj);
 
     this.setData = this.fileNames;
 
