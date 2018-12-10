@@ -19,11 +19,11 @@ const routes: Routes = [
     loadChildren: './process-data/process-data.module#ProcessDataModule'
   },
   {
-    path: '',
+    path: 'choose-image-matches',
     loadChildren: './choose-image-matches/choose-image-matches.module#ChooseImageMatchesModule'
   },
   {
-    path: 'choose-image-matches',
+    path: '',
     loadChildren: './upload-data/upload-data.module#UploadDataModule'
   }
 ];

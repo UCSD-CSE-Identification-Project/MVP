@@ -4,22 +4,25 @@
 
   <img src="https://i.imgur.com/YRuVl1w.jpg"  width="400px"> <br />
   <br />
-  <button type="submit" (click)="clicked=clicked+1" class="col"> Next</button>
-  <button type="submit" *ngIf="clicked > 0" class="col"> Finished </button> <br />
+  <button type="submit" [disabled]="imagesFinished" (click)="clicked=clicked+1" class="col"> Next</button>
+  <button type="submit" *ngIf="imagesFinished" class="col"> Finished </button> <br />
   <br />
-  <button mat-flat-button color="primary"  [matMenuTriggerFor]="menu" class="wid">Strict Matches</button><br/>
-  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu1" class="wid">Tier 1 Matches</button><br />
-  <button mat-flat-button color="primary" [matMenuTriggerFor]="menu2" class = "wid"> Tier 2 Matches</button>
+  <button mat-flat-button (click)="showMatchesFor(1)" color="primary" class="wid">Strict Matches</button><br/>
+  <button mat-flat-button (click)="showMatchesFor(2)" color="primary" class="wid">Tier 1 Matches</button><br />
+  <button mat-flat-button (click)="showMatchesFor(3)" color="primary" class = "wid"> Tier 2 Matches</button>
 </div>
 
-<div class="col-sm-6">
+<div class="col-sm-6 fill-height">
   <h3>Display: Term 2 Matches</h3>
-  <mat-menu #menu="matMenu" class="dropdownWidth">
-    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400"
-                                 class="example-viewport">
-      <div *cdkVirtualFor="let item of items" class="example-item">{{item}}</div>
+    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesHigh" class="example-viewport">
+      <div *cdkVirtualFor="let item of items" class="example-item">{{item}} a</div>
     </cdk-virtual-scroll-viewport>
-  </mat-menu>
+    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesMeduim" class="example-viewport" >
+      <div *cdkVirtualFor="let item of items" class="example-item">{{item}} b</div>
+    </cdk-virtual-scroll-viewport>
+    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesLow" class="example-viewport">
+      <div *cdkVirtualFor="let item of items" class="example-item">{{item}} c</div>
+    </cdk-virtual-scroll-viewport>
 </div>
 
 
