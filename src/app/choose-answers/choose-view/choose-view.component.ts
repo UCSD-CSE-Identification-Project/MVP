@@ -8,60 +8,68 @@ import {forEach} from '@angular/router/src/utils/collection';
   styleUrls: ['./choose-view.component.css']
 })
 export class ChooseViewComponent implements OnInit {
-  boxValues = [{opt: 'A'}, {opt: 'B'}, {opt: 'C'}, {opt: 'D'}, {opt: 'E'}];
-  myForm: FormGroup;
-  mappedAnswers = {A: [0, false, 'A'], B: [1, false, 'B'], C: [2, false, 'C'], D: [3, false, 'D'], E: [4, false, 'E']};
+  boxValues = [{opt: 'A'}, {opt: 'B'}, {opt: 'C'}, {opt: 'D'}, {opt: 'E'}, {opt: 'No_Right_Or_Wrong_Answer'}];
+  mappedAnswers; // keep until we figure out what format the image names will be given in in the array
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
+
+  // start of new code
+  allAnswers: FormArray;
+  specificAnswers: FormGroup;
+  numCheckedBoxes: number;
+
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.numCheckedBoxes = 0;
   }
 
   ngOnInit() {
-    this.myForm = this.fb.group({
-      matches: this.fb.array([]),
+    this.allAnswers = this.fb.array([]);
+    this.specificAnswers = this.fb.group({
+      A: [false],
+      B: [false],
+      C: [false],
+      D: [false],
+      E: [false],
+      No_Right_Or_Wrong_Answer: [false]
     });
-  }
-
-  onChange(option: string, isChecked: boolean) {
-    if ( isChecked && this.mappedAnswers[option][1] === false ) {
-      this.mappedAnswers[option][1] = true;
-    } else if (!isChecked && this.mappedAnswers[option][1] === true ) {
-      this.mappedAnswers[option][1] = false;
-    }
-
-  }
-
-  checked(option: string){
-    return this.mappedAnswers[option][1];
   }
   nextImage() {
-    //if(this.imageIndex > this,imageNames.len)
-    const emailFormArray = <FormArray>this.myForm.get('matches') as FormArray;
-    const curAnswers = [];
 
-    Object.values(this.mappedAnswers).forEach(function (value) {
-      if ( value[1] === true) {
-        curAnswers.push(value[2]);
-        value[1] = false;
-      }
+    this.allAnswers.push(this.specificAnswers);
+    this.specificAnswers = this.fb.group({
+      A: [false],
+      B: [false],
+      C: [false],
+      D: [false],
+      E: [false]
     });
-    emailFormArray.push(new FormControl([this.imageNames[this.imageIndex], curAnswers]));
     this.imageIndex += 1;
-    if (this.imageIndex > this.imageNames.length-1 ) {
+    if (this.imageIndex > this.imageNames.length - 1) {
       this.imagesFinished = true;
-      this.imageIndex-=1;
+      this.imageIndex -= 1;
       return;
     }
+
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
             'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
             'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
+  }
+  boxChecked(isChecked: boolean){
+    if(isChecked){
+      this.numCheckedBoxes++;
+    }else{
+      this.numCheckedBoxes--;
+    }
+  }
+  showVal(){
+    console.log(this.specificAnswers);
   }
 
 }

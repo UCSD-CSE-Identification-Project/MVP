@@ -1,0 +1,31 @@
+// name the term in the form classTermYear ex. CSE100FA2018
+Term{
+  clickerImages: list of names
+  individual:
+  group:
+  iso:
+  classData: list of csv file names
+  results: name of csv results file
+}
+
+// image name is just what the professor uploaded
+Image{
+  correctAnswers: {
+              A: true
+              B: false
+              C: false
+              D: false
+              E: false
+               }
+  grouping: string name of group //ex. individual group isomorphic ignore
+  match: string
+  ocrText: string
+  imageHash: string
+}
+
+// will be specific to the user
+User{
+  class_terms: list of classes/terms that user has taught
+  name:
+  email:
+}
