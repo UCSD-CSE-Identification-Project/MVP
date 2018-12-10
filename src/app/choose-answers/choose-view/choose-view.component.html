@@ -15,11 +15,11 @@
       <h4>Correct Answer</h4>
       <form [formGroup]="specificAnswers">
         <div *ngFor="let data of boxValues">
-          <input type="checkbox" name="multipleChoice" formControlName="{{data.opt[0]}}"> {{data.opt}}<br>
+          <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
         </div>
       </form>
       <button (click)="showVal()"> SHOW VALUES</button>
-      <button [disabled]="imagesFinished" (click)="nextImage()"> Next</button>
+      <button [disabled]="imagesFinished" [disabled]="numCheckedBoxes <= 0" (click)="nextImage()"> Next</button>
       <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
       <ng-container></ng-container>
     </div>

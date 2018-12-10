@@ -17,11 +17,13 @@ export class ChooseViewComponent implements OnInit {
   // start of new code
   allAnswers: FormArray;
   specificAnswers: FormGroup;
+  numCheckedBoxes: number;
 
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.numCheckedBoxes = 0;
   }
 
   ngOnInit() {
@@ -58,9 +60,15 @@ export class ChooseViewComponent implements OnInit {
             'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
             'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
   }
-
+  boxChecked(isChecked: boolean){
+    if(isChecked){
+      this.numCheckedBoxes++;
+    }else{
+      this.numCheckedBoxes--;
+    }
+  }
   showVal(){
-    console.log(this.specificAnswers.value);
+    console.log(this.specificAnswers);
   }
 
 }
