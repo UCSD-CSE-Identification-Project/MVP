@@ -48,14 +48,15 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
 
-  displayValue(){
-
-    console.log(this.boxOne);
-    console.log(this.boxTwo);
-    console.log(this.boxThree);
-  }
-
+  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   nextImage() {
+    console.log(this.imageIndex);
+    console.log(this.imageNames.length);
+    if((this.imageNames.length - this.imageIndex) <= 3 ){
+      this.imagesFinished = true;
+      alert("inside" + this.imageIndex + this.imageNames.length);
+      return;
+    }
     // different scenarios
     const boxOneValue = this.boxOne.controls.option.value;
     const boxTwoValue = this.boxTwo.controls.option.value;
@@ -78,7 +79,8 @@ export class ChooseGroupsComponent implements OnInit {
       this.boxThreeRadioClicked = false;
 
     }
-    else if( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual'){
+    else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
+             ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
       this.imageIndex += 2;
 
       this.allGroupedAnswers.push(this.boxOne);
@@ -125,6 +127,15 @@ export class ChooseGroupsComponent implements OnInit {
       this.boxThreeRadioClicked = false;
 
     }
+    /*
+    console.log(this.imageIndex);
+    console.log(this.imageNames.length);
+    if((this.imageNames.length - this.imageIndex) < 1 ){
+      this.imagesFinished = true;
+      alert("inside" + this.imageIndex + this.imageNames.length);
+      return;
+    }
+    */
 
   }
   updateChecked(boxNum: number){
@@ -140,8 +151,15 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
+  // checkes if all the images are checked or if the unchecked ones are hidden
   allChecked(){
-    return this.boxOneRadioClicked && this.boxTwoRadioClicked && this.boxThreeRadioClicked;
+    const boxTwoHidden = this.imageIndex+2 >= this.imageNames.length;
+    const boxThreeHidden = this.imageIndex+3 >= this.imageNames.length;
+
+    return this.boxOneRadioClicked &&
+          (this.boxTwoRadioClicked || boxTwoHidden) &&
+          (this.boxThreeRadioClicked || boxThreeHidden);
+
   }
   getImageNames(){
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',

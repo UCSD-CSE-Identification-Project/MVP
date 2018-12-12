@@ -8,7 +8,7 @@ import {forEach} from '@angular/router/src/utils/collection';
   styleUrls: ['./choose-view.component.css']
 })
 export class ChooseViewComponent implements OnInit {
-  boxValues = [{opt: 'A'}, {opt: 'B'}, {opt: 'C'}, {opt: 'D'}, {opt: 'E'}, {opt: 'No_Right_Or_Wrong_Answer'}];
+  boxValues = [{opt: 'A'}, {opt: 'B'}, {opt: 'C'}, {opt: 'D'}, {opt: 'E'}, {opt: 'None of the above'}];
   mappedAnswers; // keep until we figure out what format the image names will be given in in the array
   imageNames;
   imageIndex;
@@ -34,26 +34,24 @@ export class ChooseViewComponent implements OnInit {
       C: [false],
       D: [false],
       E: [false],
-      No_Right_Or_Wrong_Answer: [false]
+      N: [false]
     });
   }
   nextImage() {
-
+    if( (this.imageNames.length - this.imageIndex) <= 1 ){
+      this.imagesFinished = true;
+      return;
+    }
     this.allAnswers.push(this.specificAnswers);
     this.specificAnswers = this.fb.group({
       A: [false],
       B: [false],
       C: [false],
       D: [false],
-      E: [false]
+      E: [false],
+      N: [false],
     });
     this.imageIndex += 1;
-    if (this.imageIndex > this.imageNames.length - 1) {
-      this.imagesFinished = true;
-      this.imageIndex -= 1;
-      return;
-    }
-
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
