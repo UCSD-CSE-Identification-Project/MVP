@@ -5,6 +5,27 @@
 <div class="container">
   <div class="previous">
     <h2>Previous Term</h2>
+    <div style="display: inline-block;">Use a preexist term?</div>
+    <input type="checkbox" [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">
+    <div *ngIf="!usePreexistTerm">
+      Input term name: <input type="text">
+      <button>Done</button>
+    </div>
+    <div *ngIf="usePreexistTerm">
+      <h4 style="display: inline-block;">Select a term you want to use:</h4>
+      <form style="display: inline-block;">
+        <select name="weeks">
+          <option value="0"></option>
+          <option value="1">CSE100FA2018</option>
+          <option value="2">CSE101FA2018</option>
+          <option value="3">CSE105FA2018</option>
+          <option value="4">CSE110FA2018</option>
+          <option value="5">CSE120FA2018</option>
+        </select>
+      </form>
+    </div>
+
+
     <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 0)" multiple /></div>
     <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)"
         multiple /></div>
@@ -51,5 +72,5 @@
       {{ name }}
     </li>
   </ul>
-<img [src]='path'>
+  <img [src]='path'>
 </div>

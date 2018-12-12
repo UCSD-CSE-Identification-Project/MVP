@@ -36,6 +36,7 @@ export class UploadComponent implements OnInit {
   prev_files: string[];
   curr_files: string[];
   imageIds: string[] = [];
+  usePreexistTerm: boolean = false;
 
 
   constructor(private http: HttpClient,

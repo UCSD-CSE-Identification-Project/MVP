@@ -7,6 +7,10 @@ const routes: Routes = [
     loadChildren: './upload-data/upload-data.module#UploadDataModule'
   },
   {
+    path: 'auth',
+    loadChildren: './user-auth/user-auth.module#UserAuthModule'
+  },
+  {
     path: 'navigator',
     loadChildren: './navigation/navigation.module#NavigationModule'
   },
