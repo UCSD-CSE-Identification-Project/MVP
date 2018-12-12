@@ -21,6 +21,7 @@ Image{
   match: string
   ocrText: string
   imageHash: string
+  downloadURL: ?? // DO WE WANT THIS HERE AS WELL
 }
 
 // will be specific to the user

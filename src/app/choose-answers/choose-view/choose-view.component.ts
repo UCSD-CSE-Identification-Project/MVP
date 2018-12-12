@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl } from '@angular/forms';
-import {forEach} from '@angular/router/src/utils/collection';
+import { forEach } from '@angular/router/src/utils/collection';
 
 @Component({
   selector: 'app-choose-view',
@@ -55,18 +55,18 @@ export class ChooseViewComponent implements OnInit {
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
-            'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
-            'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
-            'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
+      'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
+      'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
+      'https://s.hswstatic.com/gif/ragdoll-cat.jpg'];
   }
-  boxChecked(isChecked: boolean){
-    if(isChecked){
+  boxChecked(isChecked: boolean) {
+    if (isChecked) {
       this.numCheckedBoxes++;
-    }else{
+    } else {
       this.numCheckedBoxes--;
     }
   }
-  showVal(){
+  showVal() {
     console.log(this.specificAnswers);
   }
 

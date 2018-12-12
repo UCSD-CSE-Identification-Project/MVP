@@ -127,16 +127,6 @@ export class ChooseGroupsComponent implements OnInit {
       this.boxThreeRadioClicked = false;
 
     }
-    /*
-    console.log(this.imageIndex);
-    console.log(this.imageNames.length);
-    if((this.imageNames.length - this.imageIndex) < 1 ){
-      this.imagesFinished = true;
-      alert("inside" + this.imageIndex + this.imageNames.length);
-      return;
-    }
-    */
-
   }
   updateChecked(boxNum: number){
     // if(this.boxOne.controls.option)

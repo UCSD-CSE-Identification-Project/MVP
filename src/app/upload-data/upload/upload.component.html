@@ -5,17 +5,44 @@
 <div class="container">
   <div class="previous">
     <h2>Previous Term</h2>
-    <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 0)" multiple /></div>
-    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)"
-        multiple /></div>
-    <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 2)" multiple /></div>
+    <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexist term?</mat-checkbox>
+    <div *ngIf="!usePreexistTerm">
+      Input term name: <input [(ngModel)]="prevTerm" type="text" placeholder="E.g. CSE100FA2018">
+    </div>
+    <div *ngIf="usePreexistTerm">
+      <h4 style="display: inline-block;">Select a term you want to use:</h4>
+      <form style="display: inline-block;">
+        <select name="weeks" [(ngModel)]="prevTerm">
+          <option value="CSE100FA2018">CSE100FA2018</option>
+          <option value="CSE101FA2018">CSE101FA2018</option>
+          <option value="CSE105FA2018">CSE105FA2018</option>
+          <option value="CSE110FA2018">CSE110FA2018</option>
+          <option value="CSE120FA2018">CSE120FA2018</option>
+        </select>
+      </form>
+    </div>
+
+
+    <div *ngIf="prevTerm != '' && !usePreexistTerm">
+      <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 0)" multiple /></div>
+      <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 1)"
+          multiple /></div>
+      <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 2)" multiple /></div>
+    </div>
   </div>
+
   <div class="current">
     <h2>Current Term</h2>
-    <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 3)" multiple /></div>
-    <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 4)"
-        multiple /></div>
-    <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 5)" multiple /></div>
+    <div>
+      Input term name: <input [(ngModel)]="currTerm" type="text" placeholder="E.g. CSE100FA2018">
+    </div>
+
+    <div *ngIf="currTerm != ''">
+      <div class="chooseFile">Clicker images: <input type="file" (change)="onFilesSelected($event, 3)" multiple /></div>
+      <div class="chooseFile">Student clicker responses: <input type="file" (change)="onFilesSelected($event, 4)"
+          multiple /></div>
+      <div class="chooseFile">Final scores: <input type="file" (change)="onFilesSelected($event, 5)" multiple /></div>
+    </div>
   </div>
   <button type="button" (click)="onUpload()">Submit</button>
   <h2>Percentage is {{percentage}}%</h2>
@@ -51,5 +78,5 @@
       {{ name }}
     </li>
   </ul>
-<img id="one" src="">
+  <img id="one" src="">
 </div>

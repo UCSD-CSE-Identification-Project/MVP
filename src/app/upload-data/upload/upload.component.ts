@@ -5,6 +5,8 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
+import { TreeNode } from '@angular/router/src/utils/tree';
+import { AuthService } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-upload',
@@ -26,16 +28,26 @@ export class UploadComponent implements OnInit {
   // Dropzone css toggling
   isHovering: boolean;
 
+  userName: string;
 
   files: File[][] = [[], [], [], [], [], []];
   percentage = 0;
-  fileNames: String[] = [];
+  fileNames: string[] = [];
   path: string = '';
+  prev_files: string[];
+  curr_files: string[];
+  imageIds: string[] = [];
+  usePreexistTerm: boolean = false;
+  prevTermSelected: boolean = false;
+  currTermSelected: boolean = false;
+  prevTerm: string = '';
+  currTerm: string = '';
 
   constructor(private http: HttpClient,
               private uploadService: UploadService,
               private storage: AngularFireStorage,
-              private db: AngularFirestore) { }
+              private db: AngularFirestore,
+              private authService: AuthService) { }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
@@ -49,6 +61,8 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.userName = "Xingyu";
+    console.log(this.authService.getUser());
   }
 
   onFilesSelected(event, index) {
@@ -56,7 +70,8 @@ export class UploadComponent implements OnInit {
     this.files[index] = fileList;
   }
 
-  onUpload() {
+  async onUpload() {
+    var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules
 
@@ -67,61 +82,80 @@ export class UploadComponent implements OnInit {
 
     const fd = new FormData();
 
+    //Term
+    let prev_termObj = {
+      all_images: [],
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    };
+
+    let curr_termObj = {
+      all_images: [],
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    };
+
+    let userObj = {
+      class_term: {},
+      name: this.userName,
+      // username: '', DO WE WANT USER NAME ALSO
+      email: ''
+    };
+
     // Upload task
     for (let i = 0; i < this.files.length; i++) {
       for (let j = 0; j < this.files[i].length; j++) {
         this.fileNames.push(this.files[i][j].name);
-        this.task = this.storage.upload('images/'+ this.files[i][j].name, this.files[i][j]);
+        this.task = this.storage.upload(this.userName + '/' + this.files[i][j].name, this.files[i][j]);
+
 
         // Progress monitoring
         this.progress = this.task.percentageChanges();
         this.snapshot = this.task.snapshotChanges();
+        console.log(this.files[i][j].name);
 
         // URL
-        //this.downloadURL = this.task.downloadURL();
-
+        await firebase.storage().ref().child(this.userName + '/' +this.files[i][j].name).getDownloadURL().then(function (url) {
+          self.path = url;
+        });
 
         // MAKE SURE LAST MINUTE
+        // TODO: HAVE ALL OF THESE HERE AND THEN SEE IF WE JUST WANT TO PUSH AND UPDATE LATER
+        // OR IF WE WANT TO HAVE ALL FIELDS PUSHED WHEN WE FIRST PUSH
 
-        let data1 = {
-          class_term: ['CSE100FA18'],
-          name: 'test',
-          email: 'test@test'
+        console.log("File path is " + this.path);
+        let imageObj = {
+          correct_answers: [],
+          grouping: '',
+          matches: '',
+          downloadURL: this.path,
+          ocrText: '',
+          imageHash:''
+          // URL: this.path, // TODO DO WE WANT THIS HERE
         };
 
-        //Term
-        let data2 = {
-          ind_images: ['image1.jpeg'],
-          group_images: ['image2.jpeg'],
-          iso_images: ['image3.jpeg'],
-          csv: ['csv1.csv']
-        };
-
-        let data3 = {
-          image_name_or_actual_image: 'name1',
-          correct_answers: ['a', 'b'],
-          grouping: 'iso_example',
-          matches: 'test.img'
-        };
-
-        this.db.collection('users').doc('test_user1').set(data1);
-
-        this.db.collection('terms').doc('test_FA2018').set(data2);
-        this.db.collection('images').doc('test_img1').set(data3);
-
+        await this.db.collection('images').add(imageObj).then(function(ref){
+          prev_termObj.all_images.push(ref.id);
+        });
       }
     }
-    firebase.storage().ref().child('20130721_141004.jpg').getDownloadURL().then(function (url) {
-      // this.path = url;
-      // this.setPath(url);
-      document.getElementById('one').setAttribute('src', url);
+    var termId;
+    await this.db.collection('terms').add(prev_termObj).then(function(ref){
+      termId = ref.id;
     });
 
-    this.setData = this.fileNames;
-  }
+    userObj.class_term["CSE100FALL2018"] = termId;
+    userObj.class_term["CSE101FALL2018"] = termId;
 
-  // Toggle CSS for upload task
-  isActive() {
+    this.db.collection('users').doc(this.userName).set(userObj);
+
+    this.setData = this.fileNames;
 
   }
 

@@ -3,6 +3,14 @@ import { Routes, RouterModule } from '@angular/router';
 
 const routes: Routes = [
   {
+    path: '',
+    loadChildren: './user-auth/user-auth.module#UserAuthModule'
+  },
+  {
+    path: 'upload',
+    loadChildren: './upload-data/upload-data.module#UploadDataModule'
+  },
+  {
     path: 'navigator',
     loadChildren: './navigation/navigation.module#NavigationModule'
   },
@@ -21,10 +29,6 @@ const routes: Routes = [
   {
     path: 'choose-image-matches',
     loadChildren: './choose-image-matches/choose-image-matches.module#ChooseImageMatchesModule'
-  },
-  {
-    path: '',
-    loadChildren: './upload-data/upload-data.module#UploadDataModule'
   }
 ];
 

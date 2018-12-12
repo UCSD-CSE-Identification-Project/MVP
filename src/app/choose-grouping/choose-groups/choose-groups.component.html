@@ -3,27 +3,29 @@
   <div class="row">
     <div class="col-lg-4" *ngIf="imageIndex<imageNames.length">
       <h2> Question {{imageIndex+1}}</h2>
-      <img [src]="imageNames[imageIndex]" width="300px"/>
+      <img [src]="imageNames[imageIndex]" width="300px" />
       <form [formGroup]="boxOne">
         <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null" (click)="updateChecked(1)"> {{data.opt}}<br>
+          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null"
+            (click)="updateChecked(1)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
 
     <div class="col-lg-4" *ngIf="imageIndex+1<imageNames.length">
       <h2> Question {{imageIndex+2}}</h2>
-      <img [src]="imageNames[imageIndex+1]" width="300px"/>
+      <img [src]="imageNames[imageIndex+1]" width="300px" />
       <form [formGroup]="boxTwo">
         <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null" (click)="updateChecked(2)"> {{data.opt}}<br>
+          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null"
+            (click)="updateChecked(2)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
 
     <div class="col-lg-4" *ngIf="imageIndex+2<imageNames.length">
       <h2> Question {{imageIndex+3}}</h2>
-      <img [src]="imageNames[imageIndex+2]" width="300px"/>
+      <img [src]="imageNames[imageIndex+2]" width="300px" />
       <form [formGroup]="boxThree">
         <div *ngFor="let data of boxValues">
           <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(3)"> {{data.opt}}<br>
@@ -55,6 +57,4 @@
 </div>
 
 <pre>Form values: {{allGroupedAnswers.value | json}}</pre>
-
-
 
