@@ -1,9 +1,12 @@
-
-
 <div class="container">
-  <input type="email" placeholder="Email" [(ngModel)]="email" required>
-  <input type="password" placeholder="Password" [(ngModel)]="password" required>
+  <h2>Welcome Guest!</h2>
+  <div class="child">
+    <input type="email" placeholder="Email" [(ngModel)]="email" required>
+    <input type="password" placeholder="Password" [(ngModel)]="password" required>
 
-  <button (click)="logIn()">Log in</button>
-  <button (click)="signUp()">Sign up</button>
+    <div>
+      <button (click)="logIn()">Log in</button>
+      <button (click)="signUp()">(OR) Sign up</button>
+    </div>
+  </div>
 </div>

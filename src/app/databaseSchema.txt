@@ -1,9 +1,9 @@
 // name the term in the form classTermYear ex. CSE100FA2018
 Term{
-  individualImages: list of names
-  groupImages:
-  IsomorphicImages:
-  downloadURLList: // do we want this here or just an async function call later
+  clickerImages: list of names
+  individual:
+  group:
+  iso:
   classData: list of csv file names
   results: name of csv results file
 }
@@ -26,8 +26,7 @@ Image{
 
 // will be specific to the user
 User{
-  class: list of classes/techincally terms that user has taught
+  class_terms: list of classes/terms that user has taught
   name:
   email:
-  username:
 }

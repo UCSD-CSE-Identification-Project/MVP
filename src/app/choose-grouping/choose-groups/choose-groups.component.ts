@@ -18,6 +18,11 @@ export class ChooseGroupsComponent implements OnInit {
   boxOne: FormGroup;
   boxTwo: FormGroup;
   boxThree: FormGroup;
+  boxOneRadioClicked: boolean;
+  boxTwoRadioClicked: boolean;
+  boxThreeRadioClicked: boolean;
+  disableBoxOne: boolean;
+  disableBoxTwo: boolean;
 
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
@@ -63,9 +68,15 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.boxOne = this.boxTwo;
       this.boxTwo = this.boxThree;
+
+      this.disableBoxOne = true;
+      this.disableBoxTwo = true;
+
       this.boxThree = this.fb.group({
         option: [''],
       });
+      this.boxThreeRadioClicked = false;
+
     }
     else if( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual'){
       this.imageIndex += 2;
@@ -74,12 +85,19 @@ export class ChooseGroupsComponent implements OnInit {
       this.allGroupedAnswers.push(this.boxTwo);
 
       this.boxOne = this.boxThree;
+      this.disableBoxOne = true;
+      this.disableBoxTwo = false;
+
       this.boxTwo = this.fb.group({
         option: [''],
       });
+      this.boxTwoRadioClicked = false;
+
       this.boxThree = this.fb.group({
         option: [''],
       });
+      this.boxThreeRadioClicked = false;
+
     }
     else{
       this.imageIndex += 3;
@@ -88,19 +106,45 @@ export class ChooseGroupsComponent implements OnInit {
       this.allGroupedAnswers.push(this.boxTwo);
       this.allGroupedAnswers.push(this.boxThree);
 
+      this.disableBoxOne = false;
+      this.disableBoxTwo = false;
+
       this.boxOne = this.fb.group({
         option: [''],
       });
+      this.boxOneRadioClicked = false;
+
       this.boxTwo = this.fb.group({
         option: [''],
       });
+      this.boxTwoRadioClicked = false;
+
       this.boxThree = this.fb.group({
         option: [''],
       });
-    }
+      this.boxThreeRadioClicked = false;
 
+    }
+    console.log("Current index is " + this.imageIndex);
+    console.log("Length is " + this.imageNames.length);
+    console.log("Finished " + this.imagesFinished);
+  }
+  updateChecked(boxNum: number){
+    // if(this.boxOne.controls.option)
+    if( boxNum === 1 ){
+      this.boxOneRadioClicked = true;
+    }
+    else if( boxNum === 2 ){
+      this.boxTwoRadioClicked = true;
+    }
+    else if( boxNum === 3 ){
+      this.boxThreeRadioClicked = true;
+    }
   }
 
+  allChecked(){
+    return this.boxOneRadioClicked && this.boxTwoRadioClicked && this.boxThreeRadioClicked;
+  }
   getImageNames(){
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',

@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
 import { TreeNode } from '@angular/router/src/utils/tree';
+import { AuthService } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-upload',
@@ -37,12 +38,16 @@ export class UploadComponent implements OnInit {
   curr_files: string[];
   imageIds: string[] = [];
   usePreexistTerm: boolean = false;
-
+  prevTermSelected: boolean = false;
+  currTermSelected: boolean = false;
+  prevTerm: string = '';
+  currTerm: string = '';
 
   constructor(private http: HttpClient,
               private uploadService: UploadService,
               private storage: AngularFireStorage,
-              private db: AngularFirestore) { }
+              private db: AngularFirestore,
+              private authService: AuthService) { }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
@@ -57,6 +62,7 @@ export class UploadComponent implements OnInit {
 
   ngOnInit() {
     this.userName = "Xingyu";
+    console.log(this.authService.getUser());
   }
 
   onFilesSelected(event, index) {
@@ -108,6 +114,7 @@ export class UploadComponent implements OnInit {
         this.fileNames.push(this.files[i][j].name);
         this.task = this.storage.upload(this.userName + '/' + this.files[i][j].name, this.files[i][j]);
 
+
         // Progress monitoring
         this.progress = this.task.percentageChanges();
         this.snapshot = this.task.snapshotChanges();
@@ -138,13 +145,6 @@ export class UploadComponent implements OnInit {
         });
       }
     }
-    //console.log("Before setting");
-    //console.log(this.imageIds);
-    //console.log(self.imageIds);
-    //prev_termObj.all_images = this.imageIds;
-    //console.log("After setting");
-
-    //this.fileNames.push('20130721_141004.jpg');
     var termId;
     await this.db.collection('terms').add(prev_termObj).then(function(ref){
       termId = ref.id;
@@ -152,7 +152,6 @@ export class UploadComponent implements OnInit {
 
     userObj.class_term["CSE100FALL2018"] = termId;
     userObj.class_term["CSE101FALL2018"] = termId;
-
 
     this.db.collection('users').doc(this.userName).set(userObj);
 

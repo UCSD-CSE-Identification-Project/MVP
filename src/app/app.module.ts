@@ -10,6 +10,12 @@ import { environment } from '../environments/environment';
 import { CoreModule } from './core/core.module';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
   declarations: [
@@ -23,7 +29,14 @@ import { AppComponent } from './app.component';
     AngularFireAuthModule,
     AngularFireStorageModule,
     CoreModule,
-    AppRoutingModule
+    AppRoutingModule,
+    BrowserModule,
+    BrowserAnimationsModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatToolbarModule,
+    MatListModule,
+    ScrollingModule
   ],
   providers: [AngularFireStorage],
   bootstrap: [AppComponent]

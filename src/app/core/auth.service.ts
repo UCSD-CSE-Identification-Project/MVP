@@ -14,9 +14,18 @@ export class AuthService {
   constructor(private firebaseAuth: AngularFireAuth,
               private fireStore: AngularFirestore,
               private router: Router) {
-    this.user = firebaseAuth.authState;
+    this.user = this.firebaseAuth.authState;
 
     // TODO: Switch map, user credential or NULL, logout, log in status
+  }
+
+  getUser() {
+    //this.user = this.firebaseAuth.authState;
+    let uid:string;
+    this.user.subscribe(user => {
+      console.log("this user is " + user.uid);
+      uid = user.uid;
+    });
   }
 
   signInRegular(email: string, password: string) {
