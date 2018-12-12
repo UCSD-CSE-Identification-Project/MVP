@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {ProcessComponent} from './process/process.component';
+import {ShowResultsComponent} from './show-results/show-results.component';
 
 const routes: Routes = [
-    { path: '', component: ProcessComponent }
+    { path: '', component: ShowResultsComponent }
 ];
 
 @NgModule({
@@ -11,4 +11,4 @@ const routes: Routes = [
     exports: [RouterModule]
 })
 
-export class ProcessDataRoutingModule { }
+export class ResultsRoutingModule { }

@@ -39,18 +39,14 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
-<<<<<<< HEAD
-        this.url = '/choose-answers'
-=======
         this.url = '/choose-answers';
->>>>>>> ff3aaac393c2cbc6bc5bf2f8799e7376167e3acc
         break;
       case '/navigator/choose-ans':
         this.nextStage = 3;
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
-        this.url = '/process-data'
+        this.url = '/process-data';
         break;
       case '/navigator/match':
         this.nextStage = 4;
@@ -63,6 +59,7 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
+        this.url = '/results';
         break;
       case '/navigator/results':
         break;

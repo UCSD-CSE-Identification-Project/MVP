@@ -21,6 +21,10 @@ const routes: Routes = [
   {
     path: 'process-data',
     loadChildren: './process-data/process-data.module#ProcessDataModule'
+  },
+  {
+    path: 'results',
+    loadChildren: './results/results.module#ResultsModule'
   }
 ];
 
