@@ -8,7 +8,7 @@ import { ShowResultsComponent } from './show-results/show-results.component';
   declarations: [ShowResultsComponent],
   imports: [
     CommonModule,
-    ResultsRoutingModule
+    ResultsRoutingModule,
   ]
 })
 export class ResultsModule { }

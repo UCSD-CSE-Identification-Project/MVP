@@ -1,4 +1,34 @@
 div {
   text-align: center;
+  font-family: Tahoma;
+}
+
+.csv-file-chooser-section {
+  margin: 2%;
+}
+
+.csv-result-table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table {
+  width: 50%;
+  border-collapse:collapse;
+  text-align:center;
+  border:1px solid teal;
+}
+
+th, td {
+  border: 1px solid teal;
+}
+
+th {
+  color: teal;
+}
+
+table.center {
+  margin-left: auto;
+  margin-right: auto;
 }
 

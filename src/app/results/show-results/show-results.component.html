@@ -1,10 +1,44 @@
 <div>
   <h1>Results: Percentage of Failure for Each Student</h1>
-  <p>Number of students to display:</p>
+  <!--<p>Number of students to display:</p>
 
   <form>
     <input type="text" id="numStudents" name="numStudents">
   </form>
+  -->
+</div>
+
+<div class="csv-file-chooser-section">
+
+  <input type="file" #fileImportInput name="File Upload" id="txtFileUpload" (change)="fileChangeListener($event)" accept=".csv" />
+
+</div>
+
+<div class="csv-result-table">
+
+  <table class="center">
+    <thead>
+    <tr>
+      <th>#</th>
+      <th>Student</th>
+      <th>Fail Probability</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let csvData of csvRecords;let i = index;">
+
+      <td>{{i+1}}</td>
+      <td>
+        <span>{{csvData.studentName}}</span>
+      </td>
+      <td>
+        <span>{{csvData.failProbability}}</span>
+      </td>
+
+    </tr>
+    </tbody>
+  </table>
+
 </div>
 
 
