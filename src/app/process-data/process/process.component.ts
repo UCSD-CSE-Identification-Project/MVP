@@ -7,9 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ProcessComponent implements OnInit {
 
+  percentage = 0;
+  checked = false;
+
   constructor() { }
 
   ngOnInit() {
+  }
+
+  toggleChecked() {
+    this.checked = !this.checked;
   }
 
 }

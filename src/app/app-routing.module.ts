@@ -4,6 +4,10 @@ import { Routes, RouterModule } from '@angular/router';
 const routes: Routes = [
   {
     path: '',
+    loadChildren: './user-auth/user-auth.module#UserAuthModule'
+  },
+  {
+    path: 'upload',
     loadChildren: './upload-data/upload-data.module#UploadDataModule'
   },
   {
@@ -21,6 +25,10 @@ const routes: Routes = [
   {
     path: 'process-data',
     loadChildren: './process-data/process-data.module#ProcessDataModule'
+  },
+  {
+    path: 'choose-image-matches',
+    loadChildren: './choose-image-matches/choose-image-matches.module#ChooseImageMatchesModule'
   },
   {
     path: 'results',

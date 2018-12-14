@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ProcessComponent } from './process/process.component';
+import { AuthComponent } from './auth/auth.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: ProcessComponent
+    component: AuthComponent
   }
 ];
 
@@ -13,5 +13,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-
-export class ProcessDataRoutingModule { }
+export class UserAuthRoutingModule { }
