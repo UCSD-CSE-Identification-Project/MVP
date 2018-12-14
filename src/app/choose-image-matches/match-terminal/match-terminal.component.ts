@@ -62,6 +62,10 @@ export class MatchTerminalComponent implements OnInit {
   }
 
   nextImage(){
+    if( (this.imageNames.length - this.imageInputIndex) <= 1 ){
+      this.imagesFinished = true;
+      return;
+    }
     this.imageInputIndex++;
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
@@ -92,5 +96,5 @@ export class MatchTerminalComponent implements OnInit {
             'https://media.makeameme.org/created/javascript-javascript-everywhere.jpg'
             ]
   }
-  
+
 }
