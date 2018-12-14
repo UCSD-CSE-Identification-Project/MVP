@@ -46,8 +46,7 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
-        // TODO, go to stage 4
-        this.url = '/process-data';
+        this.url = '/choose-image-matches';
         break;
       case '/navigator/match':
         this.nextStage = 4;
