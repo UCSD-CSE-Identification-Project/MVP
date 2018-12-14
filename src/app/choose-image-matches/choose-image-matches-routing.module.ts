@@ -1,17 +1,13 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ProcessComponent } from './process/process.component';
+import {MatchTerminalComponent} from './match-terminal/match-terminal.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    component: ProcessComponent
-  }
+  { path: '', component: MatchTerminalComponent}
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule]
 })
-
-export class ProcessDataRoutingModule { }
+export class ChooseImageMatchesRoutingModule { }
