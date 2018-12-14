@@ -6,6 +6,7 @@ import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule, AngularFireStorage } from '@angular/fire/storage';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { environment } from '../environments/environment';
+import * as $ from 'jquery';
 
 import { CoreModule } from './core/core.module';
 import { AppRoutingModule } from './app-routing.module';
