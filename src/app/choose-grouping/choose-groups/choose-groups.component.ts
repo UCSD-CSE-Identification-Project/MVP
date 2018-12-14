@@ -8,16 +8,22 @@ import {forEach} from '@angular/router/src/utils/collection';
   styleUrls: ['./choose-groups.component.css']
 })
 export class ChooseGroupsComponent implements OnInit {
-  boxValues1 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  boxValues2 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  boxValues3 = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  myForm: FormGroup;
-  mappedAnswers =  [{Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']},
-                    {Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']},
-                    {Individual: [0, false, 'Individual'], Group: [1, false, 'Group'], Isomorphic: [2, false, 'Isomorphic'], Ignore: [3, false, 'Ignore']}];
+  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
+
+  // new code
+  allGroupedAnswers: FormArray;
+  boxOne: FormGroup;
+  boxTwo: FormGroup;
+  boxThree: FormGroup;
+  boxOneRadioClicked: boolean;
+  boxTwoRadioClicked: boolean;
+  boxThreeRadioClicked: boolean;
+  disableBoxOne: boolean;
+  disableBoxTwo: boolean;
+
   constructor(private fb: FormBuilder) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
@@ -25,61 +31,127 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.myForm = this.fb.group({
-      matches: this.fb.array([]),
+
+    this.boxOne = this.fb.group({
+     option: [''],
     });
+
+    this.boxTwo = this.fb.group({
+     option: [''],
+    });
+
+    this.boxThree = this.fb.group({
+     option: [''],
+    });
+
+    this.allGroupedAnswers = this.fb.array([]);
+
   }
 
-  onChange(option: string, isChecked: boolean, box: number) {
-    if ( isChecked && this.mappedAnswers[box][option][1] === false ) {
-      this.mappedAnswers[box][option][1] = true;
-    } else if (!isChecked && this.mappedAnswers[box][option][1] === true ) {
-      this.mappedAnswers[box][option][1] = false;
-    }
-
-  }
-
-  checked(option: string, box:number){
-    return this.mappedAnswers[box][option][1];
-  }
+  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   nextImage() {
-    var lastImage;
-  
-    for (let i = 0; i < 3; i++){
-      const emailFormArray = <FormArray>this.myForm.get('matches') as FormArray;
-      const curAnswers = [];
-    
-      Object.values(this.mappedAnswers[i]).forEach(function (value) {
-        if ( value[1] === true) {
-          curAnswers.push(value[2]);
-          lastImage = value[2];
-          value[1] = false;
-        }
-      });
-
-      //if (emailFormArray.get(this.imageNames))
-      emailFormArray.push(new FormControl([this.imageNames[this.imageIndex+i], curAnswers]));
-    }
-
-    if ((this.imageIndex+2) >= this.imageNames.length - 1) {
+    console.log(this.imageIndex);
+    console.log(this.imageNames.length);
+    if((this.imageNames.length - this.imageIndex) <= 3 ){
       this.imagesFinished = true;
+      alert("inside" + this.imageIndex + this.imageNames.length);
       return;
     }
+    // different scenarios
+    const boxOneValue = this.boxOne.controls.option.value;
+    const boxTwoValue = this.boxTwo.controls.option.value;
+    const boxThreeValue = this.boxThree.controls.option.value;
+    if( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
 
-    // We need to change this line to incorporate different scenarios 
-    if (lastImage === 'Individual') {
-      this.imageIndex += 2;
-    } else if (lastImage === 'Group'){
       this.imageIndex += 1;
-    } else{
-      this.imageIndex += 3;
-    }
-    
-    
 
+      this.allGroupedAnswers.push(this.boxOne);
+
+      this.boxOne = this.boxTwo;
+      this.boxTwo = this.boxThree;
+
+      this.disableBoxOne = true;
+      this.disableBoxTwo = true;
+
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
+      this.boxThreeRadioClicked = false;
+
+    }
+    else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
+             ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
+      this.imageIndex += 2;
+
+      this.allGroupedAnswers.push(this.boxOne);
+      this.allGroupedAnswers.push(this.boxTwo);
+
+      this.boxOne = this.boxThree;
+      this.disableBoxOne = true;
+      this.disableBoxTwo = false;
+
+      this.boxTwo = this.fb.group({
+        option: [''],
+      });
+      this.boxTwoRadioClicked = false;
+
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
+      this.boxThreeRadioClicked = false;
+
+    }
+    else{
+      this.imageIndex += 3;
+
+      this.allGroupedAnswers.push(this.boxOne);
+      this.allGroupedAnswers.push(this.boxTwo);
+      this.allGroupedAnswers.push(this.boxThree);
+
+      this.disableBoxOne = false;
+      this.disableBoxTwo = false;
+
+      this.boxOne = this.fb.group({
+        option: [''],
+      });
+      this.boxOneRadioClicked = false;
+
+      this.boxTwo = this.fb.group({
+        option: [''],
+      });
+      this.boxTwoRadioClicked = false;
+
+      this.boxThree = this.fb.group({
+        option: [''],
+      });
+      this.boxThreeRadioClicked = false;
+
+    }
+  }
+  updateChecked(boxNum: number){
+    // if(this.boxOne.controls.option)
+    if( boxNum === 1 ){
+      this.boxOneRadioClicked = true;
+    }
+    else if( boxNum === 2 ){
+      this.boxTwoRadioClicked = true;
+    }
+    else if( boxNum === 3 ){
+      this.boxThreeRadioClicked = true;
+    }
   }
 
-  getImageNames() {
+  // checkes if all the images are checked or if the unchecked ones are hidden
+  allChecked(){
+    const boxTwoHidden = this.imageIndex+2 >= this.imageNames.length;
+    const boxThreeHidden = this.imageIndex+3 >= this.imageNames.length;
+
+    return this.boxOneRadioClicked &&
+          (this.boxTwoRadioClicked || boxTwoHidden) &&
+          (this.boxThreeRadioClicked || boxThreeHidden);
+
+  }
+  getImageNames(){
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
             'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
