@@ -19,12 +19,13 @@ export class AuthService {
     // TODO: Switch map, user credential or NULL, logout, log in status
   }
 
-  getUser() {
+  async getUser() {
     //this.user = this.firebaseAuth.authState;
     let uid:string;
-    this.user.subscribe(user => {
+    return await this.user.subscribe(user => {
       console.log("this user is " + user.uid);
       uid = user.uid;
+      return uid;
     });
   }
 

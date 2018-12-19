@@ -62,7 +62,7 @@ export class UploadComponent implements OnInit {
 
   ngOnInit() {
     this.userName = "Xingyu";
-    console.log(this.authService.getUser());
+    console.log("in ng on init "+this.authService.getUser());
   }
 
   onFilesSelected(event, index) {
