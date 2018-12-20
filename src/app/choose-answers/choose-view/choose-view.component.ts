@@ -52,6 +52,7 @@ export class ChooseViewComponent implements OnInit {
       N: [false],
     });
     this.imageIndex += 1;
+    this.numCheckedBoxes = 0;
   }
   getImageNames() {
     return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',

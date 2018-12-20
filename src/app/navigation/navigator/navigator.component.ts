@@ -53,6 +53,7 @@ export class NavigatorComponent implements OnInit {
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;
         }
+        this.url = '/process-data';
         break;
       case '/navigator/process':
         this.nextStage = 5;

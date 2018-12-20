@@ -5,7 +5,7 @@
   <img [src]= "imageInput[imageInputIndex]" width="400px"> <br />
   <br />
   <button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col"> Next</button>
-  <button type="submit" *ngIf="imagesFinished" class="col"> Finished </button> <br />
+  <button type="submit" *ngIf="imagesFinished" class="col" routerLink="../navigator/match"> Finished </button> <br />
   <br />
   <button mat-flat-button (click)="showMatchesFor(1)" color="primary" class="wid">High Matches</button><br/>
   <button mat-flat-button (click)="showMatchesFor(2)" color="primary" class="wid">Medium Matches</button><br />
