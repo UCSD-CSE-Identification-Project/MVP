@@ -10,23 +10,38 @@ import { AngularFirestore } from '@angular/fire/firestore';
 })
 export class AuthService {
   private user: Observable<firebase.User>;
+  private userDetails: firebase.User = null;
+  private uid: string = '';
 
   constructor(private firebaseAuth: AngularFireAuth,
               private fireStore: AngularFirestore,
               private router: Router) {
     this.user = this.firebaseAuth.authState;
 
+    this.user.subscribe(user => {
+        if (user) {
+          this.userDetails = user;
+          this.uid = user.uid;
+          console.log(this.userDetails);
+          console.log(this.uid);
+        }
+        else {
+          this.userDetails = null;
+          this.uid = '';
+        }
+      }
+    );
     // TODO: Switch map, user credential or NULL, logout, log in status
   }
 
   async getUser() {
     //this.user = this.firebaseAuth.authState;
     let uid:string;
-    return await this.user.subscribe(user => {
-      console.log("this user is " + user.uid);
-      uid = user.uid;
-      return uid;
-    });
+    //this.user.subscribe(async function(user) {
+    //  console.log("this user is " + user.uid);
+    //  uid = user.uid;
+    //});
+    return uid;
   }
 
   signInRegular(email: string, password: string) {
@@ -37,4 +52,21 @@ export class AuthService {
   signUpRegular(email: string, password: string) {
     return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
   }
+
+  logout() {
+    this.firebaseAuth.auth.signOut();
+    this.router.navigate(['/']);
+  }
+
+  /*
+
+  firebase.auth().onAuthStateChanged(user => {
+    if (user) {
+
+    }
+    else {
+
+    }
+  })
+  */
 }
