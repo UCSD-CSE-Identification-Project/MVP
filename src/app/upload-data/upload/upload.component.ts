@@ -3,6 +3,7 @@ import { HttpClient, HttpEventType } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
 import { TreeNode } from '@angular/router/src/utils/tree';
@@ -43,8 +44,7 @@ export class UploadComponent implements OnInit {
   prevTerm: string = '';
   currTerm: string = '';
 
-  constructor(private http: HttpClient,
-              private uploadService: UploadService,
+  constructor(private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
               private authService: AuthService) { }
@@ -121,15 +121,20 @@ export class UploadComponent implements OnInit {
         console.log(this.files[i][j].name);
 
         // URL
-        await firebase.storage().ref().child(this.userName + '/' +this.files[i][j].name).getDownloadURL().then(function (url) {
-          self.path = url;
-        });
+        //await firebase.storage().ref().child(this.userName + '/' +this.files[i][j].name).getDownloadURL().then(function (url) {
+        //  self.path = url;
+        //});
+
+        // get notified when the download URL is available
+        this.task.snapshotChanges().pipe(
+          finalize(() => this.downloadURL = this.storage.ref(this.userName + '/' + this.files[i][j].name).getDownloadURL())
+        ).subscribe();
 
         // MAKE SURE LAST MINUTE
         // TODO: HAVE ALL OF THESE HERE AND THEN SEE IF WE JUST WANT TO PUSH AND UPDATE LATER
         // OR IF WE WANT TO HAVE ALL FIELDS PUSHED WHEN WE FIRST PUSH
 
-        console.log("File path is " + this.path);
+        console.log("Snapshot finished, URL is " + this.downloadURL);
         let imageObj = {
           correct_answers: [],
           grouping: '',
@@ -159,4 +164,7 @@ export class UploadComponent implements OnInit {
 
   }
 
+  dropZoneUpload(fileList) {
+    this.task = this.storage.upload('dropZone' + '/' + 'test', fileList[0]);
+  }
 }
