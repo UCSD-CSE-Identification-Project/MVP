@@ -38,11 +38,15 @@ export class UploadComponent implements OnInit {
   prev_files: string[];
   curr_files: string[];
   imageIds: string[] = [];
+
+
   usePreexistTerm: boolean = false;
   prevTermSelected: boolean = false;
   currTermSelected: boolean = false;
   prevTerm: string = '';
   currTerm: string = '';
+  prevTermsCreated: String[];
+
 
   constructor(private uploadService: UploadService,
               private storage: AngularFireStorage,
@@ -60,10 +64,13 @@ export class UploadComponent implements OnInit {
   set setData(value: String[]) {
     this.uploadService.fileNames = value;
   }
+  get prevTerms(){
+    this.prevTermsCreated = this.uploadService.getTermNames();
+  }
 
   ngOnInit() {
     this.userName = "Xingyu";
-    this.uploadService.getTermNames();
+    console.log("in ng on init",this.uploadService.getTermNames());
     console.log("in ng on init "+this.authService.getUser());
   }
 
@@ -72,6 +79,7 @@ export class UploadComponent implements OnInit {
     this.files[index] = fileList;
   }
 
+  // TODO add terms to the prev term category
   async onUpload() {
     var self = this;
     //TODO

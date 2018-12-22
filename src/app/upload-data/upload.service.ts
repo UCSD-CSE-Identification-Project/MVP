@@ -18,16 +18,19 @@ export class UploadService {
 
   async getTermNames(){
     let userId = this.authService.getUser();
-    userId = userId === '' ? 'not logged in' : userId; // in case the user has not logged in should never happen
 
     var docRef = this.db.collection('users').doc(userId).ref;
     console.log(docRef);
     return await docRef.get().then(async function(doc) {
       if (doc.exists) {
-        console.log("Document data:", doc.data());
-        return await doc.data();
+        // console.log("Document data:", doc.data().class_term);
+        return await doc.data().class_term;
       }
-      return '';
+      else{
+        console.log('user does not exist');
+        return '';
+      }
+
     });
   }
 }

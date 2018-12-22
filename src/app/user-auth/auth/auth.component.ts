@@ -55,8 +55,8 @@ export class AuthComponent implements OnInit {
     const self = this;
     let promise = this.authService.signUpRegular(this.email, this.password);
     promise.then(res => {
-      console.log(res);
-      console.log("in signup");
+      // console.log(res);
+      // console.log("in signup");
       // create user if they do not exist in database
       var docRef = self.db.collection('users').doc(res.user.uid).ref;
 
@@ -65,10 +65,10 @@ export class AuthComponent implements OnInit {
           console.log('user exists');
         } else {
           // doc.data() will be undefined in this case
-          console.log("need to create user");
+          // console.log("need to create user");
           self.db.collection('users').doc(res.user.uid).set({
             class_term: {},
-            email: this.email,
+            email: self.email,
             name: '',
           }).catch( (error)=>{
             console.log("Error in creating a user auth.componenet.ts line 74", error);
