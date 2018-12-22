@@ -47,7 +47,8 @@ export class UploadComponent implements OnInit {
               private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
-              private authService: AuthService) { }
+              private authService: AuthService) {
+  }
 
   toggleHover(event: boolean) {
     this.isHovering = event;
@@ -62,6 +63,7 @@ export class UploadComponent implements OnInit {
 
   ngOnInit() {
     this.userName = "Xingyu";
+    this.uploadService.getTermNames();
     console.log("in ng on init "+this.authService.getUser());
   }
 
