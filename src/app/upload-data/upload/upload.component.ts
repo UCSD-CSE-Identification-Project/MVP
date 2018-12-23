@@ -64,13 +64,19 @@ export class UploadComponent implements OnInit {
   set setData(value: String[]) {
     this.uploadService.fileNames = value;
   }
-  get prevTerms(){
-    this.prevTermsCreated = this.uploadService.getTermNames();
+  populatePrevTermsList(){
+    const self = this;
+
+    this.uploadService.getTermNames().then((prevTermList)=>{
+      self.prevTermsCreated = prevTermList;
+      console.log(self.prevTermsCreated);
+    });
   }
 
   ngOnInit() {
     this.userName = "Xingyu";
-    console.log("in ng on init",this.uploadService.getTermNames());
+    // console.log("in ng on init",this.uploadService.getTermNames());
+    this.populatePrevTermsList();
     console.log("in ng on init "+this.authService.getUser());
   }
 
