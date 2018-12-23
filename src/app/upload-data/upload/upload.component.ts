@@ -8,6 +8,7 @@ import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
 import { TreeNode } from '@angular/router/src/utils/tree';
 import { AuthService } from 'src/app/core/auth.service';
+import {ZipService} from '../../unzipFolder/zip.service';
 
 @Component({
   selector: 'app-upload',
@@ -51,7 +52,8 @@ export class UploadComponent implements OnInit {
   constructor(private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
-              private authService: AuthService) {
+              private authService: AuthService,
+              private zipService: ZipService) {
   }
 
   toggleHover(event: boolean) {
@@ -85,8 +87,17 @@ export class UploadComponent implements OnInit {
     this.files[index] = fileList;
   }
 
+  fileChanged(event){
+    const file = event.target.files[0];
+    console.log(this.zipService.getEntries(file).subscribe(value => console.log(value)));
+  }
+
+
+  onUpload(){
+    console.log("in on upload");
+  }
   // TODO add terms to the prev term category
-  async onUpload() {
+  /*async onUpload() {
     var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules
@@ -179,6 +190,7 @@ export class UploadComponent implements OnInit {
     this.setData = this.fileNames;
 
   }
+  */
 
   dropZoneUpload(fileList) {
     this.task = this.storage.upload('dropZone' + '/' + 'test', fileList[0]);

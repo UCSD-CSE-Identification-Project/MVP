@@ -11,6 +11,9 @@
       "schematics": {},
       "architect": {
         "build": {
+          "input": "/src/assets",
+          "glob": "**/*",
+          "output": "scripts/",
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/idApp",
@@ -25,7 +28,9 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [
+
+            ]
           },
           "configurations": {
             "production": {

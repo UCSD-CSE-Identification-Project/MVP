@@ -25,7 +25,7 @@
 
 
     <div *ngIf="prevTerm != '' && !usePreexistTerm">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="onFilesSelected($event, 0)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event)" /></div>
       <p>{{this.downloadURL | async}}</p>
     </div>
   </div>
