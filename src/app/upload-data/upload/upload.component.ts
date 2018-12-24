@@ -89,7 +89,20 @@ export class UploadComponent implements OnInit {
 
   fileChanged(event){
     const file = event.target.files[0];
-    console.log(this.zipService.getEntries(file).subscribe(value => console.log(value)));
+    const self = this;
+    this.zipService.getEntries(file).subscribe(next=>{
+      for (const ent of next){
+
+        this.zipService.getData(ent).data.subscribe(val=>{
+          var reader = new FileReader();
+          reader.addEventListener("loadend", () => {
+            // reader.result contains the contents of blob as a typed array
+          });
+          reader.readAsArrayBuffer(val);
+          console.log(reader.result);
+        });
+      }
+    });
   }
 
 

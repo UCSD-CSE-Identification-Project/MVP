@@ -11,9 +11,6 @@
       "schematics": {},
       "architect": {
         "build": {
-          "input": "/src/assets",
-          "glob": "**/*",
-          "output": "scripts/",
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/idApp",
@@ -23,13 +20,17 @@
             "tsConfig": "src/tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "./scripts/"
+              }
             ],
             "styles": [
               "src/styles.css"
             ],
             "scripts": [
-
             ]
           },
           "configurations": {
