@@ -32,7 +32,7 @@ export class UploadComponent implements OnInit {
 
   userName: string;
 
-  files: File[][] = [[], [], [], [], [], []];
+  files: File[][] = [[], []];
   percentage = 0;
   fileNames: string[] = [];
   path: string = '';
@@ -60,12 +60,6 @@ export class UploadComponent implements OnInit {
     this.isHovering = event;
   }
 
-  get getData(): String[] {
-    return this.uploadService.fileNames;
-  }
-  set setData(value: String[]) {
-    this.uploadService.fileNames = value;
-  }
   populatePrevTermsList(){
     const self = this;
 
@@ -76,8 +70,6 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userName = "Xingyu";
-    // console.log("in ng on init",this.uploadService.getTermNames());
     this.populatePrevTermsList();
     console.log("in ng on init "+this.authService.getUser());
   }
@@ -92,14 +84,19 @@ export class UploadComponent implements OnInit {
     const self = this;
     this.zipService.getEntries(file).subscribe(next=>{
       for (const ent of next){
+        let filename : string = ent.filename;
 
         this.zipService.getData(ent).data.subscribe(val=>{
-          var reader = new FileReader();
-          reader.addEventListener("loadend", () => {
+          //var reader = new FileReader();
+          //reader.addEventListener("loadend", () => {
             // reader.result contains the contents of blob as a typed array
-          });
-          reader.readAsArrayBuffer(val);
-          console.log(reader.result);
+          //});
+          //reader.readAsArrayBuffer(val);
+          //console.log(reader.result);
+          
+          let blobFile = new File([val], filename);
+          console.log(blobFile);
+          this.task = this.storage.upload('unzip/' + filename, blobFile);
         });
       }
     });

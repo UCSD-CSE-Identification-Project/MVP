@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from "@angular/router";
 import * as firebase from 'firebase';
@@ -55,14 +55,12 @@ export class AuthComponent implements OnInit {
     const self = this;
     let promise = this.authService.signUpRegular(this.email, this.password);
     promise.then(res => {
-      // console.log(res);
-      // console.log("in signup");
       // create user if they do not exist in database
       var docRef = self.db.collection('users').doc(res.user.uid).ref;
 
       docRef.get().then(function(doc) {
         if (doc.exists) {
-          console.log('user exists');
+          console.log('user exists, this should never happen');
         } else {
           // doc.data() will be undefined in this case
           // console.log("need to create user");

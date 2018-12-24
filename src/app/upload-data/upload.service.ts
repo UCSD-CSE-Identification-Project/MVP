@@ -6,14 +6,9 @@ import {AngularFirestore} from '@angular/fire/firestore';
   providedIn: 'root'
 })
 export class UploadService {
-  fileNames: String[] = [];
+
   constructor(private authService: AuthService,
               private db: AngularFirestore) {
-  }
-
-
-  getImageNames(){
-
   }
 
   async getTermNames(){

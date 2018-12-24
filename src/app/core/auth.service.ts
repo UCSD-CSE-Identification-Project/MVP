@@ -51,16 +51,5 @@ export class AuthService {
     this.firebaseAuth.auth.signOut();
     this.router.navigate(['/']);
   }
-
-  /*
-
-  firebase.auth().onAuthStateChanged(user => {
-    if (user) {
-
-    }
-    else {
-
-    }
-  })
-  */
+  
 }
