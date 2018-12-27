@@ -9,6 +9,7 @@ import * as firebase from 'firebase';
 import { TreeNode } from '@angular/router/src/utils/tree';
 import { AuthService } from 'src/app/core/auth.service';
 import {ZipService} from '../../unzipFolder/zip.service';
+import {ArrayType} from '@angular/compiler';
 
 @Component({
   selector: 'app-upload',
@@ -70,8 +71,7 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.populatePrevTermsList();
-    console.log("in ng on init "+this.authService.getUser());
+    this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
   }
 
   onFilesSelected(event, index) {
@@ -79,29 +79,104 @@ export class UploadComponent implements OnInit {
     this.files[index] = fileList;
   }
 
-  fileChanged(event){
+  async fileChanged(event, prevOrCurrTerm) {
     const file = event.target.files[0];
     const self = this;
-    this.zipService.getEntries(file).subscribe(next=>{
-      for (const ent of next){
-        let filename : string = ent.filename;
+    let promises= [];
+    let termObj = {
+      all_images: [],
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    };
 
-        this.zipService.getData(ent).data.subscribe(val=>{
-          //var reader = new FileReader();
-          //reader.addEventListener("loadend", () => {
-            // reader.result contains the contents of blob as a typed array
-          //});
-          //reader.readAsArrayBuffer(val);
-          //console.log(reader.result);
-          
+    this.zipService.getEntries(file).subscribe( async (next) => {
+
+      for (const ent of next) {
+        let filename : string = ent.filename;
+        const fileType = filename.slice(filename.indexOf("."));
+        if(fileType === '/' || fileType==='.DS_Store' || fileType==='._.DS_Store') continue;
+        this.zipService.getData(ent).data.subscribe(async function(val) {
+
           let blobFile = new File([val], filename);
-          console.log(blobFile);
-          this.task = this.storage.upload('unzip/' + filename, blobFile);
-        });
-      }
-    });
+          self.task =  self.storage.upload(self.authService.getUser() +  "/" +filename, blobFile);
+
+
+          if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
+            let pathToFile = self.authService.getUser() + '/' + filename;
+            // URL
+            await firebase.storage().ref().child( pathToFile ).getDownloadURL().then(function (url) {
+              let imageObj = {
+                correct_answers: [],
+                grouping: '',
+                matches: '',
+                downloadURL: url,
+                ocrText: '',
+                imageHash:''
+              };
+              const imagePromise = self.db.collection('images').add(imageObj).then(function(ref){
+                termObj.all_images.push(ref.id);
+              });
+              promises.push(imagePromise);
+            });
+
+
+          }
+          else if( fileType === '.csv') {
+            const termPromise = new Promise(function (resolve, reject){
+                termObj.class_data.push(filename)
+            });
+            promises.push(termPromise);
+          }
+
+        }); // end of unzip service that gets data from zipped entry
+      } // end of for loop looping through files
+      await Promise.all(promises).then(()=>{
+        self.updateTermAndUser(termObj,prevOrCurrTerm);
+      }).catch(function(err) {
+        // Will catch failure of first failed promise
+        console.log("Failed:", err);
+      });
+    }); //gets entries from zipped file
+
+
+  } // end of method
+
+  printDone(){
+    console.log("done");
   }
 
+  // term object is a map
+  async updateTermAndUser(termObject: any, prevOrCurrTerm: number){
+    console.log(termObject.all_images);
+    var userObj = null;
+    await this.db.collection('users').doc(this.authService.getUser()).ref.get().then(function (userObject) {
+      userObj = userObject.data();
+    });
+
+    var termId = 'termId';
+    await this.db.collection('terms').add({
+      all_images: termObject.all_images,
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: termObject.class_data,
+      results: ''
+    }).then(function(ref) {
+      termId = ref.id;
+      console.log("uploaded to term", termId);
+      console.log(termObject);
+    });
+
+    if (prevOrCurrTerm === 0){
+      userObj.class_term[this.prevTerm] = termId;
+    } else{
+      userObj.class_term[this.currTerm] = termId;
+    }
+    await this.db.collection('users').doc(this.authService.getUser()).update(userObj);
+  }
 
   onUpload(){
     console.log("in on upload");
