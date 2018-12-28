@@ -134,6 +134,7 @@ export class UploadComponent implements OnInit {
         }); // end of unzip service that gets data from zipped entry
       } // end of for loop looping through files
       await Promise.all(promises).then(()=>{
+        self.printDone();
         self.updateTermAndUser(termObj,prevOrCurrTerm);
       }).catch(function(err) {
         // Will catch failure of first failed promise
