@@ -145,6 +145,46 @@ export class UploadComponent implements OnInit {
 
   } // end of method
 
+  async fileChanged(somethingelse: string, prevOrCurrTerm: number){
+
+    // upload empty term object and save termId
+    var termId = 'termId';
+    await this.db.collection('terms').add({
+      all_images: [],
+      ind_images: [],
+      group_images: [],
+      iso_images: [],
+      class_data: [],
+      results: ''
+    }).then(function(ref) {
+      termId = ref.id;
+    });
+    console.log('term id', termId);
+
+    //get user object for current user
+    // var userObj = null;
+    // await this.db.collection('users').doc(this.authService.getUser()).ref.get().then(function (userObject) {
+    //   userObj = userObject.data();
+    // });
+    //
+    // // upload termobjectId to user in database
+    // if (prevOrCurrTerm === 0){
+    //   userObj.class_term[this.prevTerm] = termId;
+    // } else{
+    //   userObj.class_term[this.currTerm] = termId;
+    // }
+    // await this.db.collection('users').doc(this.authService.getUser()).update(userObj);
+    var userObjUpdate = {};
+    userObjUpdate[`class_term.${this.prevTerm}`] = termId;
+    await this.db.collection('users').doc(this.authService.getUser()).update(userObjUpdate);
+
+    var termObj = this.db.collection('terms').doc(termId).ref;
+
+    termObj.update({
+      all_images: firebase.firestore.FieldValue.arrayUnion(imageId)
+    });
+  }
+
   printDone(){
     console.log("done");
   }
