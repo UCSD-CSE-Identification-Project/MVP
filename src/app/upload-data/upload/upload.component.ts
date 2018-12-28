@@ -80,17 +80,32 @@ export class UploadComponent implements OnInit {
   }
 
   async fileChanged(event, prevOrCurrTerm) {
+
     const file = event.target.files[0];
     const self = this;
     let promises= [];
-    let termObj = {
+
+    var termId = 'termId';
+    await this.db.collection('terms').add({
       all_images: [],
       ind_images: [],
       group_images: [],
       iso_images: [],
       class_data: [],
       results: ''
-    };
+    }).then(function(ref) {
+      termId = ref.id;
+    });
+    console.log('term id', termId);
+
+    var userObjUpdate = {};
+    userObjUpdate[`class_term.${this.prevTerm}`] = termId;
+    await this.db.collection('users').doc(this.authService.getUser()).update(userObjUpdate);
+
+    var termObj = this.db.collection('terms').doc(termId).ref;
+
+
+
 
     this.zipService.getEntries(file).subscribe( async (next) => {
 
@@ -98,6 +113,7 @@ export class UploadComponent implements OnInit {
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.indexOf("."));
         if(fileType === '/' || fileType==='.DS_Store' || fileType==='._.DS_Store') continue;
+
         this.zipService.getData(ent).data.subscribe(async function(val) {
 
           let blobFile = new File([val], filename);
@@ -116,19 +132,19 @@ export class UploadComponent implements OnInit {
                 ocrText: '',
                 imageHash:''
               };
-              const imagePromise = self.db.collection('images').add(imageObj).then(function(ref){
-                termObj.all_images.push(ref.id);
+
+              termObj.update({
+                all_images: firebase.firestore.FieldValue.arrayUnion(imageId)
               });
-              promises.push(imagePromise);
+
             });
 
 
           }
           else if( fileType === '.csv') {
-            const termPromise = new Promise(function (resolve, reject){
-                termObj.class_data.push(filename)
+            termObj.update({
+              all_images: firebase.firestore.FieldValue.arrayUnion(imageId)
             });
-            promises.push(termPromise);
           }
 
         }); // end of unzip service that gets data from zipped entry
