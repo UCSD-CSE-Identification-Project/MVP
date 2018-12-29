@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {forEach} from '@angular/router/src/utils/collection';
+import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 
 @Component({
   selector: 'app-choose-groups',
@@ -24,13 +25,15 @@ export class ChooseGroupsComponent implements OnInit {
   disableBoxOne: boolean;
   disableBoxTwo: boolean;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
   }
 
   ngOnInit() {
+    console.log(this.generalInfo.currTermIdVal);
+    console.log(this.generalInfo.individualImages);
 
     this.boxOne = this.fb.group({
      option: [''],
