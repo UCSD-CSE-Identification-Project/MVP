@@ -134,6 +134,7 @@ export class UploadComponent implements OnInit {
                     all_images: firebase.firestore.FieldValue.arrayUnion(ref.id)
                   });
                   self.generalInfo.pushImageToAllImages(ref.id);
+                  console.log("general info all images", self.generalInfo.allImages);
                 }); // end of pushing image to db
 
                 promises.push(imagePromise);

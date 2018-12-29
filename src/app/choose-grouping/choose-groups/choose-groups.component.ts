@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {forEach} from '@angular/router/src/utils/collection';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-choose-groups',
@@ -13,6 +14,7 @@ export class ChooseGroupsComponent implements OnInit {
   imageNames;
   imageIndex;
   imagesFinished; // if we finish reading all the images
+  imageSources; // array of the image sources for the three images in view
 
   // new code
   allGroupedAnswers: FormArray;
@@ -25,16 +27,21 @@ export class ChooseGroupsComponent implements OnInit {
   disableBoxOne: boolean;
   disableBoxTwo: boolean;
 
-  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService) {
+  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore) {
     this.imageNames = this.getImageNames();
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.imageSources = [];
   }
 
   ngOnInit() {
-    console.log(this.generalInfo.currTermIdVal);
-    console.log(this.generalInfo.individualImages);
-
+    // console.log(this.generalInfo.prevTermIdVal);
+    // console.log(this.generalInfo.allImages);
+    var self = this;
+    this.imageNames = this.generalInfo.prevTermIdVal;
+    for (  let name of this.imageNames.slice(0,3)){
+      this.db.collection('images').doc(name).ref.get()
+    }
     this.boxOne = this.fb.group({
      option: [''],
     });
