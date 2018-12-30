@@ -13,19 +13,15 @@
     <div *ngIf="usePreexistTerm">
       <h4 style="display: inline-block;">Select a term you want to use:</h4>
       <form style="display: inline-block;">
-        <select name="weeks" [(ngModel)]="prevTerm">
-          <option value="CSE100FA2018">CSE100FA2018</option>
-          <option value="CSE101FA2018">CSE101FA2018</option>
-          <option value="CSE105FA2018">CSE105FA2018</option>
-          <option value="CSE110FA2018">CSE110FA2018</option>
-          <option value="CSE120FA2018">CSE120FA2018</option>
+        <select name="weeks" [(ngModel)]="prevTerm" >
+          <option *ngFor="let optionTerm of prevTermsCreated" value="{{optionTerm}}">{{optionTerm}}</option>
         </select>
       </form>
     </div>
 
 
     <div *ngIf="prevTerm != '' && !usePreexistTerm">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event,0)" /></div>
       <p>{{this.downloadURL | async}}</p>
     </div>
   </div>
@@ -37,7 +33,7 @@
     </div>
 
     <div *ngIf="currTerm != ''">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="onFilesSelected($event, 1)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event, 1)" /></div>
     </div>
   </div>
   <button type="button" (click)="onUpload()">Submit</button>

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AuthService} from '../core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
+import {AngularFireStorage} from '@angular/fire/storage';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,8 @@ import {AngularFirestore} from '@angular/fire/firestore';
 export class UploadService {
 
   constructor(private authService: AuthService,
-              private db: AngularFirestore) {
+              private db: AngularFirestore,
+              private storage: AngularFireStorage) {
   }
 
   async getTermNames(){
@@ -28,4 +30,21 @@ export class UploadService {
 
     });
   }
+
+  async addImageToStorage(filename: String, file: File){
+    const userId = this.authService.getUser();
+    return await this.storage.upload(userId + '/' + filename, file);
+  }
+  addImageToDatabase(){
+
+  }
+  addCSVToDatabase(){
+
+  }
+
+  addTermToDatabase(){
+
+  }
+
+
 }
