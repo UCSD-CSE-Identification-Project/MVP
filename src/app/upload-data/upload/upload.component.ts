@@ -82,7 +82,7 @@ export class UploadComponent implements OnInit {
 
     var termId = 'termId';
     await this.db.collection('terms').add({
-      all_images: [],
+      all_images: {},
       ind_images: [],
       group_images: [],
       iso_images: [],
@@ -107,14 +107,17 @@ export class UploadComponent implements OnInit {
 
       for (const ent of next) {
         let filename : string = ent.filename;
-        const fileType = filename.slice(filename.indexOf("."));
-        if(fileType === '/' || fileType==='.DS_Store' || fileType==='._.DS_Store') continue;
+        const fileType = filename.slice(filename.lastIndexOf("."));
+        filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
+        console.log(filename);
+        if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
         this.zipService.getData(ent).data.subscribe(async function(val) {
 
           let blobFile = new File([val], filename);
           // TODO ALERT: self.task was assigned here
           self.storage.upload(self.generalInfo.userIdVal +  "/" +filename, blobFile).then(async (taskVal)=>{
+            if (filename[0] === '.') return;
             console.log(fileType);
             if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
               let pathToFile = self.generalInfo.userIdVal + '/' + filename;
@@ -130,10 +133,15 @@ export class UploadComponent implements OnInit {
                 };
 
                 const imagePromise = self.db.collection('images').add(imageObj).then((ref) =>{
-                  termObj.update({
-                    all_images: firebase.firestore.FieldValue.arrayUnion(ref.id)
-                  });
-                  self.generalInfo.pushImageToAllImages(ref.id);
+                  const termObjUpdate = {};
+                  const imageId = ref.id;
+                  const imageName = filename;
+                  termObjUpdate[`all_images.${imageName}`] = imageId;
+                  self.db.collection('terms').doc(termId).update(termObjUpdate);
+                  // termObj.update({
+                  //   all_images: firebase.firestore.FieldValue.arrayUnion(ref.id)
+                  // });
+                  self.generalInfo.pushImageToAllImages(imageName,imageId);
                   console.log("general info all images", self.generalInfo.allImages);
                 }); // end of pushing image to db
 

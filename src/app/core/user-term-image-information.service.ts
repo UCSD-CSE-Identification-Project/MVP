@@ -17,12 +17,12 @@ export class UserTermImageInformationService {
     console.log(this.userId);
     this.prevTermIdVal = '';
     this.currTermIdVal = '';
-    this.allImages = [];
-    this.individualImages = [];
+    this.allImages = {};
+    this.individualImages = {};
   }
 
   get userIdVal() {
-    if( this.userId === ""){
+    if( this.userId === '' ){
       return this.authService.getUser();
     }
     return this.userId;
@@ -52,8 +52,8 @@ export class UserTermImageInformationService {
     this.all_image_list = arrOfImageNames;
   }
 
-  pushImageToAllImages( imageVal: String ){
-    this.all_image_list.push(imageVal);
+  pushImageToAllImages( imageKey: string,imageVal: string ){
+    this.all_image_list[imageKey] = imageVal;
   }
 
   get individualImages() {

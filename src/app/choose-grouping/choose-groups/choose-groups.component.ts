@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {forEach} from '@angular/router/src/utils/collection';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
@@ -13,9 +13,11 @@ export class ChooseGroupsComponent implements OnInit {
   boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
   imageNames;
   imageIndex;
+  imageKeysSorted;
   imagesFinished; // if we finish reading all the images
   imageSources; // array of the image sources for the three images in view
-
+  numImages;
+  valuesInitialized : boolean;
   // new code
   allGroupedAnswers: FormArray;
   boxOne: FormGroup;
@@ -27,21 +29,25 @@ export class ChooseGroupsComponent implements OnInit {
   disableBoxOne: boolean;
   disableBoxTwo: boolean;
 
-  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore) {
-    this.imageNames = this.getImageNames();
+  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore,private cdRef: ChangeDetectorRef) {
+    this.valuesInitialized = false;
+    this.numImages = 4;
+    this.imageNames = {};
+    this.imageNames[4]="startingvalue";
+    console.log(this.imageNames.size);
+    this.imageKeysSorted = [];
     this.imageIndex = 0;
     this.imagesFinished = false;
-    this.imageSources = [];
+    this.imageSources = [{downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
+      {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
+      {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'}];
   }
 
   ngOnInit() {
     // console.log(this.generalInfo.prevTermIdVal);
     // console.log(this.generalInfo.allImages);
     var self = this;
-    this.imageNames = this.generalInfo.prevTermIdVal;
-    for (  let name of this.imageNames.slice(0,3)){
-      this.db.collection('images').doc(name).ref.get()
-    }
+
     this.boxOne = this.fb.group({
      option: [''],
     });
@@ -55,9 +61,28 @@ export class ChooseGroupsComponent implements OnInit {
     });
 
     this.allGroupedAnswers = this.fb.array([]);
-
+    this.imageNames = this.generalInfo.allImages;
+    //var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+    this.imageKeysSorted = Object.keys(this.imageNames);
+    console.log(this.imageNames, this.imageKeysSorted);
+    this.imageKeysSorted = this.imageKeysSorted.sort((a,b)=>{a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'} ) });
+    this.imageIndex = 0;
+    console.log(this.imageNames[this.imageKeysSorted[0]]);
+    console.log(this.imageNames[this.imageKeysSorted[1]]);
+    console.log(this.imageNames[this.imageKeysSorted[2]]);
+    this.getImageURL(0);
+    this.getImageURL(1);
+    this.getImageURL(2);
+    this.valuesInitialized = true;
   }
 
+  getImageURL(index: number){
+    this.imageSources[index] = this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[index]]).ref.get();
+    console.log(this.imageSources[index],index);
+      // .then((imageObj) => {
+    //   self.imageSources[index] = imageObj.data().downloadURL;
+    // });
+  }
   // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   nextImage() {
     console.log(this.imageIndex);
