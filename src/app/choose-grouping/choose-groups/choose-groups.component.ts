@@ -29,25 +29,24 @@ export class ChooseGroupsComponent implements OnInit {
   disableBoxOne: boolean;
   disableBoxTwo: boolean;
 
+  loadingImage;
+
   constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore,private cdRef: ChangeDetectorRef) {
     this.valuesInitialized = false;
-    this.numImages = 4;
     this.imageNames = {};
     this.imageNames[4]="startingvalue";
+    this.numImages = 0;
     console.log(this.imageNames.size);
     this.imageKeysSorted = [];
     this.imageIndex = 0;
     this.imagesFinished = false;
+    this.loadingImage ='https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0';
     this.imageSources = [{downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
       {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
       {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'}];
   }
 
   ngOnInit() {
-    // console.log(this.generalInfo.prevTermIdVal);
-    // console.log(this.generalInfo.allImages);
-    var self = this;
-
     this.boxOne = this.fb.group({
      option: [''],
     });
@@ -61,43 +60,43 @@ export class ChooseGroupsComponent implements OnInit {
     });
 
     this.allGroupedAnswers = this.fb.array([]);
-    this.imageNames = this.generalInfo.allImages;
-    //var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-    this.imageKeysSorted = Object.keys(this.imageNames);
+    this.imageNames = this.getImageNames();
+
+    // var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+    this.imageKeysSorted = Object.keys(this.imageNames).sort((a, b) => a.localeCompare(b));
+    this.numImages = this.imageKeysSorted.length;
+    console.log(this.numImages);
     console.log(this.imageNames, this.imageKeysSorted);
-    this.imageKeysSorted = this.imageKeysSorted.sort((a,b)=>{a.localeCompare(b, undefined, {numeric: true, sensitivity: 'base'} ) });
     this.imageIndex = 0;
     console.log(this.imageNames[this.imageKeysSorted[0]]);
     console.log(this.imageNames[this.imageKeysSorted[1]]);
     console.log(this.imageNames[this.imageKeysSorted[2]]);
-    this.getImageURL(0);
-    this.getImageURL(1);
-    this.getImageURL(2);
+    this.getImageURLsetInHTML(0, this.imageIndex);
+    this.getImageURLsetInHTML(1, this.imageIndex + 1);
+    this.getImageURLsetInHTML(2, this.imageIndex + 2);
     this.valuesInitialized = true;
   }
 
-  getImageURL(index: number){
-    this.imageSources[index] = this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[index]]).ref.get();
-    console.log(this.imageSources[index],index);
-      // .then((imageObj) => {
-    //   self.imageSources[index] = imageObj.data().downloadURL;
-    // });
+  getImageURLsetInHTML(indexImageSource: number, individualImageIndex: number){
+    this.imageSources[indexImageSource] =
+        this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[individualImageIndex]]).ref.get();
+    console.log(this.imageSources[indexImageSource],individualImageIndex);
   }
   // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
-  nextImage() {
-    console.log(this.imageIndex);
-    console.log(this.imageNames.length);
-    if((this.imageNames.length - this.imageIndex) <= 3 ){
+  async nextImage() {
+    if((this.numImages - this.imageIndex) <= 3 ){
       this.imagesFinished = true;
-      alert("inside" + this.imageIndex + this.imageNames.length);
       return;
     }
+    console.log(this.imageNames[this.imageKeysSorted[this.imageIndex]]);
     // different scenarios
     const boxOneValue = this.boxOne.controls.option.value;
     const boxTwoValue = this.boxTwo.controls.option.value;
     const boxThreeValue = this.boxThree.controls.option.value;
-    if( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
-
+    if ( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
+      const imageObj = {};
+      imageObj["grouping"] = boxOneValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex]]).update(imageObj);
       this.imageIndex += 1;
 
       this.allGroupedAnswers.push(this.boxOne);
@@ -113,9 +112,22 @@ export class ChooseGroupsComponent implements OnInit {
       });
       this.boxThreeRadioClicked = false;
 
+
+      this.imageSources[0] = this.imageSources[1];
+      this.imageSources[1] = this.imageSources[2];
+      if ( this.imageIndex + 2 < this.numImages){
+        this.getImageURLsetInHTML(2, this.imageIndex + 2);
+      }
     }
     else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
              ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
+      const imageObjOne = {};
+      imageObjOne["grouping"] = boxOneValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex]]).update(imageObjOne);
+
+      const imageObjTwo = {};
+      imageObjTwo["grouping"] = boxTwoValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex+1]]).update(imageObjTwo);
       this.imageIndex += 2;
 
       this.allGroupedAnswers.push(this.boxOne);
@@ -135,8 +147,27 @@ export class ChooseGroupsComponent implements OnInit {
       });
       this.boxThreeRadioClicked = false;
 
+      this.imageSources[0] = this.imageSources[2];
+
+      if ( this.imageIndex + 1 < this.numImages){
+        this.getImageURLsetInHTML(1, this.imageIndex + 1);
+      }
+      if ( this.imageIndex + 2 < this.numImages){
+        this.getImageURLsetInHTML(2, this.imageIndex + 2);
+      }
     }
     else{
+      const imageObjOne = {};
+      imageObjOne["grouping"] = boxOneValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex]]).update(imageObjOne);
+
+      const imageObjTwo = {};
+      imageObjTwo["grouping"] = boxTwoValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex+1]]).update(imageObjTwo);
+
+      const imageObjThree = {}
+      imageObjThree["grouping"] = boxThreeValue;
+      await this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[this.imageIndex+2]]).update(imageObjThree);
       this.imageIndex += 3;
 
       this.allGroupedAnswers.push(this.boxOne);
@@ -161,6 +192,15 @@ export class ChooseGroupsComponent implements OnInit {
       });
       this.boxThreeRadioClicked = false;
 
+      if(this.imageIndex < this.numImages ){
+        this.getImageURLsetInHTML(0, this.imageIndex);
+      }
+      if ( this.imageIndex + 1 < this.numImages){
+        this.getImageURLsetInHTML(1, this.imageIndex + 1);
+      }
+      if ( this.imageIndex + 2 < this.numImages){
+        this.getImageURLsetInHTML(2, this.imageIndex + 2);
+      }
     }
   }
   updateChecked(boxNum: number){
@@ -178,8 +218,8 @@ export class ChooseGroupsComponent implements OnInit {
 
   // checkes if all the images are checked or if the unchecked ones are hidden
   allChecked(){
-    const boxTwoHidden = this.imageIndex+2 >= this.imageNames.length;
-    const boxThreeHidden = this.imageIndex+3 >= this.imageNames.length;
+    const boxTwoHidden = this.imageIndex+2 >= this.numImages;
+    const boxThreeHidden = this.imageIndex+3 >= this.numImages;
 
     return this.boxOneRadioClicked &&
           (this.boxTwoRadioClicked || boxTwoHidden) &&
@@ -187,20 +227,7 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
   getImageNames(){
-    return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
-            'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
-            'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
-            'https://s.hswstatic.com/gif/ragdoll-cat.jpg',
-            'http://www.cutestpaw.com/wp-content/uploads/2011/11/To-infinity-and-beyond.jpeg',
-            'http://www.youloveit.com/uploads/posts/2017-03/1489320913_youloveit_com_hosico_cat01.jpg',
-            'https://i.kinja-img.com/gawker-media/image/upload/s--kHrQ8nr7--/c_scale,f_auto,fl_progressive,q_80,w_800/18huxz4bvnfjbjpg.jpg',
-            'https://timedotcom.files.wordpress.com/2018/08/new-zealand-cat-ban.jpg',
-            'https://www.105.net/resizer/659/-1/true/1516801821090.jpg--cercasi_coccolatori_di_gatti_professionisti_in_irlanda_.jpg?1516801823000',
-            'http://www.smashingphotoz.com/wp-content/uploads/2012/11/11_cat_photos.jpg',
-            'https://www.thehappycatsite.com/wp-content/uploads/2017/05/cute1.jpg',
-            'https://media.makeameme.org/created/javascript-javascript-everywhere.jpg'
-
-          ];
+    return this.generalInfo.allImages;
   }
 
 }
