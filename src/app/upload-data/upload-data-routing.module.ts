@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { UploadComponent } from './upload/upload.component';
+import { AuthGuard } from '../core/auth.guard';
 
 const routes: Routes = [
   {

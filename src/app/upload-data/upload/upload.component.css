@@ -66,3 +66,12 @@ button {
   background: lightblue;
   margin: 10px 0;
 }
+
+.dropzone:hover {
+  border: 2px solid #f16624;
+  color: #dadada !important;
+}
+
+.dropzone:file-label {
+  font-size: 1.2em;
+}
