@@ -1,6 +1,6 @@
 <div>
   <h1>Results: Percentage of Failure for Each Student</h1>
-  <p>Number of students to display:</p>
+  <p>Number of students to display (e.g. 30):</p>
 
   <form>
     <input type="text" id="numStudents" name="numStudents">
@@ -13,6 +13,14 @@
   <input type="file" #fileImportInput name="File Upload" id="txtFileUpload" (change)="fileChangeListener($event)" accept=".csv" />
 
 </div>
+
+<div>
+
+  <button onclick="exportTableToCSV('studentsprobability')">Export Table To CSV File</button>
+
+</div>
+
+<br>
 
 <div class="csv-result-table">
 
@@ -40,6 +48,10 @@
   </table>
 
 </div>
+
+
+
+
 
 
 
