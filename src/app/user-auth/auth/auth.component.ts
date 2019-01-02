@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from "@angular/router";
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import * as firebase from 'firebase';
 
 import { AuthService } from '../../core/auth.service';
@@ -20,7 +21,8 @@ export class AuthComponent implements OnInit {
   constructor(private storage: AngularFireStorage,
     private db: AngularFirestore,
     private authService: AuthService,
-    private router: Router) { }
+    private router: Router,
+    private dialog: MatDialog) { }
 
   ngOnInit() {
   }
@@ -33,19 +35,28 @@ export class AuthComponent implements OnInit {
     promise.then(res => {
       console.log("in login");
       console.log(res.user.uid);
-      this.router.navigate(["/upload"]);
       // create user if they do not exist in database
       var docRef = self.db.collection('users').doc(res.user.uid).ref;
 
       docRef.get().then(function(doc) {
         if (doc.exists) {
           console.log('user exists');
+          console.log(doc.data()["finishedLastRun"]);
+          if (doc.data()["finishedLastRun"]) {
+            self.router.navigate(["/upload"]);
+          }
+          else {
+            // The user should be prompted to either resume or start a new one
+            self.router.navigate(["/upload"]);
+          }
         } else {
           // doc.data() will be undefined in this case
           console.log("need to create user: this should never happen");
+          self.router.navigate(["/"]);
         }
       }).catch(function(error) {
         console.log("Error getting document:", error);
+        this.router.navigate(["/"]);
       });
     })
       .catch(e => alert(e.message));
@@ -68,6 +79,7 @@ export class AuthComponent implements OnInit {
             class_term: {},
             email: self.email,
             name: '',
+            finishedLastRun: false
           }).catch( (error)=>{
             console.log("Error in creating a user auth.componenet.ts line 74", error);
           });
