@@ -1,6 +1,51 @@
 <div class="container">
   <h2> Classify Questions</h2>
-  <div *ngIf="valuesInitialized">
+  <h2 *ngIf="!prevTermNeedGrouping">
+    You have finished previous term grouping.
+  </h2>
+  <div *ngIf="prevTermNeedGrouping">
+    <div class="row">
+      <div class="col-lg-4" *ngIf="imageIndex<numImages">
+        <h2> Question {{imageIndex+1}}</h2>
+        <img src="{{(imageSources[1] | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxOne">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null"
+                   (click)="updateChecked(1)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-4" *ngIf="imageIndex+1<numImages">
+        <h2> Question {{imageIndex+2}}</h2>
+        <img src="{{(imageSources[1] | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxTwo">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null"
+                   (click)="updateChecked(2)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-4" *ngIf="imageIndex+2<numImages">
+        <h2> Question {{imageIndex+3}}</h2>
+        <img src="{{(imageSources[2]| async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxThree">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(3)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+
+
+  </div>
+  <h2 *ngIf="!currTermNeedGrouping">
+    You have finished current term grouping.
+  </h2>
+  <div *ngIf="currTermNeedGrouping">
     <div class="row">
       <div class="col-lg-4" *ngIf="imageIndex<numImages">
         <h2> Question {{imageIndex+1}}</h2>
@@ -43,7 +88,7 @@
 
 <div style="text-align: right">
   <div style="display:inline-block">
-    <button [disabled]="!allChecked() || imagesFinished" (click)="nextImage()"> Next</button>
+    <button [disabled]="!allChecked() || imagesFinished" (click)="nextImage(0)"> Next</button>
   </div>
   &nbsp;
   <div style="display:inline-block">

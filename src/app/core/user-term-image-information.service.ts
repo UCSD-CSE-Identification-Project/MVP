@@ -32,7 +32,8 @@ export class UserTermImageInformationService {
     return {
       termId: '',
       allTermImages: {},
-      individualImages: {}
+      individualImages: [],
+      loadedFromDatabase: false,
     };
   }
   get userIdVal() {
@@ -87,5 +88,24 @@ export class UserTermImageInformationService {
   }
   set prevTermIndividualImages(arrIndImgNames: any) {
     this.prevTerm.individualImages = arrIndImgNames;
+  }
+  pushImageToPrevIndImages( imageKey: string) {
+    this.prevTerm.individualImages.push(imageKey);
+  }
+  pushImageToCurrIndImages( imageKey: string) {
+    this.currTerm.individualImages.push(imageKey);
+  }
+
+  get prevTermLoadedFromDatabase(){
+    return this.prevTerm.loadedFromDatabase;
+  }
+  set prevTermLoadedFromDatabase( boolVal: boolean){
+    this.prevTerm.loadedFromDatabase = boolVal;
+  }
+  get currTermLoadedFromDatabase(){
+    return this.currTerm.loadedFromDatabase;
+  }
+  set currTermLoadedFromDatabase( boolVal: boolean){
+    this.currTerm.loadedFromDatabase = boolVal;
   }
 }
