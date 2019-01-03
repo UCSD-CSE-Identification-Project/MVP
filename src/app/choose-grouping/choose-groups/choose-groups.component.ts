@@ -11,42 +11,23 @@ import {AngularFirestore} from '@angular/fire/firestore';
 })
 export class ChooseGroupsComponent implements OnInit {
   boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  imageNames;
-  imageIndex;
-  imageKeysSorted;
   imagesFinished; // if we finish reading all the images
   imageSources; // array of the image sources for the three images in view
-  numImages;
-  prevTermNeedGrouping : boolean;
-  currTermNeedGrouping: boolean;
-  // new code
   allGroupedAnswers: FormArray;
-  boxOne: FormGroup;
-  boxTwo: FormGroup;
-  boxThree: FormGroup;
-  boxOneRadioClicked: boolean;
-  boxTwoRadioClicked: boolean;
-  boxThreeRadioClicked: boolean;
-  disableBoxOne: boolean;
-  disableBoxTwo: boolean;
-  // loadingImage;
+  // boxOne: FormGroup;
+  // boxTwo: FormGroup;
+  // boxThree: FormGroup;
+  prevTerm;
+  currTerm;
+  boxOne;
+  boxTwo;
+  boxThree;
 
   constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore,private cdRef: ChangeDetectorRef) {
-    this.prevTermNeedGrouping = false;
-    this.imageNames = {};
-    this.imageNames[4]="startingvalue";
-    this.numImages = 0;
-    console.log(this.imageNames.size);
-    this.imageKeysSorted = [];
-    this.imageIndex = 0;
     this.imagesFinished = false;
-    // this.loadingImage ='https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0';
-    // this.imageSources = [{downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
-    //   {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'},
-    //   {downloadURL:'https://firebasestorage.googleapis.com/v0/b/ersp-identification.appspot.com/o/loadImage.jpeg?alt=media&token=1959fc01-66bc-4b57-b64d-37c5dc19d0e0'}];
   }
 
-  ngOnInit() {
+  ngOnInit() {/*
     this.boxOne = this.fb.group({
      option: [''],
     });
@@ -58,22 +39,23 @@ export class ChooseGroupsComponent implements OnInit {
     this.boxThree = this.fb.group({
      option: [''],
     });
-
+    */
+    this.boxOne = this.createBoxObj();
+    this.boxTwo = this.createBoxObj();
+    this.boxThree = this.createBoxObj();
     this.allGroupedAnswers = this.fb.array([]);
-    this.imageNames = this.getImageNames();
 
-    // var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
-    this.imageKeysSorted = Object.keys(this.imageNames).sort((a, b) => a.localeCompare(b));
-    this.numImages = this.imageKeysSorted.length;
-    this.imageIndex = 0;
-    this.getImageURLsetInHTML(0, this.imageIndex);
-    this.getImageURLsetInHTML(1, this.imageIndex + 1);
-    this.getImageURLsetInHTML(2, this.imageIndex + 2);
-    this.prevTermNeedGrouping = this.generalInfo.prevTermLoadedFromDatabase;
-    this.currTermNeedGrouping = this.generalInfo.currTermLoadedFromDatabase;
+    this.prevTerm = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages,this.generalInfo.prevTermLoadedFromDatabase);
+    this.currTerm = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
+
+    if( this.prevTerm.needGrouping ){
+
+    }
+
+
   }
 
-  createBoxObj(){
+  createBoxObj() {
     return {
       boxVal: this.fb.group({
         option: [''],
@@ -82,14 +64,20 @@ export class ChooseGroupsComponent implements OnInit {
       disabledRadioButton: false,
     };
   }
-  createChooseGroupingTermObject(){
-    return {
+  createChooseGroupingTermObject(imgNames, needGroupingForTerm){
+    let obj =  {
       imageNames: {},
       imageIndex: 0,
       imageKeysSorted: [],
       imageFinishedGrouping: false,
       needGrouping: false,
+      numImages: 0,
     };
+
+    obj.imageNames = imgNames;
+    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
+    obj.needGrouping = needGroupingForTerm;
+    obj.numImages = obj.imageKeysSorted.length;
   }
   // reset variables when second term is done
   setResetTermVariables(prevOrCurrentTerm: number){
@@ -97,10 +85,14 @@ export class ChooseGroupsComponent implements OnInit {
 
     }
   }
-  getImageURLsetInHTML(indexImageSource: number, individualImageIndex: number){
-    this.imageSources[indexImageSource] =
-        this.db.collection('images').doc(this.imageNames[this.imageKeysSorted[individualImageIndex]]).ref.get();
-    console.log(this.imageSources[indexImageSource],individualImageIndex);
+  getImageURLsetInHTML(indexImageSource: number, imageKey: string, setForPrev: boolean){
+    if( setForPrev ){
+      this.imageSources[indexImageSource] =
+        this.db.collection('images').doc(this.prevTerm.imageNames[imageKey]).ref.get();
+    } else{
+      this.imageSources[indexImageSource] =
+        this.db.collection('images').doc(this.currTerm.imageNames[imageKey]).ref.get();
+    }
   }
   // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   async nextImage(prevOrCurrentTerm: number) {
@@ -130,9 +122,9 @@ export class ChooseGroupsComponent implements OnInit {
     }
     console.log(this.imageNames[this.imageKeysSorted[this.imageIndex]]);
     // different scenarios
-    const boxOneValue = this.boxOne.controls.option.value;
-    const boxTwoValue = this.boxTwo.controls.option.value;
-    const boxThreeValue = this.boxThree.controls.option.value;
+    const boxOneValue = this.boxOne.boxVal.controls.option.value;
+    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
+    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
     if ( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
       const imageObj = {};
       imageObj["grouping"] = boxOneValue;
