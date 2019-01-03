@@ -7,22 +7,36 @@ import {AuthService} from './auth.service';
 export class UserTermImageInformationService {
 
   private userId: string;
+  /*
   private prevTermId: string;
   private currTermId: string;
-  private all_image_list: any;
-  private individual_image_list: any;
+  private prev_all_image_list: any;
+  private prev_individual_image_list: any;
+  */
+  private prevTerm;
+  private currTerm;
 
   constructor(private authService: AuthService) {
     this.userIdVal = this.authService.getUser();
     console.log(this.userId);
+    /*
     this.prevTermIdVal = '';
     this.currTermIdVal = '';
-    this.allImages = {};
-    this.individualImages = {};
+    this.prevTermAllImages = {};
+    this.prevTermIndividualImages = {};
+    */
+    this.prevTerm = this.constructTermObj();
+    this.currTerm = this.constructTermObj();
   }
-
+  constructTermObj() {
+    return {
+      termId: '',
+      allTermImages: {},
+      individualImages: {}
+    };
+  }
   get userIdVal() {
-    if( this.userId === '' ){
+    if ( this.userId === '' ){
       return this.authService.getUser();
     }
     return this.userId;
@@ -30,37 +44,48 @@ export class UserTermImageInformationService {
   set userIdVal(uid: string) {
     this.userId = uid;
   }
-
   get prevTermIdVal() {
-    return this.prevTermId;
+    return this.prevTerm.termId;
   }
   set prevTermIdVal(termUid: string) {
-    this.prevTermId = termUid;
+    this.prevTerm.termId = termUid;
   }
-
   get currTermIdVal() {
-    return this.currTermId;
+    return this.currTerm.termId;
   }
   set currTermIdVal(termUid: string) {
-    this.currTermId = termUid;
+    this.currTerm.termId = termUid;
   }
 
-  get allImages() {
-    return this.all_image_list;
+  get currTermAllImages() {
+    return this.currTerm.allTermImages;
   }
-  set allImages(arrOfImageNames: any) {
-    this.all_image_list = arrOfImageNames;
+  set currTermAllImages(arrOfImageNames: any) {
+    this.currTerm.allTermImages = arrOfImageNames;
+  }
+  get prevTermAllImages() {
+    return this.prevTerm.allTermImages;
+  }
+  set prevTermAllImages(arrOfImageNames: any) {
+    this.prevTerm.allTermImages = arrOfImageNames;
+  }
+  pushImageToCurrAllImages(imageKey: string, imageVal: string){
+    this.currTerm.allTermImages[imageKey] = imageVal;
+  }
+  pushImageToPrevAllImages(imageKey: string, imageVal: string ){
+    this.prevTerm.allTermImages[imageKey] = imageVal;
   }
 
-  pushImageToAllImages( imageKey: string,imageVal: string ){
-    this.all_image_list[imageKey] = imageVal;
+  get currTermIndividualImages() {
+    return this.currTerm.individualImages;
   }
-
-  get individualImages() {
-    return this.individual_image_list;
+  set prevTermIndividualImages( arrIndImgNames: any){
+    this.currTerm.individualImages = arrIndImgNames;
   }
-
-  set individualImages(arrIndImgNames: any) {
-    this.individual_image_list = arrIndImgNames;
+  get prevTermIndividualImages() {
+    return this.prevTerm.individualImages;
+  }
+  set prevTermIndividualImages(arrIndImgNames: any) {
+    this.prevTerm.individualImages = arrIndImgNames;
   }
 }

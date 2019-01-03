@@ -227,7 +227,7 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
   getImageNames(){
-    return this.generalInfo.allImages;
+    return this.generalInfo.prevTermAllImages;
   }
 
 }
