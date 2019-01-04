@@ -16,7 +16,7 @@
 
 <div>
 
-  <button onclick="exportTableToCSV('studentsprobability')">Export Table To CSV File</button>
+  <button (click)="exportTableToCSV('studentsprobability')">Export Table To CSV File</button>
 
 </div>
 
@@ -36,12 +36,8 @@
     <tr *ngFor="let csvData of csvRecords;let i = index;">
 
       <td>{{i+1}}</td>
-      <td>
-        <span>{{csvData.studentName}}</span>
-      </td>
-      <td>
-        <span>{{csvData.failProbability}}</span>
-      </td>
+      <td>{{csvData.studentName}}</td>
+      <td>{{csvData.failProbability}}</td>
 
     </tr>
     </tbody>
