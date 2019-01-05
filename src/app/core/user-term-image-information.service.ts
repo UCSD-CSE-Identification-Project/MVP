@@ -13,8 +13,8 @@ export class UserTermImageInformationService {
   private prev_all_image_list: any;
   private prev_individual_image_list: any;
   */
-  private prevTerm;
-  private currTerm;
+  private prevTermGeneralInfo;
+  private currTermGeneralInfo;
 
   constructor(private authService: AuthService) {
     this.userIdVal = this.authService.getUser();
@@ -25,8 +25,8 @@ export class UserTermImageInformationService {
     this.prevTermAllImages = {};
     this.prevTermIndividualImages = {};
     */
-    this.prevTerm = this.constructTermObj();
-    this.currTerm = this.constructTermObj();
+    this.prevTermGeneralInfo = this.constructTermObj();
+    this.currTermGeneralInfo = this.constructTermObj();
   }
   constructTermObj() {
     return {
@@ -46,66 +46,66 @@ export class UserTermImageInformationService {
     this.userId = uid;
   }
   get prevTermIdVal() {
-    return this.prevTerm.termId;
+    return this.prevTermGeneralInfo.termId;
   }
   set prevTermIdVal(termUid: string) {
-    this.prevTerm.termId = termUid;
+    this.prevTermGeneralInfo.termId = termUid;
   }
   get currTermIdVal() {
-    return this.currTerm.termId;
+    return this.currTermGeneralInfo.termId;
   }
   set currTermIdVal(termUid: string) {
-    this.currTerm.termId = termUid;
+    this.currTermGeneralInfo.termId = termUid;
   }
 
   get currTermAllImages() {
-    return this.currTerm.allTermImages;
+    return this.currTermGeneralInfo.allTermImages;
   }
   set currTermAllImages(arrOfImageNames: any) {
-    this.currTerm.allTermImages = arrOfImageNames;
+    this.currTermGeneralInfo.allTermImages = arrOfImageNames;
   }
   get prevTermAllImages() {
-    return this.prevTerm.allTermImages;
+    return this.prevTermGeneralInfo.allTermImages;
   }
   set prevTermAllImages(arrOfImageNames: any) {
-    this.prevTerm.allTermImages = arrOfImageNames;
+    this.prevTermGeneralInfo.allTermImages = arrOfImageNames;
   }
   pushImageToCurrAllImages(imageKey: string, imageVal: string){
-    this.currTerm.allTermImages[imageKey] = imageVal;
+    this.currTermGeneralInfo.allTermImages[imageKey] = imageVal;
   }
   pushImageToPrevAllImages(imageKey: string, imageVal: string ){
-    this.prevTerm.allTermImages[imageKey] = imageVal;
+    this.prevTermGeneralInfo.allTermImages[imageKey] = imageVal;
   }
 
   get currTermIndividualImages() {
-    return this.currTerm.individualImages;
+    return this.currTermGeneralInfo.individualImages;
   }
-  set prevTermIndividualImages( arrIndImgNames: any){
-    this.currTerm.individualImages = arrIndImgNames;
+  set currTermIndividualImages( arrIndImgNames: any){
+    this.currTermGeneralInfo.individualImages = arrIndImgNames;
   }
   get prevTermIndividualImages() {
-    return this.prevTerm.individualImages;
+    return this.prevTermGeneralInfo.individualImages;
   }
   set prevTermIndividualImages(arrIndImgNames: any) {
-    this.prevTerm.individualImages = arrIndImgNames;
+    this.prevTermGeneralInfo.individualImages = arrIndImgNames;
   }
   pushImageToPrevIndImages( imageKey: string) {
-    this.prevTerm.individualImages.push(imageKey);
+    this.prevTermGeneralInfo.individualImages.push(imageKey);
   }
   pushImageToCurrIndImages( imageKey: string) {
-    this.currTerm.individualImages.push(imageKey);
+    this.currTermGeneralInfo.individualImages.push(imageKey);
   }
 
   get prevTermLoadedFromDatabase(){
-    return this.prevTerm.loadedFromDatabase;
+    return this.prevTermGeneralInfo.loadedFromDatabase;
   }
   set prevTermLoadedFromDatabase( boolVal: boolean){
-    this.prevTerm.loadedFromDatabase = boolVal;
+    this.prevTermGeneralInfo.loadedFromDatabase = boolVal;
   }
   get currTermLoadedFromDatabase(){
-    return this.currTerm.loadedFromDatabase;
+    return this.currTermGeneralInfo.loadedFromDatabase;
   }
   set currTermLoadedFromDatabase( boolVal: boolean){
-    this.currTerm.loadedFromDatabase = boolVal;
+    this.currTermGeneralInfo.loadedFromDatabase = boolVal;
   }
 }
