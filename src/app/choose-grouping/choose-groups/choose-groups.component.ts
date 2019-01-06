@@ -24,6 +24,8 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log(this.generalInfo.prevTermAllImages);
+    console.log(this.generalInfo.currTermAllImages);
     this.boxOne = this.createBoxObj();
     this.boxTwo = this.createBoxObj();
     this.boxThree = this.createBoxObj();
@@ -41,6 +43,9 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
     }
+
+    console.log(this.prevTermGrouping.imageKeysSorted);
+    console.log(this.currTermGrouping.imageKeysSorted);
 
 
   }
@@ -219,7 +224,7 @@ export class ChooseGroupsComponent implements OnInit {
         this.getImageURLsetInHTML(0, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex], prevOrCurrentTerm);
       }
       if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
-        this.getImageURLsetInHTML(1, termObjGrouping.imageNames[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+        this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
       }
       if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
         this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);

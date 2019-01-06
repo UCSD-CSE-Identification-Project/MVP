@@ -5,7 +5,6 @@
   </h2>
   <div *ngIf="prevTermGrouping.needGrouping && !prevTermGrouping.imageFinishedGrouping">
     <div class="row">
-      <div> in side the thing</div>
       <div class="col-lg-4" *ngIf="prevTermGrouping.imageIndex<prevTermGrouping.numImages">
         <h2> Question {{prevTermGrouping.imageIndex+1}}</h2>
         <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />

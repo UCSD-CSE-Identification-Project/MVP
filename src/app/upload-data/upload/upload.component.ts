@@ -91,8 +91,11 @@ export class UploadComponent implements OnInit {
     }).then(function(ref) {
       termId = ref.id;
     });
-    this.generalInfo.prevTermIdVal = prevOrCurrTerm === 0 ? termId : this.generalInfo.prevTermIdVal;
-    this.generalInfo.currTermIdVal = prevOrCurrTerm === 1 ? termId : this.generalInfo.currTermIdVal;
+    if(prevOrCurrTerm === 0){
+      this.generalInfo.prevTermIdVal = termId;
+    } else {
+      this.generalInfo.currTermIdVal = termId;
+    }
     console.log('term id', termId);
 
 
