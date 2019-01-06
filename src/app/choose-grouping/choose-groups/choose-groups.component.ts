@@ -112,11 +112,11 @@ export class ChooseGroupsComponent implements OnInit {
       return;
     }
     if ( numImagesLeft <= 3 ) {
-      if ( numImagesLeft <= 1 ){
+      if( numImagesLeft <= 3 ) {
         const imageObj = {};
-        imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
+        imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
         await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
       }
       if(numImagesLeft <= 2 ) {
         const imageObj = {};
@@ -124,11 +124,11 @@ export class ChooseGroupsComponent implements OnInit {
         await this.db.collection('images')
           .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
       }
-      if( numImagesLeft <= 3 ) {
+      if ( numImagesLeft <= 1 ){
         const imageObj = {};
-        imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
+        imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
         await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
       }
       this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
