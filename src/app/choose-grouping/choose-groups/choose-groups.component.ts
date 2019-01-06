@@ -86,6 +86,9 @@ export class ChooseGroupsComponent implements OnInit {
       this.boxOne = this.createBoxObj();
       this.boxTwo = this.createBoxObj();
       this.boxThree = this.createBoxObj();
+      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
+      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
+      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
     } else{
       this.currTermGrouping.imageFinishedGrouping = true;
       this.imagesFinished = true;
@@ -107,24 +110,24 @@ export class ChooseGroupsComponent implements OnInit {
   async nextImage(prevOrCurrentTerm: string) {
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
     let numImagesLeft = termObjGrouping.numImages - termObjGrouping.imageIndex;
-    if( numImagesLeft === 0 ){
-      this.setResetTermFinishVariables(prevOrCurrentTerm);
-      return;
-    }
     if ( numImagesLeft <= 3 ) {
-      if( numImagesLeft <= 3 ) {
+      if( numImagesLeft === 0 ){
+        this.setResetTermFinishVariables(prevOrCurrentTerm);
+        return;
+      }
+      if( numImagesLeft == 3 ) {
         const imageObj = {};
         imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
         await this.db.collection('images')
           .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
       }
-      if(numImagesLeft <= 2 ) {
+      if(numImagesLeft == 2 ) {
         const imageObj = {};
         imageObj["grouping"] = this.boxTwo.boxVal.controls.option.value;
         await this.db.collection('images')
           .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
       }
-      if ( numImagesLeft <= 1 ){
+      if ( numImagesLeft == 1 ){
         const imageObj = {};
         imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
         await this.db.collection('images')
