@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 
 import { ResultsRoutingModule } from './results-routing.module';
 import { ShowResultsComponent } from './show-results/show-results.component';
@@ -8,6 +10,7 @@ import { ShowResultsComponent } from './show-results/show-results.component';
   declarations: [ShowResultsComponent],
   imports: [
     CommonModule,
+    FormsModule,
     ResultsRoutingModule,
   ]
 })

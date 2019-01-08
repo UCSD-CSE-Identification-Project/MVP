@@ -8,6 +8,7 @@ import { ViewChild } from '@angular/core';
 })
 export class ShowResultsComponent implements OnInit {
   public csvRecords: any[] = [];
+  numStudents = 0;
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
@@ -46,9 +47,9 @@ export class ShowResultsComponent implements OnInit {
 
   getDataRecordsArrayFromCSVFile(csvRecordsArray: any, headerLength: any) {
     const dataArr = [];
-    // csvRecordsArray.length
-    // const topFifteen  = 16;
-    for (let i = 1; i < csvRecordsArray.length; i++) {
+
+    console.log(this.numStudents);
+    for (let i = 1; i < this.numStudents; i++) {
       const data = csvRecordsArray[i].split(',');
 
       // FOR EACH ROW IN CSV FILE IF THE NUMBER OF COLUMNS

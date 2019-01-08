@@ -2,9 +2,9 @@
   <h1>Results: Percentage of Failure for Each Student</h1>
   <p>Number of students to display (e.g. 30):</p>
 
-  <form>
-    <input type="text" id="numStudents" name="numStudents">
-  </form>
+  
+  <input type="number" [(ngModel)]="numStudents">
+  
   
 </div>
 
@@ -16,7 +16,7 @@
 
 <div>
 
-  <button onclick="exportTableToCSV('studentsprobability')">Export Table To CSV File</button>
+  <button (click)="exportTableToCSV('studentsprobability')">Export Table To CSV File</button>
 
 </div>
 
@@ -48,11 +48,3 @@
   </table>
 
 </div>
-
-
-
-
-
-
-
-
