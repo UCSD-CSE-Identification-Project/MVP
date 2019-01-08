@@ -1,11 +1,15 @@
 <div class="container">
   <h2> Classify Questions</h2>
-  <div *ngIf="valuesInitialized">
+  <h2 *ngIf="!prevTermGrouping.needGrouping || prevTermGrouping.imageFinishedGrouping">
+    You have finished previous term grouping.
+  </h2>
+  <div *ngIf="prevTermGrouping.needGrouping && !prevTermGrouping.imageFinishedGrouping">
     <div class="row">
-      <div class="col-lg-4" *ngIf="imageIndex<numImages">
-        <h2> Question {{imageIndex+1}}</h2>
-        <img src="{{(imageSources[1] | async)?.data().downloadURL}}" width="300px" />
-        <form [formGroup]="boxOne">
+      <h3>Previous Term</h3>
+      <div class="col-lg-4" *ngIf="prevTermGrouping.imageIndex<prevTermGrouping.numImages">
+        <h2> Question {{prevTermGrouping.imageIndex+1}}</h2>
+        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxOne.boxVal">
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null"
                    (click)="updateChecked(1)"> {{data.opt}}<br>
@@ -13,10 +17,10 @@
         </form>
       </div>
 
-      <div class="col-lg-4" *ngIf="imageIndex+1<numImages">
-        <h2> Question {{imageIndex+2}}</h2>
-        <img src="{{(imageSources[1] | async)?.data().downloadURL}}" width="300px" />
-        <form [formGroup]="boxTwo">
+      <div class="col-lg-4" *ngIf="prevTermGrouping.imageIndex+1<prevTermGrouping.numImages">
+        <h2> Question {{prevTermGrouping.imageIndex+2}}</h2>
+        <img src="{{(boxTwo.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxTwo.boxVal">
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null"
                    (click)="updateChecked(2)"> {{data.opt}}<br>
@@ -24,10 +28,53 @@
         </form>
       </div>
 
-      <div class="col-lg-4" *ngIf="imageIndex+2<numImages">
-        <h2> Question {{imageIndex+3}}</h2>
-        <img src="{{(imageSources[2]| async)?.data().downloadURL}}" width="300px" />
-        <form [formGroup]="boxThree">
+      <div class="col-lg-4" *ngIf="prevTermGrouping.imageIndex+2<prevTermGrouping.numImages">
+        <h2> Question {{prevTermGrouping.imageIndex+3}}</h2>
+        <img src="{{(boxThree.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxThree.boxVal">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(3)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+
+
+  </div>
+  <h2 *ngIf="!currTermGrouping.needGrouping || currTermGrouping.imageFinishedGrouping && prevTermGrouping.imageFinishedGrouping">
+    You have finished current term grouping.
+  </h2>
+  <div *ngIf="currTermGrouping.needGrouping && !currTermGrouping.imageFinishedGrouping && prevTermGrouping.imageFinishedGrouping">
+    <div class="row">
+      <h3>Current Term</h3>
+      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex<currTermGrouping.numImages">
+        <h2> Question {{currTermGrouping.imageIndex+1}}</h2>
+        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxOne.boxVal">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null"
+                   (click)="updateChecked(1)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex+1<currTermGrouping.numImages">
+        <h2> Question {{currTermGrouping.imageIndex+2}}</h2>
+        <img src="{{(boxTwo.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxTwo.boxVal">
+          <div *ngFor="let data of boxValues">
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null"
+                   (click)="updateChecked(2)"> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex+2<currTermGrouping.numImages">
+        <h2> Question {{currTermGrouping.imageIndex+3}}</h2>
+        <img src="{{(boxThree.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
+        <form [formGroup]="boxThree.boxVal">
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(3)"> {{data.opt}}<br>
           </div>
@@ -43,7 +90,8 @@
 
 <div style="text-align: right">
   <div style="display:inline-block">
-    <button [disabled]="!allChecked() || imagesFinished" (click)="nextImage()"> Next</button>
+    <button *ngIf="!prevTermGrouping.imageFinishedGrouping" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
+    <button *ngIf="prevTermGrouping.imageFinishedGrouping" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
   </div>
   &nbsp;
   <div style="display:inline-block">
@@ -52,13 +100,18 @@
 
 </div>
 
-<div>boxOne: {{this.boxOneRadioClicked}} <br>
-  boxTwo: {{this.boxTwoRadioClicked}}  <br>
-  boxThree: {{this.boxThreeRadioClicked}} <br>
-  TwoHidden: {{this.imageIndex+2 >= numImages}} <br>
-  ThreeHidden: {{this.imageIndex+3 >= numImages}}  <br>
+
+
+<div>boxOne: {{this.boxOne.radioClicked}} <br>
+  boxTwo: {{this.boxTwo.radioClicked}}  <br>
+  boxThree: {{this.boxThree.radioClicked}} <br>
+  TwoHidden: {{this.prevTermGrouping.imageIndex+2 >= prevTermGrouping.numImages}} <br>
+  ThreeHidden: {{this.prevTermGrouping.imageIndex+3 >= prevTermGrouping.numImages}}  <br>
   imagesFinished: {{imagesFinished}}
+  previmageIndex: {{prevTermGrouping.imageIndex}} <br>
+  prevnumImages: {{ prevTermGrouping.numImages }}<br>
+  currimageIndex: {{currTermGrouping.imageIndex}} <br>
+  currnumImages: {{ currTermGrouping.numImages }}<br>
 </div>
 
-<pre>Form values: {{allGroupedAnswers.value | json}}</pre>
 
