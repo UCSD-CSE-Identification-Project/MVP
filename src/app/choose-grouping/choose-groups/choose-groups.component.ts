@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {forEach} from '@angular/router/src/utils/collection';
+import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-choose-groups',
@@ -9,163 +10,260 @@ import {forEach} from '@angular/router/src/utils/collection';
 })
 export class ChooseGroupsComponent implements OnInit {
   boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
-  imageNames;
-  imageIndex;
   imagesFinished; // if we finish reading all the images
+  prevTermGrouping;
+  currTermGrouping;
+  boxOne;
+  boxTwo;
+  boxThree;
 
-  // new code
-  allGroupedAnswers: FormArray;
-  boxOne: FormGroup;
-  boxTwo: FormGroup;
-  boxThree: FormGroup;
-  boxOneRadioClicked: boolean;
-  boxTwoRadioClicked: boolean;
-  boxThreeRadioClicked: boolean;
-  disableBoxOne: boolean;
-  disableBoxTwo: boolean;
-
-  constructor(private fb: FormBuilder) {
-    this.imageNames = this.getImageNames();
-    this.imageIndex = 0;
+  constructor(private fb: FormBuilder,
+              private generalInfo: UserTermImageInformationService,
+              private db: AngularFirestore) {
     this.imagesFinished = false;
   }
 
   ngOnInit() {
+    console.log(this.generalInfo.prevTermAllImages);
+    console.log(this.generalInfo.currTermAllImages);
+    this.boxOne = this.createBoxObj();
+    this.boxTwo = this.createBoxObj();
+    this.boxThree = this.createBoxObj();
 
-    this.boxOne = this.fb.group({
-     option: [''],
-    });
+    this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages,this.generalInfo.prevTermLoadedFromDatabase);
+    this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
 
-    this.boxTwo = this.fb.group({
-     option: [''],
-    });
+    if( this.prevTermGrouping.needGrouping ){
+      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[0],'prev' );
+      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[1],'prev');
+      this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[2],'prev');
+    }
+    else{
+      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
+      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
+      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+    }
 
-    this.boxThree = this.fb.group({
-     option: [''],
-    });
+    console.log(this.prevTermGrouping.imageKeysSorted);
+    console.log(this.currTermGrouping.imageKeysSorted);
 
-    this.allGroupedAnswers = this.fb.array([]);
 
   }
 
-  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
-  nextImage() {
-    console.log(this.imageIndex);
-    console.log(this.imageNames.length);
-    if((this.imageNames.length - this.imageIndex) <= 3 ){
+  createBoxObj() {
+    return {
+      boxVal: this.fb.group({
+        option: [''],
+      }),
+      radioClicked: false,
+      disabledRadioButton: false,
+      imageSourceURL: null,
+    };
+  }
+
+  // imgNames type object
+  createChooseGroupingTermObject(imgNames, loadedFromDatabase: boolean){
+    let obj =  {
+      imageNames: {},
+      imageIndex: 0,
+      imageKeysSorted: [],
+      imageFinishedGrouping: false,
+      needGrouping: true,
+      numImages: 0,
+    };
+
+    obj.imageNames = imgNames;
+    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
+    obj.needGrouping = !loadedFromDatabase;
+    obj.numImages = obj.imageKeysSorted.length;
+    return obj;
+  }
+  // TODO
+  // reset variables when second term is done
+  setResetTermFinishVariables(prevOrCurrentTerm: string){
+    if ( prevOrCurrentTerm === 'prev'){
+      this.prevTermGrouping.imageFinishedGrouping = true;
+      this.boxOne = this.createBoxObj();
+      this.boxTwo = this.createBoxObj();
+      this.boxThree = this.createBoxObj();
+      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
+      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
+      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+    } else{
+      this.currTermGrouping.imageFinishedGrouping = true;
       this.imagesFinished = true;
-      alert("inside" + this.imageIndex + this.imageNames.length);
+    }
+  }
+  getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){
+    let url = prevOrCurr === "prev" ?
+      this.db.collection('images').doc(this.prevTermGrouping.imageNames[imageKey]).ref.get() :
+      this.db.collection('images').doc(this.currTermGrouping.imageNames[imageKey]).ref.get();
+   if(indexImageSource === 0){
+     this.boxOne.imageSourceURL = url;
+   } else if( indexImageSource === 1){
+     this.boxTwo.imageSourceURL = url;
+   } else{
+     this.boxThree.imageSourceURL = url;
+   }
+  }
+  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
+  async nextImage(prevOrCurrentTerm: string) {
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    let numImagesLeft = termObjGrouping.numImages - termObjGrouping.imageIndex;
+    if ( numImagesLeft <= 3 ) {
+      if( numImagesLeft === 0 ){
+        this.setResetTermFinishVariables(prevOrCurrentTerm);
+        return;
+      }
+      if( numImagesLeft == 3 ) {
+        const imageObj = {};
+        imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
+        await this.db.collection('images')
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
+      }
+      if(numImagesLeft == 2 ) {
+        const imageObj = {};
+        imageObj["grouping"] = this.boxTwo.boxVal.controls.option.value;
+        await this.db.collection('images')
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
+      }
+      if ( numImagesLeft == 1 ){
+        const imageObj = {};
+        imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
+        await this.db.collection('images')
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
+      }
+      this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
     }
     // different scenarios
-    const boxOneValue = this.boxOne.controls.option.value;
-    const boxTwoValue = this.boxTwo.controls.option.value;
-    const boxThreeValue = this.boxThree.controls.option.value;
-    if( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
-
-      this.imageIndex += 1;
-
-      this.allGroupedAnswers.push(this.boxOne);
+    const boxOneValue = this.boxOne.boxVal.controls.option.value;
+    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
+    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
+    if ( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
+      const imageObj = {};
+      imageObj["grouping"] = boxOneValue;
+      if ( boxOneValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
+      termObjGrouping.imageIndex += 1;
 
       this.boxOne = this.boxTwo;
       this.boxTwo = this.boxThree;
 
-      this.disableBoxOne = true;
-      this.disableBoxTwo = true;
+      this.boxOne.disabledRadioButton = true;
+      this.boxTwo.disabledRadioButton = true;
 
-      this.boxThree = this.fb.group({
-        option: [''],
-      });
-      this.boxThreeRadioClicked = false;
-
+      this.boxThree = this.createBoxObj();
+      if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
+        this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+      }
     }
     else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
              ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
-      this.imageIndex += 2;
+      const imageObjOne = {};
+      imageObjOne["grouping"] = boxOneValue;
+      if ( boxOneValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
 
-      this.allGroupedAnswers.push(this.boxOne);
-      this.allGroupedAnswers.push(this.boxTwo);
+      const imageObjTwo = {};
+      imageObjTwo["grouping"] = boxTwoValue;
+      if ( boxTwoValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
+      termObjGrouping.imageIndex += 2;
 
       this.boxOne = this.boxThree;
-      this.disableBoxOne = true;
-      this.disableBoxTwo = false;
+      this.boxOne.disabledRadioButton = true;
 
-      this.boxTwo = this.fb.group({
-        option: [''],
-      });
-      this.boxTwoRadioClicked = false;
+      this.boxTwo = this.createBoxObj();
+      this.boxThree = this.createBoxObj();
 
-      this.boxThree = this.fb.group({
-        option: [''],
-      });
-      this.boxThreeRadioClicked = false;
 
+      if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+        this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1],prevOrCurrentTerm);
+      }
+      if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
+        this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+      }
     }
     else{
-      this.imageIndex += 3;
+      const imageObjOne = {};
+      imageObjOne["grouping"] = boxOneValue;
+      if ( boxOneValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
 
-      this.allGroupedAnswers.push(this.boxOne);
-      this.allGroupedAnswers.push(this.boxTwo);
-      this.allGroupedAnswers.push(this.boxThree);
+      const imageObjTwo = {};
+      imageObjTwo["grouping"] = boxTwoValue;
+      if ( boxTwoValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
 
-      this.disableBoxOne = false;
-      this.disableBoxTwo = false;
+      const imageObjThree = {};
+      imageObjThree["grouping"] = boxThreeValue;
+      if ( boxThreeValue === 'Individual'){
+        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]);
+      }
+      await this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]).update(imageObjThree);
+      termObjGrouping.imageIndex += 3;
 
-      this.boxOne = this.fb.group({
-        option: [''],
-      });
-      this.boxOneRadioClicked = false;
-
-      this.boxTwo = this.fb.group({
-        option: [''],
-      });
-      this.boxTwoRadioClicked = false;
-
-      this.boxThree = this.fb.group({
-        option: [''],
-      });
-      this.boxThreeRadioClicked = false;
-
+      this.boxOne = this.createBoxObj();
+      this.boxTwo = this.createBoxObj();
+      this.boxThree = this.createBoxObj();
+      if(termObjGrouping.imageIndex < termObjGrouping.numImages ){
+        this.getImageURLsetInHTML(0, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex], prevOrCurrentTerm);
+      }
+      if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+        this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+      }
+      if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
+        this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+      }
+    }
+  }
+  addImageToPreviousOrCurrentTermIndImages( prevOrCurTerm: string, imageId: string) {
+    if( prevOrCurTerm === 'prev') {
+      this.generalInfo.pushImageToPrevIndImages(imageId);
+    } else {
+      this.generalInfo.pushImageToCurrIndImages(imageId);
     }
   }
   updateChecked(boxNum: number){
     // if(this.boxOne.controls.option)
     if( boxNum === 1 ){
-      this.boxOneRadioClicked = true;
+      this.boxOne.radioClicked = true;
     }
     else if( boxNum === 2 ){
-      this.boxTwoRadioClicked = true;
+      this.boxTwo.radioClicked = true;
     }
     else if( boxNum === 3 ){
-      this.boxThreeRadioClicked = true;
+      this.boxThree.radioClicked = true;
     }
   }
 
   // checkes if all the images are checked or if the unchecked ones are hidden
-  allChecked(){
-    const boxTwoHidden = this.imageIndex+2 >= this.imageNames.length;
-    const boxThreeHidden = this.imageIndex+3 >= this.imageNames.length;
+  allChecked(prevOrCurrent: string){
+    let termObjGrouping = prevOrCurrent === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    const boxTwoHidden = termObjGrouping.imageIndex+2 >= termObjGrouping.numImages;
+    const boxThreeHidden = termObjGrouping.imageIndex+3 >= termObjGrouping.numImages;
 
-    return this.boxOneRadioClicked &&
-          (this.boxTwoRadioClicked || boxTwoHidden) &&
-          (this.boxThreeRadioClicked || boxThreeHidden);
+    return this.boxOne.radioClicked &&
+          (this.boxTwo.radioClicked|| boxTwoHidden) &&
+          (this.boxThree.radioClicked || boxThreeHidden);
 
-  }
-  getImageNames(){
-    return ['https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
-            'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
-            'http://catsatthestudios.com/wp-content/uploads/2017/12/12920541_1345368955489850_5587934409579916708_n-2-960x410.jpg',
-            'https://s.hswstatic.com/gif/ragdoll-cat.jpg',
-            'http://www.cutestpaw.com/wp-content/uploads/2011/11/To-infinity-and-beyond.jpeg',
-            'http://www.youloveit.com/uploads/posts/2017-03/1489320913_youloveit_com_hosico_cat01.jpg',
-            'https://i.kinja-img.com/gawker-media/image/upload/s--kHrQ8nr7--/c_scale,f_auto,fl_progressive,q_80,w_800/18huxz4bvnfjbjpg.jpg',
-            'https://timedotcom.files.wordpress.com/2018/08/new-zealand-cat-ban.jpg',
-            'https://www.105.net/resizer/659/-1/true/1516801821090.jpg--cercasi_coccolatori_di_gatti_professionisti_in_irlanda_.jpg?1516801823000',
-            'http://www.smashingphotoz.com/wp-content/uploads/2012/11/11_cat_photos.jpg',
-            'https://www.thehappycatsite.com/wp-content/uploads/2017/05/cute1.jpg',
-            'https://media.makeameme.org/created/javascript-javascript-everywhere.jpg'
-
-          ];
   }
 
 }
