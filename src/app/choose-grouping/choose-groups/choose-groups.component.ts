@@ -106,6 +106,43 @@ export class ChooseGroupsComponent implements OnInit {
      this.boxThree.imageSourceURL = url;
    }
   }
+
+  /*
+   * numBoxesPushed is the number of boxes that will be added to the firestore database
+   * at the time the next button is clicked
+   */
+  addGroupedToIndImages(numBoxesPushed: number, prevOrCurrentTerm: string){
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    // different scenarios
+    const boxOneValue = this.boxOne.boxVal.controls.option.value;
+    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
+    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
+
+    if (boxOneValue === 'Ignore') { // todo will not work for the case of ignore ind ind
+      return;
+    }
+    if(numBoxesPushed === 3){
+      const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+      const boxThreeImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]];
+      let imagesInGroupObj = {};
+      imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+      imagesInGroupObj[boxThreeValue] = boxThreeImageIdVal;
+      this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+        .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+    } else if ( numBoxesPushed === 2) {   // todo will there be the case ind ignore group or ignore group ind
+      const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+      let imagesInGroupObj = {};
+      imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+      this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+        .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+    } else {
+      this.db.collection('images')
+        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+        .set({imagesInGroup: {}},{merge: true});
+    }
+  }
   // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   async nextImage(prevOrCurrentTerm: string) {
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
@@ -115,19 +152,19 @@ export class ChooseGroupsComponent implements OnInit {
         this.setResetTermFinishVariables(prevOrCurrentTerm);
         return;
       }
-      if( numImagesLeft == 3 ) {
+      if( numImagesLeft === 3 ) {
         const imageObj = {};
         imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
         await this.db.collection('images')
           .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
       }
-      if(numImagesLeft == 2 ) {
+      if(numImagesLeft === 2 ) {
         const imageObj = {};
         imageObj["grouping"] = this.boxTwo.boxVal.controls.option.value;
         await this.db.collection('images')
           .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
       }
-      if ( numImagesLeft == 1 ){
+      if ( numImagesLeft === 1 ){
         const imageObj = {};
         imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
         await this.db.collection('images')

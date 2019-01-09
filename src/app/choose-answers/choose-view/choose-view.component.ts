@@ -14,6 +14,10 @@ export class ChooseViewComponent implements OnInit {
   imageIndex;
   imagesFinished; // if we finish reading all the images
 
+  boxOnScreen;
+  prevTermAnswerObj;
+  currTermAnswerObj;
+
   // start of new code
   allAnswers: FormArray;
   specificAnswers: FormGroup;
@@ -26,7 +30,40 @@ export class ChooseViewComponent implements OnInit {
     this.numCheckedBoxes = 0;
   }
 
+  createChooseAnswersTermObj(imgNames, loadedFromDatabase: boolean){
+    let obj =  {
+      imageNames: {},
+      imageIndex: 0,
+      imageKeysSorted: [],
+      imageFinishedGrouping: false,
+      needGrouping: true,
+      numImages: 0,
+    };
+
+    obj.imageNames = imgNames;
+    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
+    obj.needGrouping = !loadedFromDatabase;
+    obj.numImages = obj.imageKeysSorted.length;
+    return obj;
+  }
+
+  createBoxObj(){
+    return {
+      boxAnswer: this.fb.group({
+        A: [false],
+        B: [false],
+        C: [false],
+        D: [false],
+        E: [false],
+        N: [false]
+      }),
+      numBoxesChecked: 0,
+      imageSourceURL: null,
+    };
+  }
   ngOnInit() {
+    this.boxOnScreen = this.createBoxObj();
+
     this.allAnswers = this.fb.array([]);
     this.specificAnswers = this.fb.group({
       A: [false],
