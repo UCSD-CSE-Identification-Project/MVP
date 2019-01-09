@@ -48,8 +48,7 @@ export class ShowResultsComponent implements OnInit {
   getDataRecordsArrayFromCSVFile(csvRecordsArray: any, headerLength: any) {
     const dataArr = [];
 
-    console.log(this.numStudents);
-    for (let i = 1; i < this.numStudents; i++) {
+    for (let i = 1; i <= this.numStudents && i < csvRecordsArray.length; i++) {
       const data = csvRecordsArray[i].split(',');
 
       // FOR EACH ROW IN CSV FILE IF THE NUMBER OF COLUMNS
