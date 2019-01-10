@@ -46,6 +46,8 @@ export class UploadComponent implements OnInit {
   prevTerm: string = '';
   currTerm: string = '';
   prevTermsCreated = [];
+  sameCurrTermName: boolean = false;
+  samePrevTermName: boolean = false;
 
 
   constructor(private uploadService: UploadService,
@@ -72,6 +74,19 @@ export class UploadComponent implements OnInit {
   ngOnInit() {
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
     console.log('user id', this.generalInfo.userIdVal);
+  }
+
+  async checkTermName() {
+    this.sameCurrTermName = false;
+    this.samePrevTermName = false;
+    for (var i=0; i<this.prevTermsCreated.length; i++){
+      if (this.currTerm === this.prevTermsCreated[i]) {
+        this.sameCurrTermName = true;
+      }
+      if (this.prevTerm === this.prevTermsCreated[i]) {
+        this.samePrevTermName = true;
+      }
+    }
   }
 
   async fileChanged(event, prevOrCurrTerm) {

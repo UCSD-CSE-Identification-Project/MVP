@@ -8,8 +8,13 @@
     <h2>Previous Term</h2>
     <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexist term?</mat-checkbox>
     <div *ngIf="!usePreexistTerm">
-      Input term name: <input [(ngModel)]="prevTerm" type="text" placeholder="E.g. CSE100FA2018">
+      Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
+      <!--Input term name: <input id="prevTermName" name="prevTermName" class="form-control" required minlength="1" #name="ngModel" [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
+      <div *ngIf="prevTermName.invalid && (prevTermName.dirty || prevTermName.touched)"
+           class="alert alert-danger">
+      </div>-->
     </div>
+
     <div *ngIf="usePreexistTerm">
       <h4 style="display: inline-block;">Select a term you want to use:</h4>
       <form style="display: inline-block;">
@@ -19,8 +24,7 @@
       </form>
     </div>
 
-
-    <div *ngIf="prevTerm != '' && !usePreexistTerm">
+    <div *ngIf="prevTerm != '' && prevTerm!=currTerm && !usePreexistTerm">
       <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event,0)" /></div>
       <p>{{this.downloadURL | async}}</p>
     </div>
@@ -29,13 +33,19 @@
   <div class="current">
     <h2>Current Term</h2>
     <div>
-      Input term name: <input [(ngModel)]="currTerm" type="text" placeholder="E.g. CSE100FA2018">
+      Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
     </div>
 
-    <div *ngIf="currTerm != ''">
+    <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameTermName">
       <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event, 1)" /></div>
     </div>
+
   </div>
+
+  <div *ngIf="prevTerm == currTerm && prevTerm!=''">Warning: previous term name cannot be the same as current term name </div>
+  <div *ngIf="samePrevTermName">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </div>
+  <div *ngIf="sameCurrTermName">Warning: current term name cannot be a preexisting term name </div>
+
   <button type="button" (click)="onUpload()">Submit</button>
   <h2>Percentage is {{percentage}}%</h2>
   <progress-bar class='progress' [progress]='progress | async' [color]="'#488aff'"></progress-bar>
