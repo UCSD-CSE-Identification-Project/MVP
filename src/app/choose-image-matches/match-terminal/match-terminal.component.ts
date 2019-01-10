@@ -81,10 +81,15 @@ export class MatchTerminalComponent implements OnInit {
     //this.highMatches = this.imageNames.slice(0,2);
     //this.mediumMatches = this.imageNames.slice(2,7);
     //this.lowMatches = this.imageNames.slice(7,12);
-    if( (this.imageNames.length - this.imageInputIndex) <= 1 ){
+    if( (this.imageInput.length - this.imageInputIndex) <= 1 ){
       this.imagesFinished = true;
       return;
     }
+    //Always make sure the first image of the highmatches show up when clicked "next"
+    let target = <HTMLImageElement>document.getElementById("selectedImg");
+    target.src = this.highMatches[0];
+
+    // Increment input image index
     this.imageInputIndex++;
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
