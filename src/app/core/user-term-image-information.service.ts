@@ -34,6 +34,7 @@ export class UserTermImageInformationService {
       allTermImages: {},
       individualImages: [],
       loadedFromDatabase: false,
+      finished: false
     };
   }
   get userIdVal() {
@@ -107,5 +108,29 @@ export class UserTermImageInformationService {
   }
   set currTermLoadedFromDatabase( boolVal: boolean){
     this.currTermGeneralInfo.loadedFromDatabase = boolVal;
+  }
+  get prevTermFinished() {
+    return this.prevTermGeneralInfo.finished;
+  }
+  set prevTermFinished( bool : boolean ) {
+    this.prevTermGeneralInfo.finished = bool;
+  }
+  get currTermFinished() {
+    return this.currTermGeneralInfo.finished;
+  }
+  set currTermFinished(bool: boolean) {
+    this.currTermGeneralInfo.finished = bool;
+  }
+  get prevTerm() {
+    return this.prevTermGeneralInfo;
+  }
+  set prevTerm(obj) {
+    this.prevTermGeneralInfo = obj;
+  }
+  get currTerm() {
+    return this.currTermGeneralInfo;
+  }
+  set currTerm(obj) {
+    this.currTermGeneralInfo = obj;
   }
 }

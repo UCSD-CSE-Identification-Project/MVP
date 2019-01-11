@@ -1,6 +1,7 @@
 import { Component, OnInit} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import { AuthService } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
@@ -16,9 +17,11 @@ export class ChooseGroupsComponent implements OnInit {
   boxOne;
   boxTwo;
   boxThree;
+  startingIndex:number = 0;
 
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
+              private authService: AuthService,
               private db: AngularFirestore) {
     this.imagesFinished = false;
   }
@@ -26,28 +29,48 @@ export class ChooseGroupsComponent implements OnInit {
   ngOnInit() {
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
+
     this.boxOne = this.createBoxObj();
     this.boxTwo = this.createBoxObj();
     this.boxThree = this.createBoxObj();
 
-    this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages,this.generalInfo.prevTermLoadedFromDatabase);
+    this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
 
-    if( this.prevTermGrouping.needGrouping ){
-      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[0],'prev' );
-      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[1],'prev');
-      this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[2],'prev');
-    }
-    else{
-      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
-      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
-      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
-    }
+    this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
+    this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
+    console.log("prev term finished: " + this.generalInfo.prevTermFinished);
+    console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
 
-    console.log(this.prevTermGrouping.imageKeysSorted);
-    console.log(this.currTermGrouping.imageKeysSorted);
+    let docRef = this.db.collection('users').doc(this.authService.getUser()).ref;
+    const self = this;
+    docRef.get().then(function (doc) {
+      if (doc.exists) {
+        console.log(doc.data()["imageNum"]);
+        self.startingIndex = doc.data()["imageNum"];
 
+        console.log("startingIndex is " + self.startingIndex);
+        if (self.prevTermGrouping.needGrouping) {
+          // TODO: edge cases
+          self.prevTermGrouping.imageIndex = self.startingIndex;
+          self.getImageURLsetInHTML(0, self.prevTermGrouping.imageKeysSorted[self.startingIndex], 'prev');
+          self.getImageURLsetInHTML(1, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 1], 'prev');
+          self.getImageURLsetInHTML(2, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 2], 'prev');
+        }
+        else {
+          self.currTermGrouping.imageIndex = self.startingIndex;
+          self.getImageURLsetInHTML(0, self.currTermGrouping.imageKeysSorted[self.startingIndex], 'curr');
+          self.getImageURLsetInHTML(1, self.currTermGrouping.imageKeysSorted[self.startingIndex + 1], 'curr');
+          self.getImageURLsetInHTML(2, self.currTermGrouping.imageKeysSorted[self.startingIndex + 2], 'curr');
+        }
 
+        console.log(self.prevTermGrouping.imageKeysSorted);
+        console.log(self.currTermGrouping.imageKeysSorted);
+      }
+      else {
+        console.log("this won't happen.");
+      }
+    });
   }
 
   createBoxObj() {
@@ -83,6 +106,8 @@ export class ChooseGroupsComponent implements OnInit {
   setResetTermFinishVariables(prevOrCurrentTerm: string){
     if ( prevOrCurrentTerm === 'prev'){
       this.prevTermGrouping.imageFinishedGrouping = true;
+      this.prevTermGrouping.needGrouping = false;
+      this.generalInfo.prevTermFinished = true;
       this.boxOne = this.createBoxObj();
       this.boxTwo = this.createBoxObj();
       this.boxThree = this.createBoxObj();
@@ -91,6 +116,8 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
     } else{
       this.currTermGrouping.imageFinishedGrouping = true;
+      this.currTermGrouping.needGrouping = false;
+      this.generalInfo.currTermFinished = true;
       this.imagesFinished = true;
     }
   }
@@ -264,6 +291,16 @@ export class ChooseGroupsComponent implements OnInit {
           (this.boxTwo.radioClicked|| boxTwoHidden) &&
           (this.boxThree.radioClicked || boxThreeHidden);
 
+  }
+
+  logout() {
+    //let id = this.prevTermGrouping.needGrouping ? this.generalInfo.prevTermIdVal : this.generalInfo.currTermIdVal;
+    let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
+    console.log("index when log out is " + index);
+    console.log("prev index is " + this.prevTermGrouping.imageIndex);
+    console.log("curr index is " + this.currTermGrouping.imageIndex);
+    console.log("prev needs grouping ?" + this.prevTermGrouping.needGrouping);
+    this.authService.logout('choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
   }
 
 }

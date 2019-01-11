@@ -3,6 +3,7 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Router } from "@angular/router";
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
+import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import * as firebase from 'firebase';
 
 import { AuthService } from '../../core/auth.service';
@@ -21,6 +22,7 @@ export class AuthComponent implements OnInit {
   constructor(private storage: AngularFireStorage,
     private db: AngularFirestore,
     private authService: AuthService,
+    private generalInfo: UserTermImageInformationService,
     private router: Router,
     private dialog: MatDialog) { }
 
@@ -47,7 +49,7 @@ export class AuthComponent implements OnInit {
           }
           else {
             // The user should be prompted to either resume or start a new one
-            self.router.navigate(["/upload"]);
+            self.openDialog(doc);
           }
         } else {
           // doc.data() will be undefined in this case
@@ -56,7 +58,7 @@ export class AuthComponent implements OnInit {
         }
       }).catch(function (error) {
         console.log("Error getting document:", error);
-        this.router.navigate(["/"]);
+        self.router.navigate(["/"]);
       });
     })
       .catch(e => alert(e.message));
@@ -79,7 +81,10 @@ export class AuthComponent implements OnInit {
             class_term: {},
             email: self.email,
             name: '',
-            finishedLastRun: false
+            finishedLastRun: false,
+            lastUrl: '',
+            current_terms_generalInfo: [],
+            imageNum: 0
           }).catch((error) => {
             console.log("Error in creating a user auth.componenet.ts line 74", error);
           });
@@ -91,17 +96,52 @@ export class AuthComponent implements OnInit {
     })
       .catch(e => alert(e.message));
   }
-  /*
-    openDialog(): void {
-      const dialogRef = this.dialog.open(DialogOverviewExampleDialog, {
-        width: '250px',
-        data: { name: this.name, animal: this.animal }
-      });
-  
-      dialogRef.afterClosed().subscribe(result => {
-        console.log('The dialog was closed');
-        this.animal = result;
-      });
+
+  openDialog(doc: firebase.firestore.DocumentSnapshot) {
+    const dialogRef = this.dialog.open(Dialog, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result) {
+        this.continue(doc);
+      }
+      else {
+        //TODO: possible clean up?
+        this.router.navigate(["/upload"]);
+      }
+    });
+  }
+
+  continue(doc: firebase.firestore.DocumentSnapshot) {
+    // First get user metadata
+    let url = doc.data()["lastUrl"];
+    let terms = doc.data()["current_terms_generalInfo"];
+    let dict = doc.data()["imageNum"];
+    console.log(url);
+    console.log(terms);
+    console.log(dict);
+
+    if (url === "choose-grouping") {
+      this.generalInfo.prevTerm = terms[0];
+      this.generalInfo.currTerm = terms[1];
+      this.router.navigate(["/choose-grouping"]);
     }
-  */
+    else {
+      this.router.navigate([url]);
+    }
+  }
+
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Dialog {
+
+  constructor(
+    public dialogRef: MatDialogRef<Dialog>) { }
+
 }

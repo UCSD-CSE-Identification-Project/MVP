@@ -38,6 +38,7 @@ export class UploadComponent implements OnInit {
   prev_files: string[];
   curr_files: string[];
   imageIds: string[] = [];
+  alreadyUpload: boolean;
 
 
   usePreexistTerm: boolean = false;
@@ -70,6 +71,7 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.alreadyUpload = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
     console.log('user id', this.generalInfo.userIdVal);
   }
@@ -175,6 +177,7 @@ export class UploadComponent implements OnInit {
 
   onUpload(){
     console.log("in on upload");
+    this.alreadyUpload = true;
   }
   // TODO add terms to the prev term category
   /*async onUpload() {
@@ -274,5 +277,9 @@ export class UploadComponent implements OnInit {
 
   dropZoneUpload(fileList) {
     this.task = this.storage.upload('dropZone' + '/' + 'test', fileList[0]);
+  }
+
+  logout() {
+    this.authService.logout(this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
 }

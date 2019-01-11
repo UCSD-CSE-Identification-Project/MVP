@@ -14,7 +14,7 @@ export class AuthService {
   private uid: string = '';
 
   constructor(private firebaseAuth: AngularFireAuth,
-              private fireStore: AngularFirestore,
+              private db: AngularFirestore,
               private router: Router) {
     this.user = this.firebaseAuth.authState;
 
@@ -47,9 +47,18 @@ export class AuthService {
     return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
   }
 
-  logout() {
-    this.firebaseAuth.auth.signOut();
-    this.router.navigate(['/']);
+  logout(lastUrl: string, terms, imageNum: number) {
+    // When logout, get that user info
+    let self = this;
+    let docRef = this.db.collection('users').doc(this.uid).ref;
+    docRef.update({
+      lastUrl: lastUrl,
+      current_terms_generalInfo: terms,
+      imageNum: imageNum
+    }).then(function() {
+      self.firebaseAuth.auth.signOut();
+      self.router.navigate(['/']);
+    });
   }
 
 }
