@@ -1,42 +1,92 @@
 import { Component, OnInit } from '@angular/core';
 import { ViewChild } from '@angular/core';
+import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
+import { AngularFirestore } from '@angular/fire/firestore';
+// import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 
 @Component({
   selector: 'app-show-results',
   templateUrl: './show-results.component.html',
   styleUrls: ['./show-results.component.css']
 })
+
 export class ShowResultsComponent implements OnInit {
-  public csvRecords: any[] = [];
-  numStudents = 0;
+  csvRecords: any[] = [];
+  headersRow;
+  csvRecordsArray;
+  numStudents = 15;
+  csvFile;
+  url;
+
+  constructor(private storage: AngularFireStorage,
+              private db: AngularFirestore,
+              /*private generalInfo: UserTermImageInformationService*/) { }
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
-  ngOnInit() {
+  ngOnInit() {}
+
+  outputRows() {
+    this.getFile();
   }
 
-  fileChangeListener($event: any): void {
+  getFile() {
+    const self = this;
+    this.storage.ref('confidence.csv').getDownloadURL().subscribe(async url => {
+      console.log(url);
+      // console.log('user id', self.generalInfo.userIdVal);
+      self.url = url;
+      const result = await self.makeRequest(null, url);
+      console.log(result);
 
-    const text = [];
-    const files = $event.srcElement.files;
+      this.csvFile = new File([result], 'studentResults.csv', {type: 'text/csv'});
+      console.log(this.csvFile);
 
-    if (this.isCSVFile(files[0])) {
+      this.fileChangeListener(this.csvFile);
+    });
+  }
 
-      const input = $event.target;
+  makeRequest(method, url): Promise<Blob> {
+    let blob = null;
+    const file = null;
+    return new Promise(function (resolve, reject) {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      xhr.responseType = 'blob';
+      xhr.onload = function () {
+        if (this.status >= 200 && this.status < 300) {
+          resolve(xhr.response);
+          blob = xhr.response;
+        } else {
+          reject({
+            status: this.status,
+            statusText: xhr.statusText
+          });
+        }
+      };
+      xhr.onerror = function () {
+        reject({
+          status: this.status,
+          statusText: xhr.statusText
+        });
+      };
+      xhr.send();
+    });
+  }
+
+  fileChangeListener(resultsFile: any): void{
+    if (this.isCSVFile(resultsFile)) {
       const reader = new FileReader();
-      reader.readAsText(input.files[0]);
+      reader.readAsText(resultsFile);
 
       reader.onload = (data) => {
         const csvData = reader.result;
-        const csvRecordsArray = csvData.toString().split(/\r\n|\n/);
+        this.csvRecordsArray = csvData.toString().split(/\r\n|\n/);
+        // console.log(this.csvRecordsArray);
 
-        const headersRow = this.getHeaderArray(csvRecordsArray);
+        this.headersRow = this.getHeaderArray(this.csvRecordsArray);
 
-        this.csvRecords = this.getDataRecordsArrayFromCSVFile(csvRecordsArray, headersRow.length);
-      };
-
-      reader.onerror = function() {
-        alert('Unable to read ' + input.files[0]);
+        this.csvRecords = this.getDataRecordsArrayFromCSVFile(this.csvRecordsArray, this.headersRow.length);
       };
 
     } else {
@@ -55,7 +105,7 @@ export class ShowResultsComponent implements OnInit {
       // ARE SAME AS NUMBER OF HEADER COLUMNS THEN PARSE THE DATA
       if (data.length === headerLength) {
 
-        const csvRecord: CSVRecord = new CSVRecord();
+        const csvRecord: CSVRecordComponent = new CSVRecordComponent();
 
         csvRecord.studentName = data[0].trim();
         csvRecord.failProbability = data[1].trim();
@@ -86,7 +136,7 @@ export class ShowResultsComponent implements OnInit {
     this.csvRecords = [];
   }
 
-  downloadCSV(csv: any, filename: any) {
+  /*downloadCSV(csv: any, filename: any) {
     let csvFile;
     let downloadLink;
 
@@ -110,27 +160,41 @@ export class ShowResultsComponent implements OnInit {
 
     // Click download link
     downloadLink.click();
-  }
+  }*/
 
-  exportTableToCSV(filename: any) {
-    const csv = [];
-    const rows = document.querySelectorAll('table tr');
+  exportToCSV(filename: any) {
+    let dataArray = this.csvRecordsArray.join('\n');
+    console.log(this.csvRecordsArray);
 
-    for (let i = 0; i < rows.length; i++) {
-      const row = [], cols = rows[i].querySelectorAll('td, th');
+    let csvFile;
+    let downloadLink;
 
-      for (let j = 0; j < cols.length; j++)
-        row.push(cols[j].innerHTML);
+    const data = encodeURI(dataArray);
 
-      csv.push(row.join(','));
-    }
+    // CSV file
+    csvFile = new Blob([dataArray], {type: 'text/csv'});
 
-    // Download CSV file
-    this.downloadCSV(csv.join('\n'), filename);
+    // Download link
+    downloadLink = document.createElement('a');
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = 'none';
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click();
   }
 }
 
-export class CSVRecord {
+export class CSVRecordComponent {
 
   public studentName: any;
   public failProbability: any;
@@ -138,3 +202,5 @@ export class CSVRecord {
   constructor() { }
 
 }
+
+

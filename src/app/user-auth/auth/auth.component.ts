@@ -68,6 +68,7 @@ export class AuthComponent implements OnInit {
             class_term: {},
             email: self.email,
             name: '',
+            results: {}
           }).catch((error) => {
             console.log("Error in creating a user auth.componenet.ts line 74", error);
           });
