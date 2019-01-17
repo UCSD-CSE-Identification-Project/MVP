@@ -107,6 +107,23 @@ export class ChooseGroupsComponent implements OnInit {
    }
   }
 
+  pushBoxValToIndGroupIsoServiceList( numBoxes: number){
+    if(numBoxes <=1 ){
+
+    }
+    if(numBoxes <=2 ){
+
+    }
+    if(numBoxes <=3 ){
+      this.boxThree.boxVal.controls.option.value
+    }
+  }
+
+  pushBoxValToIndServiceList(){
+
+  }
+  pushBoxValToGroupServiceList(){}
+  pushBoxValToIsoServiceList(){}
   /*
    * numBoxesPushed is the number of boxes that will be added to the firestore database
    * at the time the next button is clicked

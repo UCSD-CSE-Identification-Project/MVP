@@ -32,7 +32,9 @@ export class UserTermImageInformationService {
     return {
       termId: '',
       allTermImages: {},
-      individualImages: [],
+      individualImages: {},
+      groupImages: {},
+      isoImages:{},
       loadedFromDatabase: false,
     };
   }
