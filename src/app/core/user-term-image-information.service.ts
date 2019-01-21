@@ -91,11 +91,25 @@ export class UserTermImageInformationService {
   set prevTermIndividualImages(arrIndImgNames: any) {
     this.prevTermGeneralInfo.individualImages = arrIndImgNames;
   }
-  pushImageToPrevIndImages( imageKey: string) {
-    this.prevTermGeneralInfo.individualImages.push(imageKey);
+  saveImageToPrevIndImages(imageName: string, imageKey: string) {
+    this.prevTermGeneralInfo.individualImages[imageName] = imageKey;
   }
-  pushImageToCurrIndImages( imageKey: string) {
-    this.currTermGeneralInfo.individualImages.push(imageKey);
+  saveImageToCurrIndImages(imageName: string, imageKey: string) {
+    this.currTermGeneralInfo.individualImages[imageName] = imageKey;
+  }
+
+  saveImageToPrevGroupImages( imageName: string, imageKey: string) {
+    this.prevTermGeneralInfo.groupImages[imageName] = imageKey;
+  }
+  saveImageToCurrGroupImages( imageName: string, imageKey: string) {
+    this.currTermGeneralInfo.groupImages[imageName] = imageKey;
+  }
+
+  saveImageToPrevIsoImages( imageName: string, imageKey: string) {
+    this.prevTermGeneralInfo.isoImages[imageName] = imageKey;
+  }
+  saveImageToCurrIsoImages( imageName: string, imageKey: string) {
+    this.currTermGeneralInfo.isoImages[imageName] = imageKe;
   }
 
   get prevTermLoadedFromDatabase(){

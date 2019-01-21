@@ -288,11 +288,11 @@ export class ChooseGroupsComponent implements OnInit {
       }
     }
   }
-  addImageToPreviousOrCurrentTermIndImages( prevOrCurTerm: string, imageId: string) {
+  addImageToPreviousOrCurrentTermIndGroupIsoImages( prevOrCurTerm: string, imageIndex: string) {
     if( prevOrCurTerm === 'prev') {
-      this.generalInfo.pushImageToPrevIndImages(imageId);
+      this.generalInfo.saveImageToPrevIndImages(imageId);
     } else {
-      this.generalInfo.pushImageToCurrIndImages(imageId);
+      this.generalInfo.saveImageToCurrIndImages(imageId);
     }
   }
   updateChecked(boxNum: number){
