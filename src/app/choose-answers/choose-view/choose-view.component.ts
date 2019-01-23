@@ -67,10 +67,13 @@ export class ChooseViewComponent implements OnInit {
   }
   ngOnInit() {
     this.boxOnScreen = this.createBoxObj();
+    const prevTermIndIsoImages = Array.prototype.push.apply(this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermIsoImages);
     this.prevTermAnswerObj =
-      this.createChooseAnswersTermObj(this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
+      this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
+
+    const currTermIndIsoImages = Array.prototype.push.apply(this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
     this.currTermAnswerObj =
-      this.createChooseAnswersTermObj(this.generalInfo.currTermIndividualImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
+      this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
   }
 
 

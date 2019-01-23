@@ -82,11 +82,23 @@ export class UserTermImageInformationService {
   get currTermIndividualImages() {
     return this.currTermGeneralInfo.individualImages;
   }
-  set currTermIndividualImages( arrIndImgNames: any){
-    this.currTermGeneralInfo.individualImages = arrIndImgNames;
-  }
   get prevTermIndividualImages() {
     return this.prevTermGeneralInfo.individualImages;
+  }
+  get prevTermIsoImages(){
+    return this.prevTermGeneralInfo.isoImages;
+  }
+  get currTermIsoImages(){
+    return this.currTermGeneralInfo.isoImages;
+  }
+  get prevTermGroupImages(){
+    return this.prevTermGeneralInfo.groupImages;
+  }
+  get currTermGroupImages(){
+    return this.currTermGeneralInfo.groupImages;
+  }
+  set currTermIndividualImages( arrIndImgNames: any){
+    this.currTermGeneralInfo.individualImages = arrIndImgNames;
   }
   set prevTermIndividualImages(arrIndImgNames: any) {
     this.prevTermGeneralInfo.individualImages = arrIndImgNames;
