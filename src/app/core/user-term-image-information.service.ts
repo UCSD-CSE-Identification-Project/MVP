@@ -121,7 +121,7 @@ export class UserTermImageInformationService {
     this.prevTermGeneralInfo.isoImages[imageName] = imageKey;
   }
   saveImageToCurrIsoImages( imageName: string, imageKey: string) {
-    this.currTermGeneralInfo.isoImages[imageName] = imageKe;
+    this.currTermGeneralInfo.isoImages[imageName] = imageKey;
   }
 
   get prevTermLoadedFromDatabase(){
