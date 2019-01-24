@@ -18,31 +18,35 @@ export class MatchTerminalComponent implements OnInit {
   imagesFinished: boolean;
   imageInput;
   imageInputIndex;
-
-  items = Array.from({length: 100000}).map((_, i) => `Item #${i}`);
-
   showMatchesHigh: boolean;
   showMatchesMeduim: boolean;
   showMatchesLow: boolean;
 
   constructor() {
+    // Only show match high by default
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
+    // The image array for Term 2 (images on the right that matches the left )
     this.imageNames = [];
+    // The image array for Term 1 (images on the left to be matched)
     this.imageInput = [];
+    // Index of the img array for Term 1
     this.imageInputIndex = 0;
     this.imagesFinished = false;
   }
 
+  // Execute right after constructor
   ngOnInit() {
-    this.imageNames = this.getImageNames(); // get image names from firebase here TODO make sure to update value of imagesource in async func also
-                          // TODO ALSO UPDATE THE VALUE OF THE MATCHES
-    this.imageInput = this.getImageNames();
+    this.imageNames = this.getImageNames(); 
+    // get image names from firebase here TODO make sure to update value of imagesource in async func also
+    // TODO ALSO UPDATE THE VALUE OF THE MATCHES
+    this.imageInput = this.getImageInput();
     this.highMatches = this.imageNames.slice(0,2);
     this.mediumMatches = this.imageNames.slice(2,7);
     this.lowMatches = this.imageNames.slice(7,12);
   }
 
+  // Choose which box to show (highMatches, mediumMatches, lowMatches)
   showMatchesFor( boxNum: number){
     if(boxNum == 1){
       this.showMatchesHigh = true;
@@ -61,7 +65,20 @@ export class MatchTerminalComponent implements OnInit {
     }
   }
 
+  // After a image is clicked, highlight its border
+  imgClick(source){
+    let target = <HTMLImageElement>document.getElementById("selectedImg");
+    target.src = source;
+    //(<HTMLImageElement>image).classList.toggle("selectedIMG");
+  }
+   //$('img').click(function(){
+   //  $(this).toggleClass('selectedIMG');
+   //});
+  //}
+
+  // Go to the next image
   nextImage(){
+
     if( (this.imageNames.length - this.imageInputIndex) <= 1 ){
       this.imagesFinished = true;
       return;
@@ -69,17 +86,15 @@ export class MatchTerminalComponent implements OnInit {
     this.imageInputIndex++;
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
-    $('img').click(function(){
-      $('.selected').removeClass('selected');
-      $(this).addClass('selected');
-    });
   }
 
+  // What to do when found matches
   matchFound( matchName: string): void {
     // update in database that imagename has a match in matchName
     alert(matchName);
   }
 
+  // Returns the Term 2 pictures
   getImageNames(){
     return [
             'https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
@@ -97,4 +112,16 @@ export class MatchTerminalComponent implements OnInit {
             ]
   }
 
+  // Returns the Term 1 pictures
+  getImageInput(){
+    return [
+      "http://fenozi.com/wp-content/uploads/2017/04/cute-cats-6.jpg",
+      "https://www.lifewithcats.tv/wp-content/uploads/2018/10/cat-3695694_640.jpg",
+      "https://www.buddies.co.uk/wp-content/uploads/2018/08/animal-cat-cute-126407.jpg",
+      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/kitten-playing-with-toy-mouse-royalty-free-image-590055188-1542816918.jpg?crop=1.00xw:0.758xh;0,0.132xh&resize=480:*",
+      "https://www.thehappycatsite.com/wp-content/uploads/2017/05/funny.jpg",
+      "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/kitten-looking-out-from-under-blanket-royalty-free-image-466265904-1542817024.jpg?crop=1xw:1xh;center,top&resize=480:*"
+      ]
+  }
+  
 }
