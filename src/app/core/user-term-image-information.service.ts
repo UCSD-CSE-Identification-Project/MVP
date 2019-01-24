@@ -108,4 +108,19 @@ export class UserTermImageInformationService {
   set currTermLoadedFromDatabase( boolVal: boolean){
     this.currTermGeneralInfo.loadedFromDatabase = boolVal;
   }
+  get prevTerm(){
+    return this.prevTermGeneralInfo;
+  }
+
+  set prevTerm(obj){
+    this.prevTermGeneralInfo = obj;
+  }
+
+  get currTerm(){
+    return this.currTermGeneralInfo;
+  }
+
+  set currTerm(obj){
+    this.currTermGeneralInfo = obj;
+  }
 }

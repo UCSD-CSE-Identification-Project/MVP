@@ -78,7 +78,7 @@
 <div class="col-sm-6">
   <h3>Search Image: Term 1 Images:</h3>
   <!-- The Term 1 Images-->
-  <img [src]= "imageInput[imageInputIndex]" width="400px"> <br />
+  <img src= "{{(imageInput[imageInputIndex]| async)?.data().downloadURL}}" width="400px"> <br />
   <br />
   <!-- The image the user chooses that matches the term 1 picture -->
   <h4>The Image You Choose: </h4>

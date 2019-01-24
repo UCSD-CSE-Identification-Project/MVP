@@ -1,4 +1,6 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 
 @Component({
   selector: 'app-match-terminal',
@@ -22,7 +24,7 @@ export class MatchTerminalComponent implements OnInit {
   showMatchesMeduim: boolean;
   showMatchesLow: boolean;
 
-  constructor() {
+  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService) {
     // Only show match high by default
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
@@ -37,11 +39,13 @@ export class MatchTerminalComponent implements OnInit {
 
   // Execute right after constructor
   ngOnInit() {
+    console.log(this.generalInfo.prevTermAllImages);
     this.imageNames = this.getImageNames(); 
     // get image names from firebase here TODO make sure to update value of imagesource in async func also
     // TODO ALSO UPDATE THE VALUE OF THE MATCHES
     this.imageInput = this.getImageInput();
-    this.highMatches = this.imageNames.slice(0,2);
+    this.highMatches = this.getImageNames();
+    console.log(this.highMatches);
     this.mediumMatches = this.imageNames.slice(2,7);
     this.lowMatches = this.imageNames.slice(7,12);
   }
@@ -103,6 +107,25 @@ export class MatchTerminalComponent implements OnInit {
 
   // Returns the Term 2 pictures
   getImageNames(){
+    let allImages = this.generalInfo.currTermAllImages;
+    console.log(allImages);
+    let url = [];
+    let i;
+    console.log(Object.keys(allImages));
+    for (i = 0; i < Object.keys(allImages).length; i++){
+      this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then(function(doc) {
+        if (doc.exists) {
+          console.log(doc.data().downloadURL);
+          url.push(doc.data().downloadURL);
+        }
+      });
+      //url.push(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get()); 
+      //console.log(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
+    }
+    console.log(this.generalInfo.prevTermIdVal);
+    console.log(url);
+    return url;
+    /*
     return [
             'https://www.catster.com/wp-content/uploads/2018/07/Savannah-cat-long-body-shot.jpg',
             'https://www.catster.com/wp-content/uploads/2017/08/Pixiebob-cat.jpg',
@@ -117,10 +140,25 @@ export class MatchTerminalComponent implements OnInit {
             'https://www.thehappycatsite.com/wp-content/uploads/2017/05/cute1.jpg',
             'https://media.makeameme.org/created/javascript-javascript-everywhere.jpg'
             ]
+            */
   }
 
   // Returns the Term 1 pictures
   getImageInput(){
+    let allImages = this.generalInfo.prevTermAllImages;
+    console.log(allImages);
+    let url = [];
+    let i;
+    console.log(Object.keys(allImages));
+    for (i = 0; i < Object.keys(allImages).length; i++){
+      //this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then();
+      url.push(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get()); 
+      console.log(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
+    }
+    console.log(this.generalInfo.prevTermIdVal);
+    console.log(url);
+    return url;
+    /*
     return [
       "http://fenozi.com/wp-content/uploads/2017/04/cute-cats-6.jpg",
       "https://www.lifewithcats.tv/wp-content/uploads/2018/10/cat-3695694_640.jpg",
@@ -129,6 +167,7 @@ export class MatchTerminalComponent implements OnInit {
       "https://www.thehappycatsite.com/wp-content/uploads/2017/05/funny.jpg",
       "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/kitten-looking-out-from-under-blanket-royalty-free-image-466265904-1542817024.jpg?crop=1xw:1xh;center,top&resize=480:*"
       ]
+      */
   }
   
 }
