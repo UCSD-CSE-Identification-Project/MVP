@@ -2,17 +2,33 @@
   <h1>Results: Percentage of Failure for Each Student</h1>
   <p>Number of students to display:</p>
 
-  <form>
-    <input type="text" id="numStudents" name="numStudents">
-  </form>
+  <input type="number" min="0" [(ngModel)]="numStudents">
+  <input type="submit" (click)="outputRows()">
   
 </div>
 
-<div class="csv-file-chooser-section">
+<!--<div>
+  <h5 align="center">Select the results file to download:
+    <h5 style="display: inline-block;">
+      <form>
+        <select name="results">
+          <option value="0"></option>
+          <option value="confidence.csv">confidence.csv</option>
+        </select>
+      </form>
+    </h5>
+  </h5>
+</div>-->
 
-  <input type="file" #fileImportInput name="File Upload" id="txtFileUpload" (change)="fileChangeListener($event)" accept=".csv" />
+<br>
+
+<div>
+
+  <button (click)="exportToCSV('studentsprobability')">Export to CSV File</button>
 
 </div>
+
+<br>
 
 <div class="csv-result-table">
 
@@ -28,19 +44,11 @@
     <tr *ngFor="let csvData of csvRecords;let i = index;">
 
       <td>{{i+1}}</td>
-      <td>
-        <span>{{csvData.studentName}}</span>
-      </td>
-      <td>
-        <span>{{csvData.failProbability}}</span>
-      </td>
+      <td>{{csvData.studentName}}</td>
+      <td>{{csvData.failProbability}}</td>
 
     </tr>
     </tbody>
   </table>
 
 </div>
-
-
-
-
