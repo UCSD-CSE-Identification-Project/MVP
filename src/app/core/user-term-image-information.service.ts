@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AuthService} from './auth.service';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +18,7 @@ export class UserTermImageInformationService {
   private prevTermGeneralInfo;
   private currTermGeneralInfo;
 
-  constructor(private authService: AuthService) {
+  constructor(private authService: AuthService, private http: HttpClient) {
     this.userIdVal = this.authService.getUser();
     console.log(this.userId);
     /*
@@ -135,5 +137,15 @@ export class UserTermImageInformationService {
   }
   set currTermLoadedFromDatabase( boolVal: boolean){
     this.currTermGeneralInfo.loadedFromDatabase = boolVal;
+  }
+
+  makePostRequest(){
+    let params = new HttpParams();
+
+    params = params.append('prevTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.prevTermIdVal);
+    params = params.append('currTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.currTermIdVal);
+    this.http.post("/",{params: params},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'});//.subscribe((res) => {console.log(res)});
   }
 }

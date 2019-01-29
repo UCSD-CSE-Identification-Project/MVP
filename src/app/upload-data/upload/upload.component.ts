@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -48,7 +48,8 @@ export class UploadComponent implements OnInit {
   prevTermsCreated = [];
 
 
-  constructor(private uploadService: UploadService,
+  constructor( private http: HttpClient,
+              private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
               private authService: AuthService,
@@ -175,9 +176,22 @@ export class UploadComponent implements OnInit {
 
   onUpload(){
     console.log("in on upload");
+    this.generalInfo.makePostRequest();
+    /*let params = new HttpParams();
+
+    params = params.append('prevTerm',this.generalInfo.prevTermIdVal);
+    params = params.append("currTerm",this.generalInfo.currTermIdVal);
+
+    this.http.post("/",{params: params},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'}).subscribe((res) => console.log(res));
+        */
+    return;
   }
   // TODO add terms to the prev term category
-  /*async onUpload() {
+  /*
+  "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching"
+  async onUpload() {
     var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules
