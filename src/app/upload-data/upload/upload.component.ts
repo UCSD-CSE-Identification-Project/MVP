@@ -120,7 +120,7 @@ export class UploadComponent implements OnInit {
 
           let blobFile = new File([val], filename);
           // TODO ALERT: self.task was assigned here
-          self.storage.upload(self.generalInfo.userIdVal +  "/" +filename, blobFile).then(async (taskVal)=>{
+          self.storage.upload(self.generalInfo.userIdVal +  "/" + termId + "/" +filename, blobFile).then(async (taskVal)=>{
             if (filename[0] === '.') return;
             console.log(fileType);
             if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){

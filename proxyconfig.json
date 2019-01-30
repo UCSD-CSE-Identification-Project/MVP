@@ -1,5 +1,5 @@
 {
-  "/":{
+  "/imagesPost":{
     "target": "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching",
     "secure": false,
     "changeOrigin": true

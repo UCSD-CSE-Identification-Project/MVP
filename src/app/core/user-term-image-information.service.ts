@@ -144,8 +144,8 @@ export class UserTermImageInformationService {
 
     params = params.append('prevTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.prevTermIdVal);
     params = params.append('currTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.currTermIdVal);
-    this.http.post("/",{params: params},
+    this.http.post("/imagesPost",{params: params},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
-        responseType:'text'});//.subscribe((res) => {console.log(res)});
+        responseType:'text'}).subscribe((res) => {console.log(res);});
   }
 }
