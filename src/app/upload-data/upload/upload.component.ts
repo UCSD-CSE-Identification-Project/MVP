@@ -132,6 +132,7 @@ export class UploadComponent implements OnInit {
       this.totalFiles = next.length;
       for (const ent of next) {
         self.counter = self.counter + 1;
+        self.percentage = self.counter / this.totalFiles*100;
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
@@ -195,6 +196,7 @@ export class UploadComponent implements OnInit {
     }); //gets entries from zipped file
 
     this.counter = 0;
+    this.percentage = 0;
   } // end of method
 
   onUpload(){

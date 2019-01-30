@@ -47,8 +47,8 @@
   <div *ngIf="sameCurrTermName">Warning: current term name cannot be a preexisting term name </div>
 
   <button type="button" (click)="onUpload()">Submit</button>
-  <!--<h2>Percentage is {{percentage}}%</h2>-->
-  <h2>Files uploaded: {{counter}}/{{totalFiles}}</h2>
+  <h2>File upload percentage is {{percentage}}%</h2>
+  <!--<h2>Files uploaded: {{counter}}/{{totalFiles}}</h2>-->
   <!--<progress-bar class='progress' [progress]='progress | async' [color]="'#488aff'"></progress-bar>-->
   <div class="dropzone" appDropZone (hovered)="toggleHover($event)" (dropped)="dropZoneUpload($event)" [class.hovering]="isHovering">
     <h3>AngularFire Drop Zone</h3>
