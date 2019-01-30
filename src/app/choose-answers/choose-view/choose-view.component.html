@@ -1,21 +1,50 @@
 <div class="container">
 
   <div class="row">
-    <div class="col-lg-6">
-      <h2> Select Answer</h2>
-      <img [src]="imageNames[imageIndex]" width="500px"/>
+    <h2 *ngIf="!prevTermAnswerObj.needGrouping || prevTermAnswerObj.imageFinishedGrouping">
+      Finished Choosing for Previous Term
+    </h2>
+    <div *ngIf="prevTermAnswerObj.needGrouping && !prevTermAnswerObj.imageFinishedGrouping">
+      <div class="col-lg-6">
+        <h2> Choose Answer for Previous Term</h2>
+        <img [src]="boxOnScreen.imageSourceURL" width="500px"/>
+      </div>
+      <div class="col-lg-6">
+        <h4>Correct Answer</h4>
+        <form [formGroup]="boxOnScreen.boxAnswer">
+          <div *ngFor="let data of boxValues">
+            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
+      <button [disabled]="numCheckedBoxes <= 0" (click)="nextImage('prev')"> Next</button>
     </div>
-    <div class="col-lg-6">
-      <h4>Correct Answer</h4>
-      <form [formGroup]="specificAnswers">
-        <div *ngFor="let data of boxValues">
-          <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
-        </div>
-      </form>
-      <button (click)="showVal()"> SHOW VALUES</button>
-      <button [disabled]="imagesFinished" [disabled]="numCheckedBoxes <= 0" (click)="nextImage()"> Next</button>
+  </div>
+
+
+
+  <div class="row">
+    <h2 *ngIf="!currTermAnswerObj.needGrouping || currTermAnswerObj.imageFinishedGrouping && prevTermAnswerObj.imageFinishedGrouping">
+      Finished Choosing for Current Term
+    </h2>
+    <div *ngIf="currTermGrouping.needGrouping && !currTermGrouping.imageFinishedGrouping && prevTermGrouping.imageFinishedGrouping">
+      <div class="col-lg-6">
+        <h2> Choose Answer for Current Term</h2>
+        <img [src]="boxOnScreen.imageSourceURL" width="500px"/>
+      </div>
+      <div class="col-lg-6">
+        <h4>Correct Answer</h4>
+        <form [formGroup]="boxOnScreen.boxAnswer">
+          <div *ngFor="let data of boxValues">
+            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div>
+      <button [disabled]="imagesFinished || numCheckedBoxes <= 0" (click)="nextImage('curr')"> Next</button>
       <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
-      <ng-container></ng-container>
     </div>
   </div>
 </div>

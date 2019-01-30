@@ -55,7 +55,7 @@
         <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
         <form [formGroup]="boxOne.boxVal">
           <div *ngFor="let data of boxValues">
-            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxOne || null"
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
                    (click)="updateChecked(1)"> {{data.opt}}<br>
           </div>
         </form>
@@ -66,7 +66,7 @@
         <img src="{{(boxTwo.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
         <form [formGroup]="boxTwo.boxVal">
           <div *ngFor="let data of boxValues">
-            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="disableBoxTwo || null"
+            <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxTwo.disabledRadioButton || null"
                    (click)="updateChecked(2)"> {{data.opt}}<br>
           </div>
         </form>

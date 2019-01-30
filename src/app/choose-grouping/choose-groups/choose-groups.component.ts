@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFo
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
+import {isLowerCase} from 'tslint/lib/utils';
 
 @Component({
   selector: 'app-choose-groups',
@@ -133,32 +134,136 @@ export class ChooseGroupsComponent implements OnInit {
      this.boxThree.imageSourceURL = url;
    }
   }
+
+  /*
+   * numBoxesPushed is the number of boxes that will be added to the firestore database
+   * at the time the next button is clicked
+   */
+  async addGroupPairingToIndImages( prevOrCurrentTerm: string, numBoxesPushed: number){
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    // different scenarios
+    const boxOneValue = this.boxOne.boxVal.controls.option.value;
+    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
+    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
+
+    if (boxOneValue === 'Ignore') { // todo will not work for the case of ignore ind ind
+      return;
+    }
+    switch (numBoxesPushed){
+      case 1:
+        if( boxOneValue === 'Individual'){
+          await this.db.collection('images')
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+          .set({imagesInGroup: {}},{merge: true});
+        }
+        break;
+      case 2:
+        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore'){
+          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+          let imagesInGroupObj = {};
+          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+          await this.db.collection('images')
+            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+        }
+        break;
+      case 3:
+        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore' && boxThreeValue !== 'Ignore'){
+          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+          const boxThreeImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]];
+          let imagesInGroupObj = {};
+          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+          imagesInGroupObj[boxThreeValue] = boxThreeImageIdVal;
+          await this.db.collection('images')
+            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+        }
+        break;
+    }
+
+  }
+
+
+  async pushImageObjectToFirestore( prevOrCurrentTerm: string, boxVal: string, imageIndex: number ){
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    const imageObj = {};
+    imageObj["grouping"] = boxVal;
+    await this.db.collection('images')
+      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imageIndex]]).update(imageObj);
+  }
+
+  addGroupingToGenInfo( prevOrCurrentTerm: string,  grouping: string, imageIndex: number ){
+    const termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    const imgName = termObjGrouping.imageKeysSorted[imageIndex];
+    const imgId = termObjGrouping.imageNames[imgName];
+
+    if( prevOrCurrentTerm === 'prev'){
+      switch (grouping){
+
+        case 'Individual':
+          this.generalInfo.saveImageToPrevIndImages(imgName,imgId);
+          break;
+        case 'Group':
+          this.generalInfo.saveImageToPrevGroupImages(imgName,imgId);
+          break;
+        case 'Isomorphic':
+          this.generalInfo.saveImageToPrevIsoImages(imgName, imgId);
+          break;
+      }
+    } else {
+      switch (grouping){
+
+        case 'Individual':
+          this.generalInfo.saveImageToCurrIndImages(imgName,imgId);
+          break;
+        case 'Group':
+          this.generalInfo.saveImageToCurrGroupImages(imgName,imgId);
+          break;
+        case 'Isomorphic':
+          this.generalInfo.saveImageToCurrIsoImages(imgName, imgId);
+          break;
+      }
+    }
+  }
+
+
   // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
   async nextImage(prevOrCurrentTerm: string) {
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
     let numImagesLeft = termObjGrouping.numImages - termObjGrouping.imageIndex;
     if ( numImagesLeft <= 3 ) {
-      if( numImagesLeft === 0 ){
-        this.setResetTermFinishVariables(prevOrCurrentTerm);
-        return;
-      }
-      if( numImagesLeft == 3 ) {
-        const imageObj = {};
-        imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
-      }
-      if(numImagesLeft == 2 ) {
-        const imageObj = {};
-        imageObj["grouping"] = this.boxTwo.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
-      }
-      if ( numImagesLeft == 1 ){
-        const imageObj = {};
-        imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
+      switch (numImagesLeft){
+        case 3:
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxTwo.boxVal.controls.option.value, termObjGrouping.imageIndex+1);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxTwo.boxVal.controls.option.value, termObjGrouping.imageIndex+1);
+
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, termObjGrouping.imageIndex+2);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, termObjGrouping.imageIndex+2);
+
+          await this.addGroupPairingToIndImages(prevOrCurrentTerm, 3);
+          break;
+        case 2:
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxTwo.boxVal.controls.option.value, termObjGrouping.imageIndex+1);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxTwo.boxVal.controls.option.value, termObjGrouping.imageIndex+1);
+
+          await this.addGroupPairingToIndImages(prevOrCurrentTerm, 2);
+          break;
+        case 1:
+          this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+          await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxOne.boxVal.controls.option.value, termObjGrouping.imageIndex);
+          await this.addGroupPairingToIndImages(prevOrCurrentTerm, 1);
+          break;
+        case 0:
+          this.setResetTermFinishVariables(prevOrCurrentTerm);
+          return;
+        default:
+          break;
       }
       this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
@@ -168,13 +273,9 @@ export class ChooseGroupsComponent implements OnInit {
     const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
     const boxThreeValue = this.boxThree.boxVal.controls.option.value;
     if ( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
-      const imageObj = {};
-      imageObj["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
+      await this.addGroupPairingToIndImages(prevOrCurrentTerm, 1);
       termObjGrouping.imageIndex += 1;
 
       this.boxOne = this.boxTwo;
@@ -190,21 +291,13 @@ export class ChooseGroupsComponent implements OnInit {
     }
     else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
              ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
-      const imageObjOne = {};
-      imageObjOne["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
 
-      const imageObjTwo = {};
-      imageObjTwo["grouping"] = boxTwoValue;
-      if ( boxTwoValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, termObjGrouping.imageIndex+1);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, termObjGrouping.imageIndex+1);
+
+      await this.addGroupPairingToIndImages(prevOrCurrentTerm, 2);
       termObjGrouping.imageIndex += 2;
 
       this.boxOne = this.boxThree;
@@ -222,29 +315,16 @@ export class ChooseGroupsComponent implements OnInit {
       }
     }
     else{
-      const imageObjOne = {};
-      imageObjOne["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, termObjGrouping.imageIndex);
 
-      const imageObjTwo = {};
-      imageObjTwo["grouping"] = boxTwoValue;
-      if ( boxTwoValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, termObjGrouping.imageIndex+1);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, termObjGrouping.imageIndex+1);
 
-      const imageObjThree = {};
-      imageObjThree["grouping"] = boxThreeValue;
-      if ( boxThreeValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]).update(imageObjThree);
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxThreeValue, termObjGrouping.imageIndex+2);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxThreeValue, termObjGrouping.imageIndex+2);
+
+      await this.addGroupPairingToIndImages(prevOrCurrentTerm, 3);
       termObjGrouping.imageIndex += 3;
 
       this.boxOne = this.createBoxObj();
@@ -261,13 +341,7 @@ export class ChooseGroupsComponent implements OnInit {
       }
     }
   }
-  addImageToPreviousOrCurrentTermIndImages( prevOrCurTerm: string, imageId: string) {
-    if( prevOrCurTerm === 'prev') {
-      this.generalInfo.pushImageToPrevIndImages(imageId);
-    } else {
-      this.generalInfo.pushImageToCurrIndImages(imageId);
-    }
-  }
+
   updateChecked(boxNum: number){
     // if(this.boxOne.controls.option)
     if( boxNum === 1 ){
