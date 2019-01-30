@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-<<<<<<< HEAD
 import { HttpClient, HttpParams } from '@angular/common/http';
-=======
 import {FormBuilder} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import {AngularFirestore} from '@angular/fire/firestore';
->>>>>>> choose-grouping
 
 @Component({
   selector: 'app-process',
