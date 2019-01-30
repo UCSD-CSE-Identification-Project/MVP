@@ -33,6 +33,8 @@ export class UploadComponent implements OnInit {
 
   files: File[][] = [[], []];
   percentage = 0;
+  counter = 0;
+  totalFiles = 0;
   fileNames: string[] = [];
   path: string = '';
   prev_files: string[];
@@ -47,6 +49,8 @@ export class UploadComponent implements OnInit {
   prevTerm: string = '';
   currTerm: string = '';
   prevTermsCreated = [];
+  sameCurrTermName: boolean = false;
+  samePrevTermName: boolean = false;
 
 
   constructor(private uploadService: UploadService,
@@ -76,10 +80,29 @@ export class UploadComponent implements OnInit {
     console.log('user id', this.generalInfo.userIdVal);
   }
 
-  async fileChanged(event, prevOrCurrTerm) {
+  async checkPrevTermName() {
+    this.samePrevTermName = false;
+    for (var i=0; i<this.prevTermsCreated.length; i++){
+      if (this.prevTerm === this.prevTermsCreated[i]) {
+        this.samePrevTermName = true;
+      }
+    }
+  }
 
+  async checkCurrTermName() {
+    this.sameCurrTermName = false;
+    for (var i=0; i<this.prevTermsCreated.length; i++){
+      if (this.currTerm === this.prevTermsCreated[i]) {
+        this.sameCurrTermName = true;
+      }
+    }
+  }
+
+  async fileChanged(event, prevOrCurrTerm) {
     const file = event.target.files[0];
     const self = this;
+    self.counter = 0;
+    self.totalFiles = 0;
     let promises= [];
 
     var termId = 'termId';
@@ -107,10 +130,11 @@ export class UploadComponent implements OnInit {
     await this.db.collection('users').doc(this.generalInfo.userIdVal).update(userObjUpdate);
 
     const termObj = this.db.collection('terms').doc(termId).ref;
-
     this.zipService.getEntries(file).subscribe( async (next) => {
-
+      this.totalFiles = next.length;
       for (const ent of next) {
+        self.counter = self.counter + 1;
+        self.percentage = self.counter / this.totalFiles*100;
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
@@ -118,10 +142,11 @@ export class UploadComponent implements OnInit {
         if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
         this.zipService.getData(ent).data.subscribe(async function(val) {
-
           let blobFile = new File([val], filename);
           // TODO ALERT: self.task was assigned here
           self.storage.upload(self.generalInfo.userIdVal +  "/" +filename, blobFile).then(async (taskVal)=>{
+            //self.counter = self.counter + 1;
+
             if (filename[0] === '.') return;
             console.log(fileType);
             if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
@@ -172,7 +197,8 @@ export class UploadComponent implements OnInit {
       } // end of for loop looping through files
     }); //gets entries from zipped file
 
-
+    this.counter = 0;
+    this.percentage = 0;
   } // end of method
 
   onUpload(){

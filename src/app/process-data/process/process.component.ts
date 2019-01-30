@@ -1,5 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+<<<<<<< HEAD
 import { HttpClient, HttpParams } from '@angular/common/http';
+=======
+import {FormBuilder} from '@angular/forms';
+import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import {AngularFirestore} from '@angular/fire/firestore';
+>>>>>>> choose-grouping
 
 @Component({
   selector: 'app-process',
@@ -11,14 +17,17 @@ export class ProcessComponent implements OnInit {
   percentage = 0;
   checked = false;
 
-  constructor(private http: HttpClient) { }
+
+  /*constructor() { }
+
 
   ngOnInit() {
-  }
+  }*/
 
   toggleChecked() {
     this.checked = !this.checked;
   }
+
 
   onUpload() {
     // Initialize Params Object
@@ -31,6 +40,15 @@ export class ProcessComponent implements OnInit {
     this.http.get('https://us-central1-ersp-identification.cloudfunctions.net/prediction', { params: params }).subscribe(
       result => console.log(result)
     );
+  }
+
+
+  constructor(private fb: FormBuilder,
+              private generalInfo: UserTermImageInformationService,
+              private db: AngularFirestore) {
+  }
+
+  ngOnInit() {
   }
 
 }
