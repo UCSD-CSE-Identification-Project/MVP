@@ -140,11 +140,12 @@ export class UserTermImageInformationService {
   }
 
   makePostRequest(){
-    let params = new HttpParams();
+    // let params = new HttpParams();
 
-    params = params.append('prevTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.prevTermIdVal);
-    params = params.append('currTerm', "zBpkjDRPTXX1ecDZ8GVD");//this.currTermIdVal);
-    this.http.post("/imagesPost",{params: params},
+    // params = params.append('prevTerm', "1QW5NOAT1U3RkHt9kF5F");//this.prevTermIdVal);
+    // params = params.append('currTerm', "1QW5NOAT1U3RkHt9kF5F");//this.currTermIdVal);
+    // this.http.post("/imagesPost",{params: params},
+    this.http.post("/imagesPost",{'prevTerm':"1QW5NOAT1U3RkHt9kF5F", 'currTerm':"1QW5NOAT1U3RkHt9kF5F"},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
         responseType:'text'}).subscribe((res) => {console.log(res);});
   }
