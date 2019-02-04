@@ -30,7 +30,7 @@ export class ChooseViewComponent implements OnInit {
   constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore) {
     // this.imageNames = this.getImageNames();
     // this.imageIndex = 0;
-    // this.imagesFinished = false;
+    this.imagesFinished = false;
     // this.numCheckedBoxes = 0;
   }
 
@@ -66,12 +66,20 @@ export class ChooseViewComponent implements OnInit {
     };
   }
   ngOnInit() {
+
+    // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
-    const prevTermIndIsoImages = Array.prototype.push.apply(this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermIsoImages);
+    let prevTermIndIsoImages = {};
+    Array.prototype.push.apply(prevTermIndIsoImages,this.generalInfo.prevTermIndividualImages);
+    Array.prototype.push.apply(prevTermIndIsoImages,this.generalInfo.prevTermIsoImages);
+
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
 
-    const currTermIndIsoImages = Array.prototype.push.apply(this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
+    let currTermIndIsoImages = {};
+    Array.prototype.push.apply(currTermIndIsoImages,this.generalInfo.currTermIndividualImages);
+    Array.prototype.push.apply(currTermIndIsoImages,this.generalInfo.currTermIsoImages);
+
     this.currTermAnswerObj =
       this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
   }
