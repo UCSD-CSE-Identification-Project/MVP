@@ -137,7 +137,7 @@ export class ChooseGroupsComponent implements OnInit {
       //Move boxTwo to boxOne
       this.boxOne = this.boxTwo;
       this.boxOneRelation = this.boxTwoRelation;
-      // Move boxThree to boxOne
+      // Move boxThree to boxTwo
       this.boxTwo = this.boxThree;
       this.boxTwoRelation = this.boxThreeRelation;
       // Clear boxThree
@@ -173,7 +173,7 @@ export class ChooseGroupsComponent implements OnInit {
       if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
         this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
       }
-      // If boxOne is still ignore, recursively call removeIgnore on box one
+      // If boxTwo is still ignore, recursively call removeIgnore on box one
       if (this.boxTwo.boxVal.controls.option.value === 'Ignore'){
         this.removeIgnore(1, prevOrCurrentTerm);
       }
