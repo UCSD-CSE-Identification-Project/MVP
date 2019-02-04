@@ -147,6 +147,8 @@ export class UploadComponent implements OnInit {
                   // });
                   if (prevOrCurrTerm === 0){
                     self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
+                    console.log(imageName);
+                    console.log(imageId);
                     console.log("general info prev all images", self.generalInfo.prevTermAllImages);
                   } else {
                     self.generalInfo.pushImageToCurrAllImages(imageName, imageId);

@@ -1,8 +1,89 @@
-<div class="col-sm-6">
-  <h3>Search Image: Term 1</h3>
-  <!-- Search form -->
+<script language="JavaScript" type="text/javascript" src="/js/jquery-1.2.6.min.js"></script>
+<script language="JavaScript" type="text/javascript" src="/js/jquery-ui-personalized-1.5.2.packed.js"></script>
+<script language="JavaScript" type="text/javascript" src="/js/sprinkle.js"></script>
 
-  <img [src]= "imageInput[imageInputIndex]" width="400px"> <br />
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: Arial;
+    }
+    
+    /* The grid: Four equal columns that floats next to each other */
+    .column {
+      float: left;
+      width: 25%;
+      padding: 10px;
+    }
+    
+    /* Style the images inside the grid */
+    .column img {
+      opacity: 0.8; 
+      cursor: pointer; 
+    }
+    
+    .column img:hover {
+      opacity: 1;
+    }
+    
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+    
+    /* The expanding image container */
+    .container {
+      position: relative;
+      display: none;
+    }
+    
+    /* Expanding image text */
+    #imgtext {
+      position: absolute;
+      bottom: 15px;
+      left: 15px;
+      color: white;
+      font-size: 20px;
+    }
+    
+    /* Closable button inside the expanded image */
+    .closebtn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: white;
+      font-size: 35px;
+      cursor: pointer;
+    }
+    </style>
+</head>
+
+<!---
+<script type="text/javascript">
+    function imgClick(imgs){
+      //imgs.classList.toggle("selectedIMG");
+      var targetImg = document.getElementById("selectedImg");
+      targetImg.src = imgs.src;
+    }
+</script>
+-->
+
+<div class="col-sm-6">
+  <h3>Search Image: Term 1 Images:</h3>
+  <!-- The Term 1 Images-->
+  <img src= "{{(imageInput[imageInputIndex]| async)?.data().downloadURL}}" width="400px"> <br />
+  <br />
+  <!-- The image the user chooses that matches the term 1 picture -->
+  <h4>The Image You Choose: </h4>
+  <!-- The default is the first image in the highMatches-->
+  <img src={{highMatches[0]}} width="400px" id="selectedImg"><br />
   <br />
   <button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col"> Next</button>
   <button type="submit" *ngIf="imagesFinished" class="col" routerLink="../navigator/match"> Finished </button> <br />
@@ -14,25 +95,30 @@
 
 <div class="col-sm-6 fill-height">
   <h3>Display: Term 2 Matches</h3>
+    
+    <!-- If showMatchesHigh is true, show all the img in highMatches-->
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesHigh" class="example-viewport">
       <div *cdkVirtualFor="let item of highMatches" class="example-item">
-       <figure>
-        <img [src]="item" width="300px" />
-       </figure>
+        <img [src]="item" width="300px" (click) = "imgClick(item)"/>
       </div>
     </cdk-virtual-scroll-viewport>
+
+    <!-- If showMatchesMedium is true, show all the img in mediumMatches-->
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesMeduim" class="example-viewport" >
       <div *cdkVirtualFor="let item of mediumMatches" class="example-item">
-        <img [src]="item" width="300px" />
+        <img [src]="item" width="300px" (click) = "imgClick(item)"/>
       </div>
     </cdk-virtual-scroll-viewport>
+
+    <!-- If showMatchesLow is true, show all the img in lowMatches-->
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesLow" class="example-viewport">
       <div *cdkVirtualFor="let item of lowMatches" class="example-item">
-        <img [src]="item" width="300px" />
+        <img [src]="item" width="300px" (click) = "imgClick(item)"/>
       </div>
     </cdk-virtual-scroll-viewport>
-</div>
 
+</div>
+  
 <!--
 <button  mat-menu-item *ngFor="let hero of strictmatches$">
       <div class="notification_row">
