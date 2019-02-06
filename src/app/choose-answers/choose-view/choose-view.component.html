@@ -28,7 +28,7 @@
     <h2 *ngIf="!currTermAnswerObj.needGrouping || currTermAnswerObj.imageFinishedGrouping && prevTermAnswerObj.imageFinishedGrouping">
       Finished Choosing for Current Term
     </h2>
-    <div *ngIf="currTermAnswerObj.needGrouping && !currTermAnswerObj.imageFinishedGrouping && prevTermGrouping.imageFinishedGrouping">
+    <div *ngIf="currTermAnswerObj.needGrouping && !currTermAnswerObj.imageFinishedGrouping && prevTermAnswerObj.imageFinishedGrouping">
       <div class="col-lg-6">
         <h2> Choose Answer for Current Term</h2>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
@@ -48,4 +48,10 @@
     </div>
   </div>
 </div>
+
+<div>
+  imageFinishedGrouping: {{currTermAnswerObj.imageFinishedGrouping}}
+  boxVal: {{boxOnScreenf}}
+</div>
+
 

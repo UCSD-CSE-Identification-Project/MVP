@@ -69,19 +69,22 @@ export class ChooseViewComponent implements OnInit {
 
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
-    let prevTermIndIsoImages = {};
-    Array.prototype.push.apply(prevTermIndIsoImages,this.generalInfo.prevTermIndividualImages);
-    Array.prototype.push.apply(prevTermIndIsoImages,this.generalInfo.prevTermIsoImages);
 
+    let prevTermIndIsoImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermIsoImages);
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
 
-    let currTermIndIsoImages = {};
-    Array.prototype.push.apply(currTermIndIsoImages,this.generalInfo.currTermIndividualImages);
-    Array.prototype.push.apply(currTermIndIsoImages,this.generalInfo.currTermIsoImages);
-
+    let currTermIndIsoImages = Object.assign({}, this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
     this.currTermAnswerObj =
       this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
+
+    if( this.prevTermAnswerObj.needGrouping ){
+      this.getImageURLsetInHTML('prev', this.prevTermAnswerObj.imageKeysSorted[0]);
+    }
+    else {
+      this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[0]);
+    }
+    console.log(this.currTermAnswerObj);
   }
 
 
@@ -95,7 +98,7 @@ export class ChooseViewComponent implements OnInit {
       this.imagesFinished = true;
     }
   }
-  getImageURLsetInHTML(imageKey: string, prevOrCurr: string){
+  getImageURLsetInHTML( prevOrCurr: string, imageKey: string ){
     let url = prevOrCurr === "prev" ?
       this.db.collection('images').doc(this.prevTermAnswerObj.imageNames[imageKey]).ref.get() :
       this.db.collection('images').doc(this.currTermAnswerObj.imageNames[imageKey]).ref.get();
