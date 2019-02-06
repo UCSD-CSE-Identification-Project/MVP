@@ -78,8 +78,8 @@
   <div *ngIf="currTermGrouping.needGrouping && !currTermGrouping.imageFinishedGrouping && prevTermGrouping.imageFinishedGrouping">
     <div class="row">
       <h3>Current Term</h3>
-      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex<currTermGrouping.numImages">
-        <h2> Question {{currTermGrouping.imageIndex+1}}</h2>
+      <div class="col-lg-4" *ngIf="boxOne.imgIndex<currTermGrouping.numImages">
+        <h2> Question {{boxOne.imgIndex+1}}</h2>
         <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxOneRelation.boxVal">
@@ -99,8 +99,8 @@
         </form>
       </div>
 
-      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex+1<currTermGrouping.numImages">
-        <h2> Question {{currTermGrouping.imageIndex+2}}</h2>
+      <div class="col-lg-4" *ngIf="boxTwo.imgIndex<currTermGrouping.numImages">
+        <h2> Question {{boxTwo.imgIndex+1}}</h2>
         <img src="{{(boxTwo.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxTwoRelation.boxVal">
@@ -120,8 +120,8 @@
         </form>
       </div>
 
-      <div class="col-lg-4" *ngIf="currTermGrouping.imageIndex+2<currTermGrouping.numImages">
-        <h2> Question {{currTermGrouping.imageIndex+3}}</h2>
+      <div class="col-lg-4" *ngIf="boxThree.imgIndex<currTermGrouping.numImages">
+        <h2> Question {{boxThree.imgIndex+1}}</h2>
         <img src="{{(boxThree.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxThreeRelation.boxVal">
@@ -160,16 +160,23 @@
 
 
 
-<div>boxOne: {{this.boxOne.radioClicked && this.boxOneRelation.radioClicked}} <br>
-  boxTwo: {{this.boxTwo.radioClicked && this.boxTwoRelation.radioClicked}}  <br>
-  boxThree: {{this.boxThree.radioClicked && this.boxThreeRelation.radioClicked}} <br>
-  TwoHidden: {{this.prevTermGrouping.imageIndex+2 >= prevTermGrouping.numImages}} <br>
-  ThreeHidden: {{this.prevTermGrouping.imageIndex+3 >= prevTermGrouping.numImages}}  <br>
-  imagesFinished: {{imagesFinished}}
+<div>
+  boxOne: {{this.boxOne.radioClicked }} <br>
+  boxOneRelation: {{this.boxOneRelation.radioClicked}} <br>
+  boxTwo: {{this.boxTwo.radioClicked }}  <br>
+  boxTwoRelation: {{ this.boxTwoRelation.radioClicked}}  <br>
+  boxThree: {{this.boxThree.radioClicked }} <br>
+  boxThreeRelation: {{ this.boxThreeRelation.radioClicked}} <br>
+  TwoHidden: {{this.boxTwo.imgIndex >= prevTermGrouping.numImages}} <br>
+  ThreeHidden: {{this.boxThree.imgIndex >= prevTermGrouping.numImages}}  <br>
+  imagesFinished: {{imagesFinished}} <br/>
   previmageIndex: {{prevTermGrouping.imageIndex}} <br>
   prevnumImages: {{ prevTermGrouping.numImages }}<br>
   currimageIndex: {{currTermGrouping.imageIndex}} <br>
   currnumImages: {{ currTermGrouping.numImages }}<br>
+  boxOneValue: {{boxOne.imgIndex}} <br />
+  boxTwoValue: {{boxTwo.imgIndex}} <br />
+  boxThreeValue: {{ boxThree.imgIndex}} <br />
 </div>
 
 

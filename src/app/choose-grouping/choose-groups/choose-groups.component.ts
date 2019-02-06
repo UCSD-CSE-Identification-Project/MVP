@@ -259,6 +259,14 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
 
+  async pushSubGroupToFirestore ( prevOrCurrentTerm: string, imgIndexToPush: number) {
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+
+    // different scenarios
+    await this.db.collection('images')
+      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]])
+      .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
+  }
 
   async pushImageObjectToFirestore( prevOrCurrentTerm: string, boxVal: string, imageIndex: number ){
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
@@ -351,6 +359,8 @@ export class ChooseGroupsComponent implements OnInit {
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
         if ( boxTwoValue === 'New Question' ){
           // push to firestore
+          this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
+          this.partOfTheSameSubPair = {};
           lastQuestionToPush = this.boxTwo;
         } else{
           this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxTwo.imgIndex]]] = boxTwoValue;
@@ -361,12 +371,16 @@ export class ChooseGroupsComponent implements OnInit {
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, this.boxThree.imgIndex);
         if( boxThreeValue === 'New Question') {
           // push last question to firestore and then push empty value to this last box
+          this.pushSubGroupToFirestore(prevOrCurrentTerm, lastQuestionToPush.imgIndex);
+          this.partOfTheSameSubPair = {};
+          lastQuestionToPush = this.boxThree;
         } else {
           this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxThree.imgIndex]]] = boxThreeValue;
           // push this array to firestore using the last question pushed value
         }
       }
 
+      this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
       // push empty array to last box if it is a new question, if it is related then push the array to the right box
       this.setResetTermFinishVariables(prevOrCurrentTerm);
     }
