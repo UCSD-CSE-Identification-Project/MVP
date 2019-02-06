@@ -106,17 +106,20 @@ export class ChooseViewComponent implements OnInit {
   }
 
   async nextImage(prevOrCurrentTerm: string) {
+    console.log(this.boxOnScreen.boxAnswer.value);
+    console.log();
+    let ans = JSON.stringify(this.boxOnScreen.boxAnswer.value)
     let termAnswerObj = prevOrCurrentTerm === 'prev' ? this.prevTermAnswerObj: this.currTermAnswerObj;
     if( (termAnswerObj.numImages - termAnswerObj.imageIndex) <= 1 ){
       await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
-        correct_answers: this.boxOnScreen.boxVal,
+        correct_answers: ans //this.boxOnScreen.boxAnswer,
       });
       this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
     }
 
     await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
-      correct_answers: this.boxOnScreen.boxVal,
+      correct_answers: this.boxOnScreen.boxAnswer,
     });
 
     this.boxOnScreen = this.createBoxObj();
