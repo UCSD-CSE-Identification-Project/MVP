@@ -39,7 +39,7 @@ export class ChooseViewComponent implements OnInit {
       imageNames: {}, // going to be array of individual names and iso names
       imageIndex: 0,
       imageKeysSorted: [],
-      imageFinishedGrouping: false,
+      termFinishedAnswering: false,
       needGrouping: true,
       numImages: 0,
     };
@@ -90,15 +90,19 @@ export class ChooseViewComponent implements OnInit {
 
   setResetTermFinishVariables(prevOrCurrentTerm: string){
     if ( prevOrCurrentTerm === 'prev'){
-      this.prevTermAnswerObj.imageFinishedGrouping = true;
+      this.prevTermAnswerObj.termFinishedAnswering = true;
       this.boxOnScreen = this.createBoxObj();
       this.getImageURLsetInHTML(this.currTermAnswerObj.imageKeysSorted[0],'curr');
     } else{
-      this.currTermAnswerObj.imageFinishedGrouping = true;
+      this.currTermAnswerObj.termFinishedAnswering = true;
       this.imagesFinished = true;
     }
   }
   getImageURLsetInHTML( prevOrCurr: string, imageKey: string ){
+    // console.log(imageKey === 'L1710031354_C10');
+    // console.log(prevOrCurr);
+    // console.log(this.prevTermAnswerObj.imageNames['L1710031354_C10']);
+    // console.log(this.prevTermAnswerObj.imageNames);
     let url = prevOrCurr === "prev" ?
       this.db.collection('images').doc(this.prevTermAnswerObj.imageNames[imageKey]).ref.get() :
       this.db.collection('images').doc(this.currTermAnswerObj.imageNames[imageKey]).ref.get();
@@ -106,25 +110,36 @@ export class ChooseViewComponent implements OnInit {
   }
 
   async nextImage(prevOrCurrentTerm: string) {
-    console.log(this.boxOnScreen.boxAnswer.value);
-    console.log();
+    // console.log(this.boxOnScreen.boxAnswer.value);
+    // console.log();
     let ans = JSON.stringify(this.boxOnScreen.boxAnswer.value)
     let termAnswerObj = prevOrCurrentTerm === 'prev' ? this.prevTermAnswerObj: this.currTermAnswerObj;
     if( (termAnswerObj.numImages - termAnswerObj.imageIndex) <= 1 ){
       await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
-        correct_answers: ans //this.boxOnScreen.boxAnswer,
+        correct_answers: this.boxOnScreen.boxAnswer,
       });
       this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
     }
 
-    await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
-      correct_answers: this.boxOnScreen.boxAnswer,
-    });
+    console.log("value is " + this.boxOnScreen.boxAnswer.value);
+    console.log("image key is" + termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]);
+    this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
+      correct_answers: this.boxOnScreen.boxAnswer.value,
+    }).then(function() {
+      console.log("Document successfully updated!");
+    })
+      .catch(function(error) {
+        // The document probably doesn't exist.
+        console.error("Error updating document: ", error);
+      });
 
     this.boxOnScreen = this.createBoxObj();
     termAnswerObj.imageIndex += 1;
-    this.getImageURLsetInHTML(termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex], prevOrCurrentTerm);
+    console.log(termAnswerObj.imageKeysSorted);
+    console.log(termAnswerObj.imageIndex);
+    console.log(termAnswerObj.imageNames);
+    this.getImageURLsetInHTML(prevOrCurrentTerm,termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex] );
   }
 
   // use in the future

@@ -86,7 +86,7 @@ export class ChooseGroupsComponent implements OnInit {
       imageNames: {},
       imageIndex: 0,
       imageKeysSorted: [],
-      imageFinishedGrouping: false,
+      termFinishedAnswering: false,
       needGrouping: true,
       numImages: 0,
     };
@@ -102,7 +102,7 @@ export class ChooseGroupsComponent implements OnInit {
   setResetTermFinishVariables(prevOrCurrentTerm: string){
     console.log("inside set and reset");
     if ( prevOrCurrentTerm === 'prev'){
-      this.prevTermGrouping.imageFinishedGrouping = true;
+      this.prevTermGrouping.termFinishedAnswering = true;
       // Initialize the "relation" for all three boxes
       this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
       this.boxOne = this.createBoxObj(0);
@@ -113,8 +113,9 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+      this.currTermGrouping.imageIndex = 2;
     } else{
-      this.currTermGrouping.imageFinishedGrouping = true;
+      this.currTermGrouping.termFinishedAnswering = true;
       this.imagesFinished = true;
     }
   }
