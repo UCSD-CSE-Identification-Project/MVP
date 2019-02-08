@@ -5,6 +5,7 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import { getCurrentDebugContext } from '@angular/core/src/view/services';
 import {isLowerCase} from 'tslint/lib/utils';
 import {group} from '@angular/animations';
+// import 'rxjs/add/operator/toPromise';
 
 @Component({
   selector: 'app-choose-groups',
@@ -36,6 +37,7 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.setResetTermFinishVariables('curr');
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
     // Initialize the "relation" for all three boxes
@@ -115,8 +117,20 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
       this.currTermGrouping.imageIndex = 2;
     } else{
-      this.currTermGrouping.termFinishedAnswering = true;
+      // this.currTermGrouping.termFinishedAnswering = true;
       this.imagesFinished = true;
+      let keyImages = Object.values(this.generalInfo.prevTermAllImages); // images that are keys
+      let allPromises = [];
+      var t0 = performance.now();
+      for ( let key of keyImages ){
+        console.log(key);
+        console.log(typeof key);
+        allPromises.push(this.generalInfo.makeSingleRequest(""+key));
+      }
+      Promise.all(allPromises).then(value=>{console.log(value + " finished all values");});
+      var t1 = performance.now();
+      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+
     }
   }
   getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){

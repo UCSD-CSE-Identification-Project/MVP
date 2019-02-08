@@ -203,4 +203,10 @@ export class UserTermImageInformationService {
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
         responseType:'text'}).subscribe((res) => {console.log(res);});
   }
+
+  makeSingleRequest(imageIdVal: string){
+    return this.http.post("/singleImagesPost",{'prevTermImageId': imageIdVal, 'currTerm': "1QW5NOAT1U3RkHt9kF5F"},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'}).toPromise();
+  }
 }
