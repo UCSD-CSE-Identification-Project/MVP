@@ -1,6 +1,7 @@
 import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-match-terminal',
@@ -55,6 +56,7 @@ export class MatchTerminalComponent implements OnInit {
     // TODO the following argument needs to be the union of single, group and iso
     this.termMatching = this.createChooseMatchesTermObject(this.generalInfo.prevTermAllImages);
     this.matchBar = this.createMatchBarObject(0);
+    console.log(this.matchBar.matchUrl);
     this.completeMatchBarObject();
   }
 
@@ -62,7 +64,8 @@ export class MatchTerminalComponent implements OnInit {
    *
    */
   createMatchBarObject(imageIndex: number){
-    let obj = {
+    //let obj : { matchIds: string, matchUrl: Observable<Array> , keyImgIndex: number, keyImgUrl: Observable, selectedUrl: string, indexSelected: number }[] = {
+      let obj = {
       matchIds: [],
       matchUrl: [],
       keyImgIndex: imageIndex,
@@ -73,10 +76,14 @@ export class MatchTerminalComponent implements OnInit {
     return obj;
   }
   completeMatchBarObject(){
+    var self = this;
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
-    this.populateIdsOfMatches(this.matchBar.keyImgIndex);
-    console.log(this.matchBar.matchIds);
-    this.populateImageURLMatches();
+    this.populateIdsOfMatches(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]).then(()=>{
+      self.populateImageURLMatches();
+    });
+    console.log(typeof this.matchBar.matchUrl);
+    console.log(this.matchBar.matchUrl);
+
 
   }
   createChooseMatchesTermObject(imgNames){
@@ -96,33 +103,42 @@ export class MatchTerminalComponent implements OnInit {
 
   // imageKey here refers what the id of that image is
   getKeyImageURL(imageKey: string){
-    return this.db.collection('images').doc(this.termMatching[imageKey]).ref.get();
+    console.log(imageKey);
+    return this.db.collection('images').doc(this.termMatching.imageNames[imageKey]).ref.get();
   }
 
   async populateIdsOfMatches( imageKey: string ){
     let matches;
     let sortable = [];
+    var self = this;
     // let retVal = [];
-    await this.db.collection('images').doc(this.termMatching[imageKey]).ref.get().then((doc)=>{
+    console.log(imageKey);
+    console.log(this.termMatching.imageNames);
+    console.log(this.termMatching.imageNames[imageKey]);
+    await this.db.collection('images').doc(this.termMatching.imageNames[imageKey]).ref.get().then((doc)=>{
       if (doc.exists){
-        matches = doc.data().matches; // todo pull the term match and not entire object
+        console.log(doc.data().matches[self.generalInfo.currTermIdVal]);
+        matches = doc.data().matches[self.generalInfo.currTermIdVal]; // todo pull the term match and not entire object
         for (var imgId in matches ) {
           sortable.push([imgId, matches[imgId]]);
         }
 
         sortable.sort(function(a, b) {
-          return a[1] - b[1];
+          return b[1] - a[1];
         });
       }
     });
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
     }
+    console.log(this.matchBar.matchIds);
     // return retVal;
   }
 
   populateImageURLMatches(){
+    console.log(this.matchBar.matchIds.length);
     for (var id of this.matchBar.matchIds){
+      console.log(id);
       this.matchBar.matchUrl.push(this.db.collection('images').doc(id).ref.get());
     }
   }
@@ -180,13 +196,15 @@ export class MatchTerminalComponent implements OnInit {
     // update index value
 
     //Always make sure the first image of the highmatches show up when clicked "next"
-    let target = <HTMLImageElement>document.getElementById("selectedImg");
+    // let target = <HTMLImageElement>document.getElementById("selectedImg");
+    /*
     target.src = this.highMatches[0];
 
     // Increment input image index
     this.imageInputIndex++;
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
+    */
   }
 
   // What to do when found matches
