@@ -37,7 +37,7 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.setResetTermFinishVariables('curr');
+    // this.setResetTermFinishVariables('curr');
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
     // Initialize the "relation" for all three boxes

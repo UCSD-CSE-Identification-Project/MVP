@@ -8,42 +8,42 @@
     * {
       box-sizing: border-box;
     }
-    
+
     body {
       margin: 0;
       font-family: Arial;
     }
-    
+
     /* The grid: Four equal columns that floats next to each other */
     .column {
       float: left;
       width: 25%;
       padding: 10px;
     }
-    
+
     /* Style the images inside the grid */
     .column img {
-      opacity: 0.8; 
-      cursor: pointer; 
+      opacity: 0.8;
+      cursor: pointer;
     }
-    
+
     .column img:hover {
       opacity: 1;
     }
-    
+
     /* Clear floats after the columns */
     .row:after {
       content: "";
       display: table;
       clear: both;
     }
-    
+
     /* The expanding image container */
     .container {
       position: relative;
       display: none;
     }
-    
+
     /* Expanding image text */
     #imgtext {
       position: absolute;
@@ -52,7 +52,7 @@
       color: white;
       font-size: 20px;
     }
-    
+
     /* Closable button inside the expanded image */
     .closebtn {
       position: absolute;
@@ -83,7 +83,7 @@
   <!-- The image the user chooses that matches the term 1 picture -->
   <h4>The Image You Choose: </h4>
   <!-- The default is the first image in the highMatches-->
-  <img src={{highMatches[0]}} width="400px" id="selectedImg"><br />
+  <img src={{matchBar.selectedURL}} width="400px" id="selectedImg"><br />
   <br />
   <button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col"> Next</button>
   <button type="submit" *ngIf="imagesFinished" class="col" routerLink="../navigator/match"> Finished </button> <br />
@@ -95,11 +95,12 @@
 
 <div class="col-sm-6 fill-height">
   <h3>Display: Term 2 Matches</h3>
-    
+
     <!-- If showMatchesHigh is true, show all the img in highMatches-->
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="showMatchesHigh" class="example-viewport">
-      <div *cdkVirtualFor="let item of highMatches" class="example-item">
-        <img [src]="item" width="300px" (click) = "imgClick(item)"/>
+      <div *cdkVirtualFor="let index of {{arrayval length numImages}}" class="example-item">
+        <p>index</p>
+        <img [src]="matchBar.matchUrl[index]" width="300px" (click) = "imgClick(index)"/>
       </div>
     </cdk-virtual-scroll-viewport>
 
@@ -118,7 +119,7 @@
     </cdk-virtual-scroll-viewport>
 
 </div>
-  
+
 <!--
 <button  mat-menu-item *ngFor="let hero of strictmatches$">
       <div class="notification_row">
