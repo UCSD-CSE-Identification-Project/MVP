@@ -31,10 +31,10 @@ export class UserTermImageInformationService {
   constructTermObj() {
     return {
       termId: '',
-      allTermImages: {},
-      individualImages: {},
-      groupImages: {},
-      isoImages:{},
+      allTermImages: {'Q12':'l', 'Q11':'k', 'Q10':'j', 'Q9':'i', 'Q8':'h', 'Q7':'g', 'Q6':'f', 'Q5':'e', 'Q4':'d', 'Q3':'c', 'Q2':'b', 'Q1': 'a'},
+      individualImages: {'Q10':'j', 'Q7':'g', 'Q4':'d', 'Q1':'a'},
+      groupImages: {'Q11':'k','Q8':'h', 'Q5':'e', 'Q2':'b'},
+      isoImages:{'Q12':'l','Q9':'i', 'Q6':'f', 'Q3':'c'},
       loadedFromDatabase: false,
       finished: false
     };
@@ -71,7 +71,8 @@ export class UserTermImageInformationService {
     return this.prevTermGeneralInfo.allTermImages;
   }
   set prevTermAllImages(arrOfImageNames: any) {
-    this.prevTermGeneralInfo.allTermImages = arrOfImageNames;
+    /*this.prevTermGeneralInfo.allTermImages = arrOfImageNames;*/
+    this.prevTermGeneralInfo.allTermImages = {'Q12':'l', 'Q11':'k', 'Q10':'j', 'Q9':'i', 'Q8':'h', 'Q7':'g', 'Q6':'f', 'Q5':'e', 'Q4':'d', 'Q3':'c', 'Q2':'b', 'Q1': 'a'};
   }
   pushImageToCurrAllImages(imageKey: string, imageVal: string){
     this.currTermGeneralInfo.allTermImages[imageKey] = imageVal;
@@ -102,7 +103,8 @@ export class UserTermImageInformationService {
     this.currTermGeneralInfo.individualImages = arrIndImgNames;
   }
   set prevTermIndividualImages(arrIndImgNames: any) {
-    this.prevTermGeneralInfo.individualImages = arrIndImgNames;
+    /*this.prevTermGeneralInfo.individualImages = arrIndImgNames;*/
+    this.prevTermGeneralInfo.individualImages = {'Q7':'g', 'Q4':'d', 'Q1':'a'};
   }
   saveImageToPrevIndImages(imageName: string, imageKey: string) {
     this.prevTermGeneralInfo.individualImages[imageName] = imageKey;
