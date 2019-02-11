@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import {Observable} from 'rxjs';
@@ -29,7 +29,7 @@ export class MatchTerminalComponent implements OnInit {
   matchBar;
   imagesFinished: boolean;
 
-  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService) {
+  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef) {
     // Only show match high by default
     // this.showMatchesLow = this.showMatchesMeduim = false;
     // this.showMatchesHigh = true;
@@ -80,6 +80,7 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
     this.populateIdsOfMatches(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]).then(()=>{
       self.populateImageURLMatches();
+      self.ref.detectChanges();
     });
     console.log(typeof this.matchBar.matchUrl);
     console.log(this.matchBar.matchUrl);
@@ -170,18 +171,12 @@ export class MatchTerminalComponent implements OnInit {
     //(<HTMLImageElement>image).classList.toggle("selectedIMG");
   }
   */
-  imgClick( index: number){
+  imgClick( index: number) {
+    console.log(index);
     this.matchBar.selectedURL = this.matchBar.matchUrl[index];
     this.matchBar.indexSelected = index;
-    // let target = <HTMLImageElement>document.getElementById("selectedImg");
-    // target.src = source;
     // TODO USE ID TO UPDATE THE MATCH OF THE CURRENT IMAGE AND OF THE SELECTED IMAGE
-    // TODO ALSO CHANGE TARGE TO ACCEPT AN OBSERVABLE AS ITS SOURCE
   }
-   //$('img').click(function(){
-   //  $(this).toggleClass('selectedIMG');
-   //});
-  //}
 
   // Go to the next image
   nextImage(){
@@ -212,44 +207,4 @@ export class MatchTerminalComponent implements OnInit {
     // update in database that imagename has a match in matchName
     alert(matchName);
   }
-
-  // Returns the Term 2 pictures
-  getImageNames(){
-    let allImages = this.generalInfo.currTermAllImages;
-    console.log(allImages);
-    let url = [];
-    let i;
-    console.log(Object.keys(allImages));
-    for (i = 0; i < Object.keys(allImages).length; i++){
-      this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then(function(doc) {
-        if (doc.exists) {
-          console.log(doc.data().downloadURL);
-          url.push(doc.data().downloadURL);
-        }
-      });
-      //url.push(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
-      //console.log(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
-    }
-    console.log(this.generalInfo.prevTermIdVal);
-    console.log(url);
-    return url;
-  }
-
-  // Returns the Term 1 pictures
-  getImageInput(){
-    let allImages = this.generalInfo.prevTermAllImages;
-    console.log(allImages);
-    let url = [];
-    let i;
-    console.log(Object.keys(allImages));
-    for (i = 0; i < Object.keys(allImages).length; i++){
-      //this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then();
-      url.push(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
-      console.log(this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get());
-    }
-    console.log(this.generalInfo.prevTermIdVal);
-    console.log(url);
-    return url;
-  }
-
 }

@@ -89,10 +89,9 @@
     <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
     <ng-container *ngIf="matchBar.matchUrl.length > 0">
       <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
-        <div *cdkVirtualFor="let url of matchBar.matchUrl; let index = index;" class="example-item">
-          <h2>index</h2>
-          <img src = "url" width="300px"  >
-          <!-- <img src="{{( url | async )?.data().downloadURL}}" width="300px" (click) = "imgClick(index)"/> -->
+        <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
+          <h2>{{i}}</h2>
+          <img src="{{( url | async )?.data().downloadURL}}" width="300px" (click) = "imgClick(i)"/>
         </div>
       </cdk-virtual-scroll-viewport>
     </ng-container>
