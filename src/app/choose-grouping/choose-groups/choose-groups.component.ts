@@ -1,7 +1,7 @@
-import { Component, OnInit} from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
-import { AuthService } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
@@ -22,11 +22,18 @@ export class ChooseGroupsComponent implements OnInit {
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
-              private db: AngularFirestore) {
+              private db: AngularFirestore
+              ) {
     this.imagesFinished = false;
   }
 
   ngOnInit() {
+    // Everytime we get data from sessionStorage
+    let data:termData = this.authService.getStorage("session");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+    this.startingIndex = data.imageIndex;
+
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
 
@@ -47,7 +54,7 @@ export class ChooseGroupsComponent implements OnInit {
     docRef.get().then(function (doc) {
       if (doc.exists) {
         console.log(doc.data()["imageNum"]);
-        self.startingIndex = doc.data()["imageNum"];
+        //self.startingIndex = +localStorage.getItem("imageIndex");
 
         console.log("startingIndex is " + self.startingIndex);
         if (self.prevTermGrouping.needGrouping) {
@@ -294,13 +301,28 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   logout() {
-    //let id = this.prevTermGrouping.needGrouping ? this.generalInfo.prevTermIdVal : this.generalInfo.currTermIdVal;
     let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
-    console.log("index when log out is " + index);
-    console.log("prev index is " + this.prevTermGrouping.imageIndex);
-    console.log("curr index is " + this.currTermGrouping.imageIndex);
-    console.log("prev needs grouping ?" + this.prevTermGrouping.needGrouping);
-    this.authService.logout('choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
+    let object: termData = {
+      logoutUrl: "/choose-grouping",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: index
+    };
+    this.authService.setStorage("local", object);
+
+    this.authService.logout('/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    let object: termData = {
+      logoutUrl: "/choose-grouping",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
+    };
+    this.authService.setStorage("session", object);
+    this.authService.unloadNotification(event);
   }
 
 }

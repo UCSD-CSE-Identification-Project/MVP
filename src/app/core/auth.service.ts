@@ -5,9 +5,17 @@ import * as firebase from 'firebase/app';
 import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 
+export interface termData {
+  logoutUrl: string,
+  prevTermInfo: any,
+  currTermInfo: any,
+  imageIndex: number
+}
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private user: Observable<firebase.User>;
   private userDetails: firebase.User = null;
@@ -45,6 +53,28 @@ export class AuthService {
 
   signUpRegular(email: string, password: string) {
     return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
+  }
+
+  unloadNotification($event: any) {
+    $event.returnValue = false;
+  }
+
+  setStorage(type: string, object:termData) {
+    if (type === "local") {
+      localStorage.setItem("termData", JSON.stringify(object));
+    }
+    else if(type === "session") {
+      sessionStorage.setItem("termData", JSON.stringify(object));
+    }
+  }
+
+  getStorage(type: string):termData {
+    if (type === "local") {
+      return JSON.parse(localStorage.getItem("termData"));
+    }
+    else if (type === "session") {
+      return JSON.parse(sessionStorage.getItem("termData"));
+    }
   }
 
   logout(lastUrl: string, terms, imageNum: number) {

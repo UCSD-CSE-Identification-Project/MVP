@@ -5,7 +5,7 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
-import { AuthService } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 import {ZipService} from '../../unzipFolder/zip.service';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 
@@ -114,6 +114,8 @@ export class UploadComponent implements OnInit {
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
+        //!!!!! Changed here
+        filename += Date.now();
         console.log(filename);
         if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
@@ -175,9 +177,19 @@ export class UploadComponent implements OnInit {
 
   } // end of method
 
+  // Use this to fill sessionStorage from UPLOAD page
   onUpload(){
-    console.log("in on upload");
+    let object:termData = {
+      logoutUrl: "/",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    console.log(this.generalInfo.prevTerm);
+    console.log(this.generalInfo.currTerm);
+
     this.alreadyUpload = true;
+    this.authService.setStorage("session", object);
   }
   // TODO add terms to the prev term category
   /*async onUpload() {

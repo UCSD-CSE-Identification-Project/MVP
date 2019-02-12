@@ -5,8 +5,7 @@ import { Router } from "@angular/router";
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import * as firebase from 'firebase';
-
-import { AuthService } from '../../core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -49,7 +48,7 @@ export class AuthComponent implements OnInit {
           }
           else {
             // The user should be prompted to either resume or start a new one
-            self.openDialog(doc);
+            self.openDialog(doc, docRef);
           }
         } else {
           // doc.data() will be undefined in this case
@@ -97,7 +96,7 @@ export class AuthComponent implements OnInit {
       .catch(e => alert(e.message));
   }
 
-  openDialog(doc: firebase.firestore.DocumentSnapshot) {
+  openDialog(doc: firebase.firestore.DocumentSnapshot, docRef: firebase.firestore.DocumentReference) {
     const dialogRef = this.dialog.open(Dialog, {
       width: '500px'
     });
@@ -108,29 +107,43 @@ export class AuthComponent implements OnInit {
         this.continue(doc);
       }
       else {
-        //TODO: possible clean up?
-        this.router.navigate(["/upload"]);
+        // Clean up
+        localStorage.clear();
+        sessionStorage.clear();
+        docRef.update({
+          finishedLastRun: false,
+          lastUrl: '',
+          current_terms_generalInfo: [],
+          imageNum: 0
+        }).then(() => this.router.navigate(["/upload"]));
       }
     });
   }
 
   continue(doc: firebase.firestore.DocumentSnapshot) {
-    // First get user metadata
-    let url = doc.data()["lastUrl"];
-    let terms = doc.data()["current_terms_generalInfo"];
-    let dict = doc.data()["imageNum"];
-    console.log(url);
-    console.log(terms);
-    console.log(dict);
-
-    if (url === "choose-grouping") {
+    let url = localStorage.getItem("logoutUrl");
+    // If localstorage is empty, get data from database instead, then fill sessionStorage
+    if (url == null) {
+      url = doc.data()["lastUrl"];
+      let terms = doc.data()["current_terms_generalInfo"];
       this.generalInfo.prevTerm = terms[0];
       this.generalInfo.currTerm = terms[1];
-      this.router.navigate(["/choose-grouping"]);
+      let imageNum:number = doc.data()["imageNum"];
+
+      // Store in localstorage
+      let object:termData = {
+        logoutUrl: url,
+        prevTermInfo: this.generalInfo.prevTerm,
+        currTermInfo: this.generalInfo.currTerm,
+        imageIndex: imageNum
+      };
+      this.authService.setStorage("session", object);
     }
+    // Simply read from localStorage and set sessionStorage
     else {
-      this.router.navigate([url]);
+      this.authService.setStorage("session", this.authService.getStorage("local"));
     }
+    this.router.navigate([url]);
   }
 
 }
