@@ -3,6 +3,10 @@ import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFo
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
+import { getCurrentDebugContext } from '@angular/core/src/view/services';
+import {isLowerCase} from 'tslint/lib/utils';
+import {group} from '@angular/animations';
+// import 'rxjs/add/operator/toPromise';
 
 @Component({
   selector: 'app-choose-groups',
@@ -10,14 +14,23 @@ import {AngularFirestore} from '@angular/fire/firestore';
   styleUrls: ['./choose-groups.component.css']
 })
 export class ChooseGroupsComponent implements OnInit {
+  // Added the property "Relation with previous image"
+  relationToPreImg = [{opt: 'Related Question'}, {opt: 'New Question'}];
   boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
   imagesFinished; // if we finish reading all the images
   prevTermGrouping;
   currTermGrouping;
+  // Added addition box for each boxes to indicate relation
+  boxOneRelation;
   boxOne;
+  boxTwoRelation;
   boxTwo;
+  boxThreeRelation;
   boxThree;
   startingIndex:number = 0;
+  doesNotNeedImageIndex = 0;
+  partOfTheSameSubPair;
+
 
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
@@ -25,6 +38,7 @@ export class ChooseGroupsComponent implements OnInit {
               private db: AngularFirestore
               ) {
     this.imagesFinished = false;
+    this.partOfTheSameSubPair  = {};
   }
 
   ngOnInit() {
@@ -34,12 +48,16 @@ export class ChooseGroupsComponent implements OnInit {
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
 
+    this.setResetTermFinishVariables('curr');
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
-
-    this.boxOne = this.createBoxObj();
-    this.boxTwo = this.createBoxObj();
-    this.boxThree = this.createBoxObj();
+    // Initialize the "relation" for all three boxes
+    this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    this.boxOne = this.createBoxObj(0);
+    this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    this.boxTwo = this.createBoxObj(1);
+    this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    this.boxThree = this.createBoxObj(2);
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
@@ -49,12 +67,29 @@ export class ChooseGroupsComponent implements OnInit {
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
     console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
 
-    let docRef = this.db.collection('users').doc(this.authService.getUser()).ref;
-    const self = this;
-    docRef.get().then(function (doc) {
-      if (doc.exists) {
-        console.log(doc.data()["imageNum"]);
+    //let docRef = this.db.collection('users').doc(this.authService.getUser()).ref;
+    //const self = this;
+    //docRef.get().then(function (doc) {
+      //if (doc.exists) {
+        //console.log(doc.data()["imageNum"]);
         //self.startingIndex = +localStorage.getItem("imageIndex");
+
+    if( this.prevTermGrouping.needGrouping ){
+      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[0],'prev' );
+      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[1],'prev');
+      this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[2],'prev');
+      this.prevTermGrouping.imageIndex = 2;
+    }
+    else{
+      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
+      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
+      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+      this.currTermGrouping.imageIndex = 2;
+    }
+
+    // console.log(this.prevTermGrouping.imageKeysSorted);
+    // console.log(this.currTermGrouping.imageKeysSorted);
+/*
 
         console.log("startingIndex is " + self.startingIndex);
         if (self.prevTermGrouping.needGrouping) {
@@ -77,10 +112,10 @@ export class ChooseGroupsComponent implements OnInit {
       else {
         console.log("this won't happen.");
       }
-    });
+    });*/
   }
 
-  createBoxObj() {
+  createBoxObj(imageIndex: number) {
     return {
       boxVal: this.fb.group({
         option: [''],
@@ -88,6 +123,7 @@ export class ChooseGroupsComponent implements OnInit {
       radioClicked: false,
       disabledRadioButton: false,
       imageSourceURL: null,
+      imgIndex: imageIndex,
     };
   }
 
@@ -97,7 +133,7 @@ export class ChooseGroupsComponent implements OnInit {
       imageNames: {},
       imageIndex: 0,
       imageKeysSorted: [],
-      imageFinishedGrouping: false,
+      termFinishedAnswering: false,
       needGrouping: true,
       numImages: 0,
     };
@@ -111,21 +147,44 @@ export class ChooseGroupsComponent implements OnInit {
   // TODO
   // reset variables when second term is done
   setResetTermFinishVariables(prevOrCurrentTerm: string){
+    console.log("inside set and reset");
     if ( prevOrCurrentTerm === 'prev'){
       this.prevTermGrouping.imageFinishedGrouping = true;
       this.prevTermGrouping.needGrouping = false;
       this.generalInfo.prevTermFinished = true;
-      this.boxOne = this.createBoxObj();
-      this.boxTwo = this.createBoxObj();
-      this.boxThree = this.createBoxObj();
+      this.prevTermGrouping.termFinishedAnswering = true;
+      // Initialize the "relation" for all three boxes
+      this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+      this.boxOne = this.createBoxObj(0);
+      this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+      this.boxTwo = this.createBoxObj(1);
+      this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+      this.boxThree = this.createBoxObj(2);
+
       this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+      this.currTermGrouping.imageIndex = 2;
     } else{
       this.currTermGrouping.imageFinishedGrouping = true;
       this.currTermGrouping.needGrouping = false;
       this.generalInfo.currTermFinished = true;
+
+      // this.currTermGrouping.termFinishedAnswering = true;
+
       this.imagesFinished = true;
+      let keyImages = Object.values(this.generalInfo.prevTermAllImages); // images that are keys
+      let allPromises = [];
+      var t0 = performance.now();
+      for ( let key of keyImages ){
+        console.log(key);
+        console.log(typeof key);
+        allPromises.push(this.generalInfo.makeSingleRequest(""+key));
+      }
+      Promise.all(allPromises).then(value=>{console.log(value + " finished all values");});
+      var t1 = performance.now();
+      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+
     }
   }
   getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){
@@ -140,163 +199,406 @@ export class ChooseGroupsComponent implements OnInit {
      this.boxThree.imageSourceURL = url;
    }
   }
-  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
-  async nextImage(prevOrCurrentTerm: string) {
+
+  // Remove picture at index "picIndex"
+  // 0: boxOne
+  // 1: boxTwo
+  // 2: boxThree
+  removeIgnore(picIndex: number, prevOrCurrentTerm: string){
+    console.log("Into removeIgnore function");
+    // Determine whether it's current term or previous term
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    let numImagesLeft = termObjGrouping.numImages - termObjGrouping.imageIndex;
-    if ( numImagesLeft <= 3 ) {
-      if( numImagesLeft === 0 ){
-        this.setResetTermFinishVariables(prevOrCurrentTerm);
-        return;
-      }
-      if( numImagesLeft == 3 ) {
-        const imageObj = {};
-        imageObj["grouping"] =  this.boxThree.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2]]).update(imageObj);
-      }
-      if(numImagesLeft == 2 ) {
-        const imageObj = {};
-        imageObj["grouping"] = this.boxTwo.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1]]).update(imageObj);
-      }
-      if ( numImagesLeft == 1 ){
-        const imageObj = {};
-        imageObj["grouping"] = this.boxOne.boxVal.controls.option.value;
-        await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
-      }
-      this.setResetTermFinishVariables(prevOrCurrentTerm);
-      return;
+    // If boxOne is ignore
+    switch (picIndex) {
+      case 0:
+        console.log("Into removeIgnore for boxOne");
+        //Move boxTwo to boxOne
+        this.boxOne = this.boxTwo;
+        this.boxOneRelation = this.boxTwoRelation;
+        // Move boxThree to boxTwo
+        this.boxTwo = this.boxThree;
+        this.boxTwoRelation = this.boxThreeRelation;
+        // Clear boxThree
+        this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
+        this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+
+        // Get the next picture
+        if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+        }
+        // Move forward one place
+        termObjGrouping.imageIndex += 1;
+
+        // If boxOne is still ignore, recursively call removeIgnore on box one
+        if (this.boxOne.boxVal.controls.option.value === 'Ignore'){
+          this.removeIgnore(0, prevOrCurrentTerm);
+        }
+        // If boxTwo is still ignore, recursively call removeIgnore on box two
+        else if (this.boxTwo.boxVal.controls.option.value === 'Ignore'){
+          this.removeIgnore(1, prevOrCurrentTerm);
+        }
+        break;
+      case 1:
+        console.log("Into removeIgnore for boxTwo");
+
+        //Move box three to box two
+        this.boxTwo = this.boxThree;
+        this.boxTwoRelation = this.boxThreeRelation;
+        //Clear box three
+        this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
+        this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+
+        // Get the next picture
+        if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+        }
+        // Move forward one place
+        termObjGrouping.imageIndex += 1;
+
+        // If boxTwo is still ignore, recursively call removeIgnore on box one
+        if (this.boxTwo.boxVal.controls.option.value === 'Ignore'){
+          this.removeIgnore(1, prevOrCurrentTerm);
+        }
+        break;
+      case 2:
+        console.log("Into removeIgnore for boxThree");
+        //Clear box three
+        this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
+        this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+        // Move forward one place
+        termObjGrouping.imageIndex += 1;
+        // Get the next picture
+        if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+        }
+        termObjGrouping.imageIndex += 1;
+        break;
+
+      default:
+        break;
     }
+  }
+
+
+  /*
+   * numBoxesPushed is the number of boxes that will be added to the firestore database
+   * at the time the next button is clicked
+   */
+  async addGroupPairingToIndImages( prevOrCurrentTerm: string, numBoxesPushed: number){
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
     // different scenarios
     const boxOneValue = this.boxOne.boxVal.controls.option.value;
     const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
     const boxThreeValue = this.boxThree.boxVal.controls.option.value;
-    if ( boxTwoValue === 'Individual' && ( boxThreeValue === 'Group' || boxThreeValue === 'Isomorphic') ){
-      const imageObj = {};
-      imageObj["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+
+    if (boxOneValue === 'Ignore') { // todo will not work for the case of ignore ind ind
+      return;
+    }
+    switch (numBoxesPushed){
+      case 1:
+        if( boxOneValue === 'Individual'){
+          await this.db.collection('images')
+          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+          .set({imagesInGroup: {}},{merge: true});
+        }
+        break;
+      case 2:
+        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore'){
+          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+          let imagesInGroupObj = {};
+          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+          await this.db.collection('images')
+            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+        }
+        break;
+      case 3:
+        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore' && boxThreeValue !== 'Ignore'){
+          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
+          const boxThreeImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]];
+          let imagesInGroupObj = {};
+          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
+          imagesInGroupObj[boxThreeValue] = boxThreeImageIdVal;
+          await this.db.collection('images')
+            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
+            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
+        }
+        break;
+    }
+
+  }
+
+  async pushSubGroupToFirestore ( prevOrCurrentTerm: string, imgIndexToPush: number) {
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+
+    // different scenarios
+    await this.db.collection('images')
+      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]])
+      .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
+  }
+
+  async pushImageObjectToFirestore( prevOrCurrentTerm: string, boxVal: string, imageIndex: number ){
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    const imageObj = {};
+    imageObj["grouping"] = boxVal;
+    await this.db.collection('images')
+      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imageIndex]]).update(imageObj);
+  }
+
+  addGroupingToGenInfo( prevOrCurrentTerm: string,  grouping: string, imageIndex: number ){
+    const termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    const imgName = termObjGrouping.imageKeysSorted[imageIndex];
+    const imgId = termObjGrouping.imageNames[imgName];
+
+    if( prevOrCurrentTerm === 'prev'){
+      switch (grouping){
+
+        case 'Individual':
+          this.generalInfo.saveImageToPrevIndImages(imgName,imgId);
+          break;
+        case 'Group':
+          this.generalInfo.saveImageToPrevGroupImages(imgName,imgId);
+          break;
+        case 'Isomorphic':
+          this.generalInfo.saveImageToPrevIsoImages(imgName, imgId);
+          break;
       }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObj);
-      termObjGrouping.imageIndex += 1;
+    } else {
+      switch (grouping){
 
-      this.boxOne = this.boxTwo;
-      this.boxTwo = this.boxThree;
-
-      this.boxOne.disabledRadioButton = true;
-      this.boxTwo.disabledRadioButton = true;
-
-      this.boxThree = this.createBoxObj();
-      if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
-        this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+        case 'Individual':
+          this.generalInfo.saveImageToCurrIndImages(imgName,imgId);
+          break;
+        case 'Group':
+          this.generalInfo.saveImageToCurrGroupImages(imgName,imgId);
+          break;
+        case 'Isomorphic':
+          this.generalInfo.saveImageToCurrIsoImages(imgName, imgId);
+          break;
       }
     }
-    else if( ( boxTwoValue !== 'Individual' && boxThreeValue === 'Individual') ||
-             ( boxTwoValue === 'Individual' && boxThreeValue === 'Individual') ) {
-      const imageObjOne = {};
-      imageObjOne["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+  }
+
+
+  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
+  // this code was written under the assumption that you only shift by two images
+  async nextImage(prevOrCurrentTerm: string) {
+    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+
+    // different scenarios
+    const boxOneValue = this.boxOne.boxVal.controls.option.value;
+    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
+    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
+
+    const boxOneRValue = this.boxOneRelation.boxVal.controls.option.value;
+    const boxTwoRValue = this.boxTwoRelation.boxVal.controls.option.value;
+    const boxThreeRValue = this.boxThreeRelation.boxVal.controls.option.value;
+
+    // if there are any ignore, remove all ignores
+    if ( boxOneValue === 'Ignore' ||  boxTwoValue === 'Ignore' || boxThreeValue === 'Ignore') {
+      console.log("inside ignore ");
+      if (boxOneValue === 'Ignore'){
+        this.removeIgnore(0,prevOrCurrentTerm);
+        console.log("Current image index is ");
+        console.log(termObjGrouping.imageIndex);
       }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
-
-      const imageObjTwo = {};
-      imageObjTwo["grouping"] = boxTwoValue;
-      if ( boxTwoValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
+      else if (boxTwoValue === 'Ignore'){
+        this.removeIgnore(1,prevOrCurrentTerm);
+        console.log("Current image index is ");
+        console.log(termObjGrouping.imageIndex);
       }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
-      termObjGrouping.imageIndex += 2;
-
-      this.boxOne = this.boxThree;
-      this.boxOne.disabledRadioButton = true;
-
-      this.boxTwo = this.createBoxObj();
-      this.boxThree = this.createBoxObj();
-
-
-      if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
-        this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1],prevOrCurrentTerm);
-      }
-      if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
-        this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+      else{
+        this.removeIgnore(2,prevOrCurrentTerm);
+        console.log("Current image index is ");
+        console.log(termObjGrouping.imageIndex);
       }
     }
-    else{
-      const imageObjOne = {};
-      imageObjOne["grouping"] = boxOneValue;
-      if ( boxOneValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]);
+    else if ( termObjGrouping.imageIndex >= termObjGrouping.numImages - 1) {
+      console.log("in last iteration");
+      let lastQuestionToPush = this.boxOne;
+      // todo this section was written under the assumption that there will be more than one picture shown on teh screen at any given point
+      // todo finish this section
+      if ( this.boxOne.imgIndex < termObjGrouping.numImages ) {
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imageIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
+        // groupedVal.push(this.boxOne.boxVal.controls.option.value);
       }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]]).update(imageObjOne);
+      if ( this.boxTwo.imgIndex < termObjGrouping.numImages ) {
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
+        if ( boxTwoValue === 'New Question' ){
+          // push to firestore
+          this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
+          this.partOfTheSameSubPair = {};
+          lastQuestionToPush = this.boxTwo;
+        } else{
+          this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxTwo.imgIndex]]] = boxTwoValue;
+        }
+      }
+      if ( this.boxThree.imgIndex < termObjGrouping.numImages ) {
+        this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, this.boxThree.imgIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, this.boxThree.imgIndex);
+        if( boxThreeValue === 'New Question') {
+          // push last question to firestore and then push empty value to this last box
+          this.pushSubGroupToFirestore(prevOrCurrentTerm, lastQuestionToPush.imgIndex);
+          this.partOfTheSameSubPair = {};
+          lastQuestionToPush = this.boxThree;
+        } else {
+          this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxThree.imgIndex]]] = boxThreeValue;
+          // push this array to firestore using the last question pushed value
+        }
+      }
 
-      const imageObjTwo = {};
-      imageObjTwo["grouping"] = boxTwoValue;
-      if ( boxTwoValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm,termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]]).update(imageObjTwo);
+      this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
+      // push empty array to last box if it is a new question, if it is related then push the array to the right box
+      this.setResetTermFinishVariables(prevOrCurrentTerm);
+    }
+    // If all three pictures are related, add two more pictures
+    else if(boxTwoRValue=== 'Related Question' && boxThreeRValue === 'Related Question'){
+      console.log("push two images");
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex );
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
 
-      const imageObjThree = {};
-      imageObjThree["grouping"] = boxThreeValue;
-      if ( boxThreeValue === 'Individual'){
-        this.addImageToPreviousOrCurrentTermIndImages(prevOrCurrentTerm, termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]);
-      }
-      await this.db.collection('images')
-        .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]]).update(imageObjThree);
-      termObjGrouping.imageIndex += 3;
+      this.addGroupingToGenInfo(prevOrCurrentTerm, boxThreeValue, this.boxThree.imgIndex);
+      await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxThreeValue, this.boxThree.imgIndex);
 
-      this.boxOne = this.createBoxObj();
-      this.boxTwo = this.createBoxObj();
-      this.boxThree = this.createBoxObj();
-      if(termObjGrouping.imageIndex < termObjGrouping.numImages ){
-        this.getImageURLsetInHTML(0, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex], prevOrCurrentTerm);
-      }
-      if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+      this.boxOne.disabledRadioButton = true;
+      this.boxOneRelation.disabledRadioButton = true;
+      this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxTwo.imgIndex]]] = boxTwoValue;
+      this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxThree.imgIndex]]] = boxThreeValue;
+
+      // Clear boxTwo
+      this.boxTwo = this.createBoxObj(termObjGrouping.imageIndex + 1);
+      this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+      // Clear boxThree
+      this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 2);
+      this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+
+      // Get two more pictures and put them in boxTwo and boxThree
+      if(termObjGrouping.imageIndex + 1 < termObjGrouping.numImages ){
         this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
       }
       if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
         this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
       }
+      // Move forward two places
+      termObjGrouping.imageIndex += 2;
+      console.log("Current image index is ");
+      console.log(termObjGrouping.imageIndex);
     }
-  }
-  addImageToPreviousOrCurrentTermIndImages( prevOrCurTerm: string, imageId: string) {
-    if( prevOrCurTerm === 'prev') {
-      this.generalInfo.pushImageToPrevIndImages(imageId);
-    } else {
-      this.generalInfo.pushImageToCurrIndImages(imageId);
+
+    //Else shift the rightmost new to the boxOne, add pictures accordingly
+    else{
+      console.log("in else statement");
+      // If the box three is new
+      if(boxThreeRValue === 'New Question' ){
+
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
+
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
+
+        // todo
+        if ( boxTwoRValue === 'New Question' ){
+          // push the pair same grouping and an empty value for the second box
+        } else {
+          // add teh second box to the object array and then push
+        }
+
+        // Move boxThree to boxOne
+        this.boxOne = this.boxThree;
+        this.boxOneRelation = this.boxThreeRelation;
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
+        // Clear boxTwo
+        this.boxTwo = this.createBoxObj(termObjGrouping.imageIndex + 1);
+        this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+        // Clear boxThree
+        this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 2);
+        this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+        // Get two more pictures and put them in boxTwo and boxThree
+        if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(1, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1],prevOrCurrentTerm);
+        }
+        if ( termObjGrouping.imageIndex + 2 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 2], prevOrCurrentTerm);
+        }
+        // Move forward two places
+        termObjGrouping.imageIndex += 2;
+        console.log("Current image index is ");
+        console.log(termObjGrouping.imageIndex);
+      }
+
+      // If the box Two is new
+      else{
+
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
+        await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
+
+        // todo push the object array to firestore with teh first object as the key and thats it
+
+        this.boxOne = this.boxTwo;
+        this.boxOneRelation = this.boxTwoRelation;
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
+
+        this.boxTwo = this.boxThree;
+        this.boxTwoRelation = this.boxThreeRelation;
+        this.boxTwo.disabledRadioButton = true;
+        this.boxTwoRelation.disabledRadioButton = true;
+
+        this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
+        this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+        // Get one more picture and put it boxThree
+        if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
+          this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
+        }
+        // Move forward one place
+        termObjGrouping.imageIndex += 1;
+        console.log("Current image index is ");
+        console.log(termObjGrouping.imageIndex);
+
+      }
+
     }
+
   }
+
   updateChecked(boxNum: number){
     // if(this.boxOne.controls.option)
-    if( boxNum === 1 ){
+    if( boxNum === 10 ){
       this.boxOne.radioClicked = true;
     }
-    else if( boxNum === 2 ){
+    else if (boxNum === 11){
+      this.boxOneRelation.radioClicked = true;
+    }
+    else if( boxNum === 20 ){
       this.boxTwo.radioClicked = true;
     }
-    else if( boxNum === 3 ){
+    else if( boxNum === 21 ){
+      this.boxTwoRelation.radioClicked = true;
+    }
+    else if( boxNum === 30 ){
       this.boxThree.radioClicked = true;
+    }
+    else if( boxNum === 31 ){
+      this.boxThreeRelation.radioClicked = true;
     }
   }
 
   // checkes if all the images are checked or if the unchecked ones are hidden
   allChecked(prevOrCurrent: string){
     let termObjGrouping = prevOrCurrent === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    const boxTwoHidden = termObjGrouping.imageIndex+2 >= termObjGrouping.numImages;
-    const boxThreeHidden = termObjGrouping.imageIndex+3 >= termObjGrouping.numImages;
+    const boxTwoHidden = this.boxTwo.imgIndex >= termObjGrouping.numImages;
+    const boxThreeHidden = this.boxThree.imgIndex >= termObjGrouping.numImages;
 
     return this.boxOne.radioClicked &&
           (this.boxTwo.radioClicked|| boxTwoHidden) &&
-          (this.boxThree.radioClicked || boxThreeHidden);
+          (this.boxThree.radioClicked || boxThreeHidden) &&
+          this.boxOneRelation.radioClicked &&
+          (this.boxTwoRelation.radioClicked|| boxTwoHidden) &&
+          (this.boxThreeRelation.radioClicked|| boxThreeHidden);
 
   }
 

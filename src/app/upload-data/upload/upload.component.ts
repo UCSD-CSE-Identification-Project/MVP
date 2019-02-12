@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -49,7 +49,8 @@ export class UploadComponent implements OnInit {
   prevTermsCreated = [];
 
 
-  constructor(private uploadService: UploadService,
+  constructor( private http: HttpClient,
+              private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
               private authService: AuthService,
@@ -123,7 +124,7 @@ export class UploadComponent implements OnInit {
 
           let blobFile = new File([val], filename);
           // TODO ALERT: self.task was assigned here
-          self.storage.upload(self.generalInfo.userIdVal +  "/" +filename, blobFile).then(async (taskVal)=>{
+          self.storage.upload(self.generalInfo.userIdVal +  "/" + termId + "/" +filename, blobFile).then(async (taskVal)=>{
             if (filename[0] === '.') return;
             console.log(fileType);
             if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
@@ -150,6 +151,8 @@ export class UploadComponent implements OnInit {
                   // });
                   if (prevOrCurrTerm === 0){
                     self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
+                    console.log(imageName);
+                    console.log(imageId);
                     console.log("general info prev all images", self.generalInfo.prevTermAllImages);
                   } else {
                     self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
@@ -190,9 +193,26 @@ export class UploadComponent implements OnInit {
 
     this.alreadyUpload = true;
     this.authService.setStorage("session", object);
+
+    // COMMENTED OUT
+    //this.generalInfo.makePostRequest();
+
+    /*let params = new HttpParams();
+
+    params = params.append('prevTerm',this.generalInfo.prevTermIdVal);
+    params = params.append("currTerm",this.generalInfo.currTermIdVal);
+
+    this.http.post("/",{params: params},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'}).subscribe((res) => console.log(res));
+        */
+    return;
+
   }
   // TODO add terms to the prev term category
-  /*async onUpload() {
+  /*
+  "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching"
+  async onUpload() {
     var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules

@@ -1,23 +1,60 @@
 <div class="container">
 
   <div class="row">
-    <div class="col-lg-6">
-      <h2> Select Answer</h2>
-      <img [src]="imageNames[imageIndex]" width="500px"/>
+    <h2 *ngIf="!prevTermAnswerObj.needGrouping || prevTermAnswerObj.termFinishedAnswering">
+      Finished Choosing for Previous Term
+    </h2>
+    <div *ngIf="prevTermAnswerObj.needGrouping && !prevTermAnswerObj.termFinishedAnswering">
+      <div class="col-lg-6">
+        <h2> Choose Answer for Previous Term</h2>
+        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
+      </div>
+      <div class="col-lg-6">
+        <h4>Correct Answer</h4>
+        <form [formGroup]="boxOnScreen.boxAnswer">
+          <div *ngFor="let data of boxValues">
+            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
+
     </div>
-    <div class="col-lg-6">
-      <h4>Correct Answer</h4>
-      <form [formGroup]="specificAnswers">
-        <div *ngFor="let data of boxValues">
-          <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
-        </div>
-      </form>
-      <button (click)="showVal()"> SHOW VALUES</button>
-      <button [disabled]="imagesFinished" [disabled]="numCheckedBoxes <= 0" (click)="nextImage()"> Next</button>
-      <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
-      <ng-container></ng-container>
+  </div>
+
+
+
+  <div class="row">
+    <h2 *ngIf="!currTermAnswerObj.needGrouping || currTermAnswerObj.termFinishedAnswering && prevTermAnswerObj.termFinishedAnswering">
+      Finished Choosing for Current Term
+    </h2>
+    <div *ngIf="currTermAnswerObj.needGrouping && !currTermAnswerObj.termFinishedAnswering && prevTermAnswerObj.termFinishedAnswering">
+      <div class="col-lg-6">
+        <h2> Choose Answer for Current Term</h2>
+        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
+      </div>
+      <div class="col-lg-6">
+        <h4>Correct Answer</h4>
+        <form [formGroup]="boxOnScreen.boxAnswer">
+          <div *ngFor="let data of boxValues">
+            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+          </div>
+        </form>
+      </div>
     </div>
+    <div>
+    </div>
+    <div style="text-align: right">
+      <div style="display:inline-block">
+        <button *ngIf="!prevTermAnswerObj.termFinishedAnswering" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
+        <button *ngIf= "prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
+        <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
+      </div>
   </div>
 </div>
 
-<pre>Form values: {{allAnswers.value | json}}</pre>
+<div>
+  imageFinishedGrouping: {{currTermAnswerObj.termFinishedAnswering}}
+  boxVal: {{boxOnScreen.boxAnswer.value | json }}
+</div>
+
+

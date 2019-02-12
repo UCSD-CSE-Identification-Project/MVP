@@ -1,0 +1,12 @@
+{
+  "/imagesPost":{
+    "target": "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/singleImagesPost": {
+    "target": "https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
