@@ -1,11 +1,7 @@
 <div class="container">
   <h2> Classify Questions</h2>
-<<<<<<< HEAD
-  <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Logout</button>
+  <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
   <h2 *ngIf="!prevTermGrouping.needGrouping || prevTermGrouping.imageFinishedGrouping">
-=======
-  <h2 *ngIf="!prevTermGrouping.needGrouping || prevTermGrouping.termFinishedAnswering">
->>>>>>> a9e6e98c1483bd5198f5aa2a20344f6a60370b24
     You have finished previous term grouping.
   </h2>
   <div *ngIf="prevTermGrouping.needGrouping && !prevTermGrouping.termFinishedAnswering">

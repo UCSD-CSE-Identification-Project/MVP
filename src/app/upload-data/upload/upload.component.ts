@@ -116,7 +116,7 @@ export class UploadComponent implements OnInit {
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
         //!!!!! Changed here
-        filename += Date.now();
+        //filename += Date.now();
         console.log(filename);
         if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 

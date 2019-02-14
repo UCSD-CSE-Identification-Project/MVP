@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService, termData } from 'src/app/core/auth.service';
+import { UserTermImageInformationService } from 'src/app/core/user-term-image-information.service';
 
 @Component({
   selector: 'app-navigator',
@@ -23,9 +25,22 @@ export class NavigatorComponent implements OnInit {
     'View the results that show struggling students'
   ];
 
-  constructor(private router: Router) { }
+  constructor(private router: Router,
+              private generalInfo: UserTermImageInformationService,
+              private authService: AuthService) { }
 
   ngOnInit() {
+    // Store generalInfo into sessionStorage, and set both terms to not finished
+    this.generalInfo.prevTermFinished = false;
+    this.generalInfo.currTermFinished = false;
+    let object: termData = {
+      logoutUrl: "/",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    this.authService.setStorage("session", object);
+
     switch (this.router.url) {
       case '/navigator/upload':
         this.nextStage = 1;
@@ -67,9 +82,6 @@ export class NavigatorComponent implements OnInit {
       default:
         break;
     }
-  }
-
-  proceed() {
   }
 
 }

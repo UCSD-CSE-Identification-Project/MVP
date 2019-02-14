@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, HostListener } from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-match-terminal',
@@ -24,7 +25,7 @@ export class MatchTerminalComponent implements OnInit {
   showMatchesMeduim: boolean;
   showMatchesLow: boolean;
 
-  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService) {
+  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private authService: AuthService) {
     // Only show match high by default
     this.showMatchesLow = this.showMatchesMeduim = false;
     this.showMatchesHigh = true;
@@ -39,7 +40,12 @@ export class MatchTerminalComponent implements OnInit {
 
   // Execute right after constructor
   ngOnInit() {
+    let data: termData = this.authService.getStorage("session");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+    this.imageInputIndex = data.imageIndex;
     console.log(this.generalInfo.prevTermAllImages);
+
     this.imageNames = this.getImageNames(); 
     // get image names from firebase here TODO make sure to update value of imagesource in async func also
     // TODO ALSO UPDATE THE VALUE OF THE MATCHES
@@ -169,5 +175,29 @@ export class MatchTerminalComponent implements OnInit {
       ]
       */
   }
-  
+
+  logout() {
+    let object: termData = {
+      logoutUrl: "/choose-image-matches",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: this.imageInputIndex
+    };
+    this.authService.setStorage("local", object);
+
+    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.imageInputIndex);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification($event: any) {
+    let object: termData = {
+      logoutUrl: "/choose-image-matches",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: this.imageInputIndex
+    };
+    this.authService.setStorage("session", object);
+    this.authService.unloadNotification(event);
+  }
+
 }
