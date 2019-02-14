@@ -175,7 +175,7 @@ export class MatchTerminalComponent implements OnInit {
 
     this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.imageInputIndex);
   }
-
+  
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any) {
     let object: termData = {
@@ -188,4 +188,5 @@ export class MatchTerminalComponent implements OnInit {
     this.authService.unloadNotification(event);
   }
 */
+
 }

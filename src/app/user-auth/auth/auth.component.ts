@@ -80,10 +80,14 @@ export class AuthComponent implements OnInit {
             class_term: {},
             email: self.email,
             name: '',
+<<<<<<< HEAD
             finishedLastRun: false,
             lastUrl: '',
             current_terms_generalInfo: [],
             imageNum: 0
+=======
+            results: {}
+>>>>>>> 4aae0e09ecaa5ad88092800906a77a651e1b9ab8
           }).catch((error) => {
             console.log("Error in creating a user auth.componenet.ts line 74", error);
           });
@@ -96,6 +100,7 @@ export class AuthComponent implements OnInit {
       .catch(e => alert(e.message));
   }
 
+<<<<<<< HEAD
   openDialog(doc: firebase.firestore.DocumentSnapshot, docRef: firebase.firestore.DocumentReference) {
     const dialogRef = this.dialog.open(Dialog, {
       width: '500px'
@@ -157,4 +162,6 @@ export class Dialog {
   constructor(
     public dialogRef: MatDialogRef<Dialog>) { }
 
+=======
+>>>>>>> 4aae0e09ecaa5ad88092800906a77a651e1b9ab8
 }

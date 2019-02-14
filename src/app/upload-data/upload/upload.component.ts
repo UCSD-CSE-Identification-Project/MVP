@@ -193,7 +193,7 @@ export class UploadComponent implements OnInit {
     this.finishedUpload = false;
     await this.uploadTermZip(this.prevTermZip, 0);
     await this.uploadTermZip(this.currTermZip, 1);
-    this.finishedUpload = false;
+    this.finishedUpload = true;
 
     let object:termData = {
       logoutUrl: "/",
