@@ -5,16 +5,24 @@ import * as firebase from 'firebase/app';
 import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 
+export interface termData {
+  logoutUrl: string,
+  prevTermInfo: any,
+  currTermInfo: any,
+  imageIndex: number
+}
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthService {
   private user: Observable<firebase.User>;
   private userDetails: firebase.User = null;
   private uid: string = '';
 
   constructor(private firebaseAuth: AngularFireAuth,
-              private fireStore: AngularFirestore,
+              private db: AngularFirestore,
               private router: Router) {
     this.user = this.firebaseAuth.authState;
 
@@ -22,8 +30,8 @@ export class AuthService {
         if (user) {
           this.userDetails = user;
           this.uid = user.uid;
-          console.log(this.userDetails);
-          console.log(this.uid);
+          // console.log(this.userDetails);
+          // console.log(this.uid);
         }
         else {
           this.userDetails = null;
@@ -47,9 +55,40 @@ export class AuthService {
     return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
   }
 
-  logout() {
-    this.firebaseAuth.auth.signOut();
-    this.router.navigate(['/']);
+  unloadNotification($event: any) {
+    $event.returnValue = false;
   }
-  
+
+  setStorage(type: string, object:termData) {
+    if (type === "local") {
+      localStorage.setItem("termData", JSON.stringify(object));
+    }
+    else if(type === "session") {
+      sessionStorage.setItem("termData", JSON.stringify(object));
+    }
+  }
+
+  getStorage(type: string):termData {
+    if (type === "local") {
+      return JSON.parse(localStorage.getItem("termData"));
+    }
+    else if (type === "session") {
+      return JSON.parse(sessionStorage.getItem("termData"));
+    }
+  }
+
+  logout(lastUrl: string, terms, imageNum: number) {
+    // When logout, get that user info
+    let self = this;
+    let docRef = this.db.collection('users').doc(this.uid).ref;
+    docRef.update({
+      lastUrl: lastUrl,
+      current_terms_generalInfo: terms,
+      imageNum: imageNum
+    }).then(function() {
+      self.firebaseAuth.auth.signOut();
+      self.router.navigate(['/']);
+    });
+  }
+
 }

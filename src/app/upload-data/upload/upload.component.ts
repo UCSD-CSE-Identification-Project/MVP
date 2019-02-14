@@ -1,15 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
-import { TreeNode } from '@angular/router/src/utils/tree';
-import { AuthService } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 import {ZipService} from '../../unzipFolder/zip.service';
-import {ArrayType} from '@angular/compiler';
+import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 
 @Component({
   selector: 'app-upload',
@@ -40,7 +38,7 @@ export class UploadComponent implements OnInit {
   prev_files: string[];
   curr_files: string[];
   imageIds: string[] = [];
-
+  alreadyUpload: boolean;
 
   usePreexistTerm: boolean = false;
   prevTermSelected: boolean = false;
@@ -49,12 +47,18 @@ export class UploadComponent implements OnInit {
   currTerm: string = '';
   prevTermsCreated = [];
 
+  prevTermZip: any = null;
+  currTermZip: any = null;
 
-  constructor(private uploadService: UploadService,
+  finishedUpload: boolean = false;
+
+  constructor( private http: HttpClient,
+              private uploadService: UploadService,
               private storage: AngularFireStorage,
               private db: AngularFirestore,
               private authService: AuthService,
-              private zipService: ZipService) {
+              private zipService: ZipService,
+              private generalInfo: UserTermImageInformationService) {
   }
 
   toggleHover(event: boolean) {
@@ -71,18 +75,28 @@ export class UploadComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.alreadyUpload = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
+    console.log('user id', this.generalInfo.userIdVal);
   }
 
-  async fileChanged(event, prevOrCurrTerm) {
+  tempStore(event, prevOrCurrTerm) {
+    if (prevOrCurrTerm === 0) {
+      this.prevTermZip = event.target.files[0];
+    } else {
+      this.currTermZip = event.target.files[0];
+    }
+  }
 
-    const file = event.target.files[0];
+  async uploadTermZip(eventZipFile, prevOrCurrTerm) {
+
+    const file = eventZipFile;
     const self = this;
     let promises= [];
 
     var termId = 'termId';
     await this.db.collection('terms').add({
-      all_images: [],
+      all_images: {},
       ind_images: [],
       group_images: [],
       iso_images: [],
@@ -91,69 +105,127 @@ export class UploadComponent implements OnInit {
     }).then(function(ref) {
       termId = ref.id;
     });
+    if(prevOrCurrTerm === 0){
+      this.generalInfo.prevTermIdVal = termId;
+    } else {
+      this.generalInfo.currTermIdVal = termId;
+    }
     console.log('term id', termId);
 
-    var userObjUpdate = {};
-    var termUsed = prevOrCurrTerm === 0 ? this.prevTerm: this.currTerm;
-    userObjUpdate[`class_term.${termUsed}`] = termId;
-    await this.db.collection('users').doc(this.authService.getUser()).update(userObjUpdate);
 
-    var termObj = this.db.collection('terms').doc(termId).ref;
+    const userObjUpdate = {};
+    const termUsed = prevOrCurrTerm === 0 ? this.prevTerm : this.currTerm;
+    userObjUpdate[`class_term.${termUsed}`] = termId;
+    await this.db.collection('users').doc(this.generalInfo.userIdVal).update(userObjUpdate);
+
+    const termObj = this.db.collection('terms').doc(termId).ref;
 
     this.zipService.getEntries(file).subscribe( async (next) => {
 
       for (const ent of next) {
         let filename : string = ent.filename;
-        const fileType = filename.slice(filename.indexOf("."));
-        if(fileType === '/' || fileType==='.DS_Store' || fileType==='._.DS_Store') continue;
+        const fileType = filename.slice(filename.lastIndexOf("."));
+        filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
+        console.log(filename);
+        if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
         this.zipService.getData(ent).data.subscribe(async function(val) {
 
           let blobFile = new File([val], filename);
-          self.task =  self.storage.upload(self.authService.getUser() +  "/" +filename, blobFile);
-          self.progress = self.task.percentageChanges();
+          // TODO ALERT: self.task was assigned here
+          self.storage.upload(self.generalInfo.userIdVal +  "/" + termId + "/" +filename, blobFile).then(async (taskVal)=>{
+            if (filename[0] === '.') return;
+            console.log(fileType);
+            if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
+              let pathToFile = self.generalInfo.userIdVal + '/' + termId + "/" + filename;
+              // URL
+              await firebase.storage().ref().child( pathToFile ).getDownloadURL().then(function (url) {
+                let imageObj = {
+                  correct_answers: [],
+                  grouping: '',
+                  matches: '',
+                  downloadURL: url,
+                  ocrText: '',
+                  imageHash: ''
+                };
 
-          if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
-            let pathToFile = self.authService.getUser() + '/' + filename;
-            // URL
-            await firebase.storage().ref().child( pathToFile ).getDownloadURL().then(function (url) {
-              let imageObj = {
-                correct_answers: [],
-                grouping: '',
-                matches: '',
-                downloadURL: url,
-                ocrText: '',
-                imageHash:''
-              };
+                const imagePromise = self.db.collection('images').add(imageObj).then((ref) =>{
+                  const termObjUpdate = {};
+                  const imageId = ref.id;
+                  const imageName = filename;
+                  termObjUpdate[`all_images.${imageName}`] = imageId;
+                  self.db.collection('terms').doc(termId).update(termObjUpdate);
+                  // termObj.update({
+                  //   all_images: firebase.firestore.FieldValue.arrayUnion(ref.id)
+                  // });
+                  if (prevOrCurrTerm === 0){
+                    self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
+                    console.log(imageName);
+                    console.log(imageId);
+                    console.log("general info prev all images", self.generalInfo.prevTermAllImages);
+                  } else {
+                    self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
+                    console.log("general info curr all images", self.generalInfo.currTermAllImages);
+                  }
+                }); // end of pushing image to db
 
-              const imagePromise = self.db.collection('images').add(imageObj).then((ref) =>{
-                termObj.update({
-                  all_images: firebase.firestore.FieldValue.arrayUnion(ref.id)
-                });
-              }); // end of pushing image to db
+                promises.push(imagePromise);
+              }); // end of getting url for image
+            } // end of if statement
+            else if ( fileType === '.csv') {
+              termObj.update({
+                class_data: firebase.firestore.FieldValue.arrayUnion(filename)
+              });
+            } // end of else if
+          });
+          // self.progress = self.task.percentageChanges();
 
-              promises.push(imagePromise);
-            }); // end of getting url for image
-          } // end of if statement
 
-          else if( fileType === '.csv') {
-            termObj.update({
-              class_data: firebase.firestore.FieldValue.arrayUnion(filename)
-            });
-          } // end of else if
 
         }); // end of unzip service that gets data from zipped entry
       } // end of for loop looping through files
     }); //gets entries from zipped file
 
-
   } // end of method
 
-  onUpload(){
-    console.log("in on upload");
+  // Use this to fill sessionStorage from UPLOAD page
+  async onUpload(){
+    this.finishedUpload = false;
+    await this.uploadTermZip(this.prevTermZip, 0);
+    await this.uploadTermZip(this.currTermZip, 1);
+    this.finishedUpload = true;
+
+    let object:termData = {
+      logoutUrl: "/",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    console.log(this.generalInfo.prevTerm);
+    console.log(this.generalInfo.currTerm);
+
+    this.alreadyUpload = true;
+    this.authService.setStorage("session", object);
+
+    // COMMENTED OUT
+    //this.generalInfo.makePostRequest();
+
+    /*let params = new HttpParams();
+
+    params = params.append('prevTerm',this.generalInfo.prevTermIdVal);
+    params = params.append("currTerm",this.generalInfo.currTermIdVal);
+
+    this.http.post("/",{params: params},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'}).subscribe((res) => console.log(res));
+        */
+    return;
+
   }
   // TODO add terms to the prev term category
-  /*async onUpload() {
+  /*
+  "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching"
+  async onUpload() {
     var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules
@@ -250,5 +322,9 @@ export class UploadComponent implements OnInit {
 
   dropZoneUpload(fileList) {
     this.task = this.storage.upload('dropZone' + '/' + 'test', fileList[0]);
+  }
+
+  logout() {
+    this.authService.logout(this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
 }
