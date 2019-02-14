@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpClient, HttpEventType } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
@@ -33,6 +33,8 @@ export class UploadComponent implements OnInit {
 
   files: File[][] = [[], []];
   percentage = 0;
+  counter = 0;
+  totalFiles = 0;
   fileNames: string[] = [];
   path: string = '';
   prev_files: string[];
@@ -46,6 +48,8 @@ export class UploadComponent implements OnInit {
   prevTerm: string = '';
   currTerm: string = '';
   prevTermsCreated = [];
+  sameCurrTermName: boolean = false;
+  samePrevTermName: boolean = false;
 
   prevTermZip: any = null;
   currTermZip: any = null;
@@ -80,6 +84,25 @@ export class UploadComponent implements OnInit {
     console.log('user id', this.generalInfo.userIdVal);
   }
 
+
+  async checkPrevTermName() {
+    this.samePrevTermName = false;
+    for (var i=0; i<this.prevTermsCreated.length; i++){
+      if (this.prevTerm === this.prevTermsCreated[i]) {
+        this.samePrevTermName = true;
+      }
+    }
+  }
+
+  async checkCurrTermName() {
+    this.sameCurrTermName = false;
+    for (var i=0; i<this.prevTermsCreated.length; i++){
+      if (this.currTerm === this.prevTermsCreated[i]) {
+        this.sameCurrTermName = true;
+      }
+    }
+  }
+
   tempStore(event, prevOrCurrTerm) {
     if (prevOrCurrTerm === 0) {
       this.prevTermZip = event.target.files[0];
@@ -92,6 +115,8 @@ export class UploadComponent implements OnInit {
 
     const file = eventZipFile;
     const self = this;
+    self.counter = 0;
+    self.totalFiles = 0;
     let promises= [];
 
     var termId = 'termId';
@@ -121,8 +146,10 @@ export class UploadComponent implements OnInit {
     const termObj = this.db.collection('terms').doc(termId).ref;
 
     this.zipService.getEntries(file).subscribe( async (next) => {
-
+      this.totalFiles = next.length;
       for (const ent of next) {
+        self.counter = self.counter + 1;
+        self.percentage = self.counter / this.totalFiles*100;
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
@@ -160,8 +187,6 @@ export class UploadComponent implements OnInit {
                   // });
                   if (prevOrCurrTerm === 0){
                     self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
-                    console.log(imageName);
-                    console.log(imageId);
                     console.log("general info prev all images", self.generalInfo.prevTermAllImages);
                   } else {
                     self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
@@ -186,6 +211,8 @@ export class UploadComponent implements OnInit {
       } // end of for loop looping through files
     }); //gets entries from zipped file
 
+    this.counter = 0;
+    this.percentage = 0;
   } // end of method
 
   // Use this to fill sessionStorage from UPLOAD page
@@ -223,9 +250,7 @@ export class UploadComponent implements OnInit {
 
   }
   // TODO add terms to the prev term category
-  /*
-  "https://us-central1-ersp-identification.cloudfunctions.net/imageMatching"
-  async onUpload() {
+  /*async onUpload() {
     var self = this;
     //TODO
     // File type checking, client side validation, mirror logic in backend storage rules

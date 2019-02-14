@@ -12,18 +12,15 @@ export class ProcessComponent implements OnInit {
 
   percentage = 0;
   checked = false;
+  csvfile;
+  //csvdata: [['placeholder', 'ind']];
 
-  constructor(private http: HttpClient, private generalInfo: UserTermImageInformationService, private authService: AuthService) { }
 
-  ngOnInit() {
-    let data: termData = this.authService.getStorage("session");
-    this.generalInfo.prevTerm = data.prevTermInfo;
-    this.generalInfo.currTerm = data.currTermInfo;
-  }
 
   toggleChecked() {
     this.checked = !this.checked;
   }
+
 
   onUpload() {
     // Initialize Params Object
@@ -38,28 +35,67 @@ export class ProcessComponent implements OnInit {
     );
   }
 
-  logout() {
-    let object: termData = {
-      logoutUrl: "/process-data",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
-    };
-    this.authService.setStorage("local", object);
 
-    this.authService.logout('/process-data', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+  constructor(private http: HttpClient,
+              private fb: FormBuilder,
+              private generalInfo: UserTermImageInformationService,
+              private db: AngularFirestore) {
   }
 
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
-    let object: termData = {
-      logoutUrl: "/process-data",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+  ngOnInit() {
+    let obj =  {
+      imageNames: {},
+      imageKeysSorted: [],
+      indKeysSorted: [],
+      groupKeysSorted: [],
+      isoKeysSorted: [],
+      csvdata: [],
     };
-    this.authService.setStorage("session", object);
-    this.authService.unloadNotification(event);
+
+    obj.imageNames = this.generalInfo.prevTermAllImages;
+    console.log("all prev term images")
+    console.log(obj.imageNames);
+    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
+    console.log("sorted image keys")
+    console.log(obj.imageKeysSorted);
+    obj.indKeysSorted = Object.keys(this.generalInfo.prevTermIndividualImages).sort((a, b) => a.localeCompare(b));
+    console.log(obj.indKeysSorted);
+    obj.groupKeysSorted = Object.keys(this.generalInfo.prevTermGroupImages).sort((a, b) => a.localeCompare(b));
+    console.log(obj.groupKeysSorted);
+    obj.isoKeysSorted = Object.keys(this.generalInfo.prevTermIsoImages).sort((a, b) => a.localeCompare(b));
+    console.log(obj.isoKeysSorted);
+
+    //Sorting in lexicographical order, i.e. Q1, Q10, Q11... instead of Q1, Q2, Q3
+
+    for (let i=0; i<obj.imageKeysSorted.length; i++) {
+      if (obj.indKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
+        obj.csvdata.push([obj.imageKeysSorted[i], 'ind']);
+      } else if (obj.groupKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
+        obj.csvdata.push([obj.imageKeysSorted[i], 'group']);
+      } else if (obj.isoKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
+        obj.csvdata.push([obj.imageKeysSorted[i], 'iso']);
+      }
+      //works on the assumption that all images are in one of these three categories i.e. not 'ignore'
+    }
+
+    console.log(obj.csvdata);
+
+    var csv = 'PrevTermImage, Grouping\n';
+    obj.csvdata.forEach(function(row) {
+      csv += row.join(',');
+      csv += '\n';
+    });
+
+    console.log(csv);
+    this.csvfile = csv;
+  }
+
+  downloadcsv() {
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(this.csvfile);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'results.csv';
+    hiddenElement.click();
   }
 
 }
