@@ -47,9 +47,9 @@ export class ChooseGroupsComponent implements OnInit {
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
-
-    // Commented out!!!!!!!!
+    
     //this.setResetTermFinishVariables('curr');
+
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
     // Initialize the "relation" for all three boxes

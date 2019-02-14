@@ -40,7 +40,6 @@ export class UploadComponent implements OnInit {
   imageIds: string[] = [];
   alreadyUpload: boolean;
 
-
   usePreexistTerm: boolean = false;
   prevTermSelected: boolean = false;
   currTermSelected: boolean = false;
@@ -48,6 +47,10 @@ export class UploadComponent implements OnInit {
   currTerm: string = '';
   prevTermsCreated = [];
 
+  prevTermZip: any = null;
+  currTermZip: any = null;
+
+  finishedUpload: boolean = false;
 
   constructor( private http: HttpClient,
               private uploadService: UploadService,
@@ -77,9 +80,17 @@ export class UploadComponent implements OnInit {
     console.log('user id', this.generalInfo.userIdVal);
   }
 
-  async fileChanged(event, prevOrCurrTerm) {
+  tempStore(event, prevOrCurrTerm) {
+    if (prevOrCurrTerm === 0) {
+      this.prevTermZip = event.target.files[0];
+    } else {
+      this.currTermZip = event.target.files[0];
+    }
+  }
 
-    const file = event.target.files[0];
+  async uploadTermZip(eventZipFile, prevOrCurrTerm) {
+
+    const file = eventZipFile;
     const self = this;
     let promises= [];
 
@@ -115,8 +126,6 @@ export class UploadComponent implements OnInit {
         let filename : string = ent.filename;
         const fileType = filename.slice(filename.lastIndexOf("."));
         filename = filename.slice(filename.lastIndexOf('/')+1,filename.lastIndexOf("."));
-        //!!!!! Changed here
-        //filename += Date.now();
         console.log(filename);
         if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
@@ -128,7 +137,7 @@ export class UploadComponent implements OnInit {
             if (filename[0] === '.') return;
             console.log(fileType);
             if( fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png'){
-              let pathToFile = self.generalInfo.userIdVal + '/' + filename;
+              let pathToFile = self.generalInfo.userIdVal + '/' + termId + "/" + filename;
               // URL
               await firebase.storage().ref().child( pathToFile ).getDownloadURL().then(function (url) {
                 let imageObj = {
@@ -177,11 +186,15 @@ export class UploadComponent implements OnInit {
       } // end of for loop looping through files
     }); //gets entries from zipped file
 
-
   } // end of method
 
   // Use this to fill sessionStorage from UPLOAD page
-  onUpload(){
+  async onUpload(){
+    this.finishedUpload = false;
+    await this.uploadTermZip(this.prevTermZip, 0);
+    await this.uploadTermZip(this.currTermZip, 1);
+    this.finishedUpload = false;
+
     let object:termData = {
       logoutUrl: "/",
       prevTermInfo: this.generalInfo.prevTerm,

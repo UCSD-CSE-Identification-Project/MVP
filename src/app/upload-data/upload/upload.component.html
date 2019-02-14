@@ -21,7 +21,7 @@
 
 
     <div *ngIf="prevTerm != '' && !usePreexistTerm">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event,0)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" /></div>
       <p>{{this.downloadURL | async}}</p>
     </div>
   </div>
@@ -33,17 +33,21 @@
     </div>
 
     <div *ngIf="currTerm != ''">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="fileChanged($event, 1)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" /></div>
     </div>
   </div>
-  <button type="button" (click)="onUpload()">Submit</button>
+
+  <div *ngIf="prevTermZip != null && currTermZip != null">
+    <button type="button" (click)="onUpload()">Submit</button>
+  </div>
+
   <h2>Percentage is {{percentage}}%</h2>
   <progress-bar class='progress' [progress]='progress | async' [color]="'#488aff'"></progress-bar>
   <div class="dropzone" appDropZone (hovered)="toggleHover($event)" (dropped)="dropZoneUpload($event)" [class.hovering]="isHovering">
     <h3>AngularFire Drop Zone</h3>
 
   </div>
-  <div style="float: right;">
+  <div *ngIf="finishedUpload" style="float: right;">
     <nav>
       <button routerLink="/navigator/upload">NEXT</button>
     </nav>
