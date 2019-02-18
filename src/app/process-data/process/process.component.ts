@@ -37,9 +37,7 @@ export class ProcessComponent implements OnInit {
 
 
   constructor(private http: HttpClient,
-              private fb: FormBuilder,
-              private generalInfo: UserTermImageInformationService,
-              private db: AngularFirestore) {
+              private generalInfo: UserTermImageInformationService) {
   }
 
   ngOnInit() {

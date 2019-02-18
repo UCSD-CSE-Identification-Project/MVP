@@ -50,11 +50,7 @@
     <button type="button" (click)="onUpload()">Submit</button>
   </div>
   <h2>Percentage is {{percentage}}%</h2>
-  <progress-bar class='progress' [progress]='progress | async' [color]="'#488aff'"></progress-bar>
-  <div class="dropzone" appDropZone (hovered)="toggleHover($event)" (dropped)="dropZoneUpload($event)" [class.hovering]="isHovering">
-    <h3>AngularFire Drop Zone</h3>
-
-  </div>
+  <h2> Files uploaded: {{counter}}//{{totalFiles}}</h2>
   <div *ngIf="finishedUpload" style="float: right;">
     <nav>
       <button routerLink="/navigator/upload">NEXT</button>
