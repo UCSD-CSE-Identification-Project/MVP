@@ -13,22 +13,11 @@ import { AuthService, termData } from 'src/app/core/auth.service';
 export class ChooseViewComponent implements OnInit {
   boxValues = [{ opt: 'A' }, { opt: 'B' }, { opt: 'C' }, { opt: 'D' }, { opt: 'E' }, { opt: 'None of the above' }];
   imagesFinished; // if we finish reading all the images
-  /*
-  mappedAnswers; // keep until we figure out what format the image names will be given in in the array
-  imageNames;
-  imageIndex;
-  */
   boxOnScreen;
   prevTermAnswerObj;
   currTermAnswerObj;
   startingIndex;
 
-  // start of new code
-  /*
-  allAnswers: FormArray;
-  specificAnswers: FormGroup;
-  numCheckedBoxes: number;
-  */
   constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
     // this.imageNames = this.getImageNames();
     // this.imageIndex = 0;
@@ -124,7 +113,17 @@ export class ChooseViewComponent implements OnInit {
       this.db.collection('images').doc(this.currTermAnswerObj.imageNames[imageKey]).ref.get();
     this.boxOnScreen.imageSourceURL = url;
   }
-
+  updateSubGrouping( prevOrCurrentTerm: string, imageKey: string, correctAnswer ){
+    var subGroupingArr;
+    if( prevOrCurrentTerm === 'prev'){
+      subGroupingArr = this.generalInfo.prevTermKeyImages[imageKey];
+      for ( var key of subGroupingArr ){
+        if ( subGroupingArr[key] === 'Group' || subGroupingArr[key] === 'Individual') {
+          this.db.collection('images').doc(key).update({correct_answers: correctAnswer});
+        }
+      }
+    }
+  }
   async nextImage(prevOrCurrentTerm: string) {
     // console.log(this.boxOnScreen.boxAnswer.value);
     // console.log();
@@ -134,6 +133,7 @@ export class ChooseViewComponent implements OnInit {
       await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
         correct_answers: this.boxOnScreen.boxAnswer.value,
       });
+      this.updateSubGrouping(prevOrCurrentTerm, termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]], this.boxOnScreen.boxAnswer.value);
       this.setResetTermFinishVariables(prevOrCurrentTerm);
       return;
     }
@@ -144,11 +144,12 @@ export class ChooseViewComponent implements OnInit {
       correct_answers: this.boxOnScreen.boxAnswer.value,
     }).then(function () {
       console.log("Document successfully updated!");
-    })
-      .catch(function (error) {
+    }).catch(function (error) {
         // The document probably doesn't exist.
         console.error("Error updating document: ", error);
       });
+
+    this.updateSubGrouping(prevOrCurrentTerm, termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]], this.boxOnScreen.boxAnswer.value);
 
     this.boxOnScreen = this.createBoxObj();
     termAnswerObj.imageIndex += 1;
@@ -159,12 +160,6 @@ export class ChooseViewComponent implements OnInit {
     this.getImageURLsetInHTML(prevOrCurrentTerm, termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]);
   }
 
-  // use in the future
-  addMCAnswerToImage(imageName: string, answers: FormGroup) {
-    this.db.collection('images').doc(imageName).update({
-      correct_answers: answers,
-    });
-  }
   boxChecked(isChecked: boolean) {
     if (isChecked) {
       this.boxOnScreen.numBoxesChecked++;

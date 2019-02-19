@@ -47,7 +47,7 @@ export class ChooseGroupsComponent implements OnInit {
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
-    
+
     //this.setResetTermFinishVariables('curr');
 
     console.log(this.generalInfo.prevTermAllImages);
@@ -68,13 +68,6 @@ export class ChooseGroupsComponent implements OnInit {
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
     console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
 
-    //let docRef = this.db.collection('users').doc(this.authService.getUser()).ref;
-    //const self = this;
-    //docRef.get().then(function (doc) {
-      //if (doc.exists) {
-        //console.log(doc.data()["imageNum"]);
-        //self.startingIndex = +localStorage.getItem("imageIndex");
-
     if( this.prevTermGrouping.needGrouping ){
       this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[0],'prev' );
       this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[1],'prev');
@@ -87,33 +80,6 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
       this.currTermGrouping.imageIndex = 2;
     }
-
-    // console.log(this.prevTermGrouping.imageKeysSorted);
-    // console.log(this.currTermGrouping.imageKeysSorted);
-/*
-
-        console.log("startingIndex is " + self.startingIndex);
-        if (self.prevTermGrouping.needGrouping) {
-          // TODO: edge cases
-          self.prevTermGrouping.imageIndex = self.startingIndex;
-          self.getImageURLsetInHTML(0, self.prevTermGrouping.imageKeysSorted[self.startingIndex], 'prev');
-          self.getImageURLsetInHTML(1, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 1], 'prev');
-          self.getImageURLsetInHTML(2, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 2], 'prev');
-        }
-        else {
-          self.currTermGrouping.imageIndex = self.startingIndex;
-          self.getImageURLsetInHTML(0, self.currTermGrouping.imageKeysSorted[self.startingIndex], 'curr');
-          self.getImageURLsetInHTML(1, self.currTermGrouping.imageKeysSorted[self.startingIndex + 1], 'curr');
-          self.getImageURLsetInHTML(2, self.currTermGrouping.imageKeysSorted[self.startingIndex + 2], 'curr');
-        }
-
-        console.log(self.prevTermGrouping.imageKeysSorted);
-        console.log(self.currTermGrouping.imageKeysSorted);
-      }
-      else {
-        console.log("this won't happen.");
-      }
-    });*/
   }
 
   createBoxObj(imageIndex: number) {
@@ -182,7 +148,9 @@ export class ChooseGroupsComponent implements OnInit {
         console.log(typeof key);
         allPromises.push(this.generalInfo.makeSingleRequest(""+key));
       }
-      Promise.all(allPromises).then(value=>{console.log(value + " finished all values");});
+      Promise.all(allPromises).then(value=>{
+        console.log(value + " finished all values");
+      });
       var t1 = performance.now();
       console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 
@@ -281,60 +249,19 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
 
-  /*
-   * numBoxesPushed is the number of boxes that will be added to the firestore database
-   * at the time the next button is clicked
-   */
-  async addGroupPairingToIndImages( prevOrCurrentTerm: string, numBoxesPushed: number){
-    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    // different scenarios
-    const boxOneValue = this.boxOne.boxVal.controls.option.value;
-    const boxTwoValue = this.boxTwo.boxVal.controls.option.value;
-    const boxThreeValue = this.boxThree.boxVal.controls.option.value;
-
-    if (boxOneValue === 'Ignore') { // todo will not work for the case of ignore ind ind
-      return;
-    }
-    switch (numBoxesPushed){
-      case 1:
-        if( boxOneValue === 'Individual'){
-          await this.db.collection('images')
-          .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
-          .set({imagesInGroup: {}},{merge: true});
-        }
-        break;
-      case 2:
-        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore'){
-          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
-          let imagesInGroupObj = {};
-          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
-          await this.db.collection('images')
-            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
-            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
-        }
-        break;
-      case 3:
-        if ( boxOneValue === 'Individual' && boxTwoValue !== 'Ignore' && boxThreeValue !== 'Ignore'){
-          const boxTwoImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+1]];
-          const boxThreeImageIdVal = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex+2]];
-          let imagesInGroupObj = {};
-          imagesInGroupObj[boxTwoValue] = boxTwoImageIdVal;
-          imagesInGroupObj[boxThreeValue] = boxThreeImageIdVal;
-          await this.db.collection('images')
-            .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex]])
-            .set({imagesInGroup: imagesInGroupObj}, {merge: true});
-        }
-        break;
-    }
-
-  }
-
   async pushSubGroupToFirestore ( prevOrCurrentTerm: string, imgIndexToPush: number) {
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
 
+    const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
+    // also saving object locally
+    if( prevOrCurrentTerm === 'prev'){
+      this.generalInfo.saveKeyImageToPrevTerm(imgToPush, this.partOfTheSameSubPair);
+    } else {
+      this.generalInfo.saveKeyImageToCurrTerm(imgToPush, this.partOfTheSameSubPair);
+    }
     // different scenarios
     await this.db.collection('images')
-      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]])
+      .doc(imgToPush)
       .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
   }
 
@@ -503,8 +430,13 @@ export class ChooseGroupsComponent implements OnInit {
         // todo
         if ( boxTwoRValue === 'New Question' ){
           // push the pair same grouping and an empty value for the second box
+          await this.pushSubGroupToFirestore(prevOrCurrentTerm, this.boxOne.imgIndex);
+          this.partOfTheSameSubPair = {};
+          await this.pushSubGroupToFirestore(prevOrCurrentTerm,this.boxTwo.imgIndex);
         } else {
           // add teh second box to the object array and then push
+          this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxTwo.imgIndex]]] = boxTwoValue;
+          await this.pushSubGroupToFirestore(prevOrCurrentTerm, this.boxOne.imgIndex);
         }
 
         // Move boxThree to boxOne
@@ -538,6 +470,7 @@ export class ChooseGroupsComponent implements OnInit {
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
 
         // todo push the object array to firestore with teh first object as the key and thats it
+        this.pushSubGroupToFirestore(prevOrCurrentTerm, this.boxOne.imgIndex);
 
         this.boxOne = this.boxTwo;
         this.boxOneRelation = this.boxTwoRelation;

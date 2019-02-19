@@ -77,6 +77,7 @@ export class UserTermImageInformationService {
         "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
       },
       loadedFromDatabase: false,
+      keyImages: {},
       finished: false
     };
   }
@@ -202,6 +203,18 @@ export class UserTermImageInformationService {
   }
   set currTerm(obj) {
     this.currTermGeneralInfo = obj;
+  }
+  get prevTermKeyImages(){
+    return this.prevTermGeneralInfo.keyImages;
+  }
+  saveKeyImageToPrevTerm( imageKey: string, subGrouping: Object){
+    this.prevTermGeneralInfo.keyImages[imageKey] = subGrouping;
+  }
+  get currTermKeyImages(){
+    return this.currTermGeneralInfo.keyImages;
+  }
+  saveKeyImageToCurrTerm( imageKey: string, subGrouping: Object ){
+    this.currTermGeneralInfo.keyImages[imageKey] = subGrouping;
   }
 
   makePostRequest(){
