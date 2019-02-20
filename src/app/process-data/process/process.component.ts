@@ -22,7 +22,7 @@ export class ProcessComponent implements OnInit {
   }
 
 
-  onUpload() {
+  process() {
     // Initialize Params Object
     let params = new HttpParams();
 
@@ -30,6 +30,10 @@ export class ProcessComponent implements OnInit {
     params = params.append('course', "CSE100FA2018");
     params = params.append('week', "10");
     params = params.append('elements', "c");
+    params = params.append('prevTermId', "0n69l9uRVa6k5rUAxYob");
+    params = params.append('currTermId', "10hGi0jfsWhL3pkYfiLd");
+    params = params.append('userId', "QdVQwhUCY6Wi7JieDktj4qjF1ju2");
+
     this.http.get('https://us-central1-ersp-identification.cloudfunctions.net/prediction', { params: params }).subscribe(
       result => console.log(result)
     );
@@ -37,9 +41,7 @@ export class ProcessComponent implements OnInit {
 
 
   constructor(private http: HttpClient,
-              private fb: FormBuilder,
-              private generalInfo: UserTermImageInformationService,
-              private db: AngularFirestore) {
+              private generalInfo: UserTermImageInformationService) {
   }
 
   ngOnInit() {

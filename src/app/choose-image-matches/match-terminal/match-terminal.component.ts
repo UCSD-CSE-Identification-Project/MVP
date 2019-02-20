@@ -16,31 +16,32 @@ export class MatchTerminalComponent implements OnInit {
   termMatching;
   matchBar;
   imagesFinished: boolean;
+  imageInd: number = 0;
 
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
 
   // Execute right after constructor
   ngOnInit() {
-/*
+
     let data: termData = this.authService.getStorage("session");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInputIndex = data.imageIndex;
+    this.imageInd = data.imageIndex;
     console.log(this.generalInfo.prevTermAllImages);
 
-    this.imageNames = this.getImageNames(); 
+    //this.imageNames = this.getImageNames(); 
     // get image names from firebase here TODO make sure to update value of imagesource in async func also
     // TODO ALSO UPDATE THE VALUE OF THE MATCHES
-    this.imageInput = this.getImageInput();
-    this.highMatches = this.getImageNames();
-    console.log(this.highMatches);
-    this.mediumMatches = this.imageNames.slice(2,7);
-    this.lowMatches = this.imageNames.slice(7,12);
-*/
+    //this.imageInput = this.getImageInput();
+    //this.highMatches = this.getImageNames();
+    //console.log(this.highMatches);
+    //this.mediumMatches = this.imageNames.slice(2,7);
+    //this.lowMatches = this.imageNames.slice(7,12);
+
     // TODO the following argument needs to be the union of single, group and iso
     this.termMatching = this.createChooseMatchesTermObject(this.generalInfo.prevTermAllImages);
-    this.matchBar = this.createMatchBarObject(0);
+    this.matchBar = this.createMatchBarObject(this.imageInd);
     // console.log(this.matchBar.matchUrl);
     this.completeMatchBarObject();
 
@@ -77,7 +78,7 @@ export class MatchTerminalComponent implements OnInit {
   createChooseMatchesTermObject(imgNames){
     let obj = {
       imageNames: {},
-      imageIndex: 0,
+      imageIndex: this.imageInd,
       imageKeysSorted: [],
       termFinishedMatching: false,
       numImages: 0,
@@ -163,17 +164,17 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
     this.completeMatchBarObject();
   }
-/*
+
   logout() {
     let object: termData = {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.imageInputIndex
+      imageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("local", object);
 
-    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.imageInputIndex);
+    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.termMatching.imageIndex);
   }
   
   @HostListener('window:beforeunload', ['$event'])
@@ -182,11 +183,10 @@ export class MatchTerminalComponent implements OnInit {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.imageInputIndex
+      imageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("session", object);
     this.authService.unloadNotification(event);
   }
-*/
 
 }
