@@ -58,6 +58,27 @@ export class ChooseViewComponent implements OnInit {
       imageSourceURL: null,
     };
   }
+
+  getKeyAndIsoImages( prevOrCurrentTerm: string){
+    let retVal = {};
+    switch (prevOrCurrentTerm){
+      case 'prev':
+        retVal = Object.assign({}, this.generalInfo.prevTermIsoImages );
+        for( let key of Object.keys(this.generalInfo.prevTermKeyImages)){
+          retVal = Object.assign(retVal, this.generalInfo.prevTermKeyImages[key]);
+        }
+        return retVal;
+        break;
+      case 'curr':
+        retVal = Object.assign({}, this.generalInfo.currTermIsoImages );
+        for( let key of Object.keys(this.generalInfo.currTermKeyImages)){
+          retVal = Object.assign(retVal, this.generalInfo.currTermKeyImages[key]);
+        }
+        return retVal;
+        break;
+      default: break;
+    }
+  }
   ngOnInit() {
 
     // might be memory error where you pass by reference
@@ -68,12 +89,12 @@ export class ChooseViewComponent implements OnInit {
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
 
-    let prevTermIndIsoImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermIsoImages);
+    let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev'); //Object.assign({}, this.generalInfo.prevTermKeyImages, this.generalInfo.prevTermIsoImages);
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermFinished, this.generalInfo.prevTermIdVal, 0);
     //this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
 
-    let currTermIndIsoImages = Object.assign({}, this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
+    let currTermIndIsoImages = this.getKeyAndIsoImages('curr'); // Object.assign({}, this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
     this.currTermAnswerObj =
       this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermFinished, this.generalInfo.currTermIdVal, 0);
     //this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
@@ -127,7 +148,7 @@ export class ChooseViewComponent implements OnInit {
   async nextImage(prevOrCurrentTerm: string) {
     // console.log(this.boxOnScreen.boxAnswer.value);
     // console.log();
-    let ans = JSON.stringify(this.boxOnScreen.boxAnswer.value)
+    let ans = JSON.stringify(this.boxOnScreen.boxAnswer.value);
     let termAnswerObj = prevOrCurrentTerm === 'prev' ? this.prevTermAnswerObj : this.currTermAnswerObj;
     if ((termAnswerObj.numImages - termAnswerObj.imageIndex) <= 1) {
       await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({

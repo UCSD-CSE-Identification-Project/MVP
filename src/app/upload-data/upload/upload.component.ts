@@ -16,20 +16,10 @@ import {UserTermImageInformationService} from '../../core/user-term-image-inform
 })
 
 export class UploadComponent implements OnInit {
-  // Access to Observable, allow to pause, resume, cancel upload
-  task: AngularFireUploadTask;
-
-  // Upload progress
   progress: Observable<number>;
-  snapshot: Observable<any>;
 
   // Download URL, removed in the new firebase update, need to find a work-around
   downloadURL: Observable<string>;
-
-  // Dropzone css toggling
-  isHovering: boolean;
-
-  userName: string;
 
   files: File[][] = [[], []];
   percentage = 0;
@@ -37,14 +27,9 @@ export class UploadComponent implements OnInit {
   totalFiles = 0;
   fileNames: string[] = [];
   path: string = '';
-  prev_files: string[];
-  curr_files: string[];
-  imageIds: string[] = [];
   alreadyUpload: boolean;
 
   usePreexistTerm: boolean = false;
-  prevTermSelected: boolean = false;
-  currTermSelected: boolean = false;
   prevTerm: string = '';
   currTerm: string = '';
   prevTermsCreated = [];
@@ -55,6 +40,7 @@ export class UploadComponent implements OnInit {
   currTermZip: any = null;
 
   finishedUpload: boolean = false;
+  allPastTermArray: any = null;
 
   constructor( private http: HttpClient,
               private uploadService: UploadService,
@@ -65,14 +51,11 @@ export class UploadComponent implements OnInit {
               private generalInfo: UserTermImageInformationService) {
   }
 
-  toggleHover(event: boolean) {
-    this.isHovering = event;
-  }
-
   populatePrevTermsList(){
     const self = this;
 
     this.uploadService.getTermNames().then((prevTermList)=>{
+      self.allPastTermArray = prevTermList;
       self.prevTermsCreated = Object.keys(prevTermList);
       console.log(self.prevTermsCreated);
     });
@@ -82,6 +65,9 @@ export class UploadComponent implements OnInit {
     this.alreadyUpload = false;
     this.counter = 0;
     this.totalFiles = 0;
+    this.prevTermZip = null;
+    this.currTermZip = null;
+    this.allPastTermArray = null;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
   }
 
@@ -120,15 +106,16 @@ export class UploadComponent implements OnInit {
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
-      ind_images: [],
-      group_images: [],
-      iso_images: [],
-      class_data: [],
+      ind_images: {},
+      group_images: {},
+      iso_images: {},
+      key_images:{},
+      class_data: {},
       results: ''
     }).then(function(ref) {
       termId = ref.id;
     });
-    if(prevOrCurrTerm === 0){
+    if ( prevOrCurrTerm === 0){
       this.generalInfo.prevTermIdVal = termId;
     } else {
       this.generalInfo.currTermIdVal = termId;
@@ -144,7 +131,7 @@ export class UploadComponent implements OnInit {
     const termObj = this.db.collection('terms').doc(termId).ref;
 
     this.zipService.getEntries(file).subscribe( async (next) => {
-      this.totalFiles = next.length;
+      this.totalFiles += next.length;
       for (const ent of next) {
         self.counter = self.counter + 1;
         self.percentage = self.counter / this.totalFiles*100;
@@ -173,8 +160,8 @@ export class UploadComponent implements OnInit {
                   const termObjUpdate = {};
                   const imageId = ref.id;
                   const imageName = filename;
-                  termObjUpdate[`all_images.${imageName}`] = imageId;
-                  self.db.collection('terms').doc(termId).update(termObjUpdate);
+                  // termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
+                  // self.db.collection('terms').doc(termId).update(termObjUpdate);
                   const filePrefix = filename[filename.lastIndexOf('_')+1];
                   if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
                     self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
@@ -201,8 +188,28 @@ export class UploadComponent implements OnInit {
     var self = this;
     this.finishedUpload = false;
     var prms = [];
-    prms.push(this.uploadTermZip(this.prevTermZip, 0));
-    prms.push(this.uploadTermZip(this.currTermZip, 1));
+    if ( this.prevTermZip === null ){
+      this.generalInfo.prevTermLoadedFromDatabase = true;
+      this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc)=>{
+        if ( ! doc.exists ) {
+          console.log("document somethign doesnt exist");
+        }
+        var prevTermData = doc.data();
+        self.generalInfo.prevTermAllImages;
+        self.generalInfo.prevTermIndividualImages;
+        self.generalInfo.prevTermGroupImages;
+        self.generalInfo.prevTermIsoImages;
+        self.generalInfo.prevTermKeyImages;
+      });
+    } else {
+      prms.push(this.uploadTermZip(this.prevTermZip, 0));
+    }
+
+    if ( this.currTermZip === null ) {
+      this.generalInfo.currTermLoadedFromDatabase = true;
+    } else {
+      prms.push(this.uploadTermZip(this.currTermZip, 1));
+    }
     Promise.all(prms).then(()=>{
       console.log("this is the then message");
       self.finishedUpload = true;

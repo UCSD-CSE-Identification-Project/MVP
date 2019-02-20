@@ -43,12 +43,11 @@ export class ChooseGroupsComponent implements OnInit {
 
   ngOnInit() {
     // Everytime we get data from sessionStorage
-    let data:termData = this.authService.getStorage("session");
-    this.generalInfo.prevTerm = data.prevTermInfo;
-    this.generalInfo.currTerm = data.currTermInfo;
-    this.startingIndex = data.imageIndex;
+    // let data:termData = this.authService.getStorage("session");
+    // this.generalInfo.prevTerm = data.prevTermInfo;
+    // this.generalInfo.currTerm = data.currTermInfo;
+    // this.startingIndex = data.imageIndex;
 
-    //this.setResetTermFinishVariables('curr');
 
     console.log(this.generalInfo.prevTermAllImages);
     console.log(this.generalInfo.currTermAllImages);
@@ -62,6 +61,7 @@ export class ChooseGroupsComponent implements OnInit {
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
+    this.setResetTermFinishVariables('curr');
 
     this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
     this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
@@ -115,6 +115,7 @@ export class ChooseGroupsComponent implements OnInit {
   // reset variables when second term is done
   setResetTermFinishVariables(prevOrCurrentTerm: string){
     console.log("inside set and reset");
+
     if ( prevOrCurrentTerm === 'prev'){
       this.prevTermGrouping.imageFinishedGrouping = true;
       this.prevTermGrouping.needGrouping = false;
@@ -132,15 +133,39 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
       this.currTermGrouping.imageIndex = 2;
+      // todo come back here
+      let termObj = {
+        all_images: this.generalInfo.prevTermAllImages,
+        ind_images: this.generalInfo.prevTermIndividualImages,
+        group_images: this.generalInfo.prevTermGroupImages,
+        iso_images: this.generalInfo.prevTermIsoImages,
+        key_images: this.generalInfo.prevTermKeyImages,
+        class_data: {},
+        results: ''
+      };
+      this.db.collection('terms').doc(this.generalInfo.prevTermIdVal).ref.set(termObj).then((val)=>{
+        console.log("prevTerm: " + val);
+      });
     } else{
       this.currTermGrouping.imageFinishedGrouping = true;
       this.currTermGrouping.needGrouping = false;
       this.generalInfo.currTermFinished = true;
 
       // this.currTermGrouping.termFinishedAnswering = true;
-
       this.imagesFinished = true;
-      let keyImages = Object.values(this.generalInfo.prevTermAllImages); // images that are keys
+      this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set({
+        all_images: this.generalInfo.currTermAllImages,
+        ind_images: this.generalInfo.currTermIndividualImages,
+        group_images: this.generalInfo.currTermGroupImages,
+        iso_images: this.generalInfo.currTermIsoImages,
+        key_images: this.generalInfo.currTermKeyImages,
+        class_data: {},
+        results: ''
+      }).then((val)=>{
+        console.log("currTerm: " + val);
+      });
+      // all non ignored images need to find matches
+      let keyImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages);
       let allPromises = [];
       var t0 = performance.now();
       for ( let key of keyImages ){
@@ -150,9 +175,11 @@ export class ChooseGroupsComponent implements OnInit {
       }
       Promise.all(allPromises).then(value=>{
         console.log(value + " finished all values");
+        var t1 = performance.now();
+        console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
       });
-      var t1 = performance.now();
-      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+      //var t1 = performance.now();
+      //console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
 
     }
   }
@@ -356,7 +383,7 @@ export class ChooseGroupsComponent implements OnInit {
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
         if ( boxTwoValue === 'New Question' ){
           // push to firestore
-          this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
+          this.pushSubGroupToFirestore(prevOrCurrentTerm, lastQuestionToPush.imgIndex);
           this.partOfTheSameSubPair = {};
           lastQuestionToPush = this.boxTwo;
         } else{
