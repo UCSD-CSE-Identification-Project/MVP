@@ -6,6 +6,7 @@ import {AngularFirestore} from '@angular/fire/firestore';
 import { getCurrentDebugContext } from '@angular/core/src/view/services';
 import {isLowerCase} from 'tslint/lib/utils';
 import {group} from '@angular/animations';
+import {forkJoin} from 'rxjs';
 // import 'rxjs/add/operator/toPromise';
 
 @Component({
@@ -61,7 +62,7 @@ export class ChooseGroupsComponent implements OnInit {
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
-    this.setResetTermFinishVariables('curr');
+    // this.setResetTermFinishVariables('curr');
 
     this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
     this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
@@ -153,7 +154,7 @@ export class ChooseGroupsComponent implements OnInit {
 
       // this.currTermGrouping.termFinishedAnswering = true;
       this.imagesFinished = true;
-      this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set({
+      let termObj = {
         all_images: this.generalInfo.currTermAllImages,
         ind_images: this.generalInfo.currTermIndividualImages,
         group_images: this.generalInfo.currTermGroupImages,
@@ -161,11 +162,14 @@ export class ChooseGroupsComponent implements OnInit {
         key_images: this.generalInfo.currTermKeyImages,
         class_data: {},
         results: ''
-      }).then((val)=>{
+      };
+      this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
       });
       // all non ignored images need to find matches
       let keyImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages);
+      keyImages = Object.values(keyImages);
+      console.log(keyImages);
       let allPromises = [];
       var t0 = performance.now();
       for ( let key of keyImages ){
@@ -173,13 +177,15 @@ export class ChooseGroupsComponent implements OnInit {
         console.log(typeof key);
         allPromises.push(this.generalInfo.makeSingleRequest(""+key));
       }
-      Promise.all(allPromises).then(value=>{
+      // Promise.all(allPromises).then(value=>{
+      forkJoin(allPromises).subscribe(value=>{
         console.log(value + " finished all values");
         var t1 = performance.now();
         console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
       });
-      //var t1 = performance.now();
-      //console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+      var t1 = performance.now();
+      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+      // this.generalInfo.makePostRequest();
 
     }
   }
@@ -211,9 +217,14 @@ export class ChooseGroupsComponent implements OnInit {
         //Move boxTwo to boxOne
         this.boxOne = this.boxTwo;
         this.boxOneRelation = this.boxTwoRelation;
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
         // Move boxThree to boxTwo
         this.boxTwo = this.boxThree;
         this.boxTwoRelation = this.boxThreeRelation;
+        this.boxTwo.disabledRadioButton = true;
+        this.boxTwoRelation.disabledRadioButton = true;
+
         // Clear boxThree
         this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
         this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
@@ -237,9 +248,14 @@ export class ChooseGroupsComponent implements OnInit {
       case 1:
         console.log("Into removeIgnore for boxTwo");
 
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
+
         //Move box three to box two
         this.boxTwo = this.boxThree;
         this.boxTwoRelation = this.boxThreeRelation;
+        this.boxTwo.disabledRadioButton = true;
+        this.boxTwoRelation.disabledRadioButton = true;
         //Clear box three
         this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
         this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
@@ -258,6 +274,11 @@ export class ChooseGroupsComponent implements OnInit {
         break;
       case 2:
         console.log("Into removeIgnore for boxThree");
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
+        this.boxTwo.disabledRadioButton = true;
+        this.boxTwoRelation.disabledRadioButton = true;
+
         //Clear box three
         this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
         this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
@@ -366,6 +387,10 @@ export class ChooseGroupsComponent implements OnInit {
         this.removeIgnore(2,prevOrCurrentTerm);
         console.log("Current image index is ");
         console.log(termObjGrouping.imageIndex);
+      }
+
+      if ( this.boxOne.imgIndex >= termObjGrouping.numImages - 1 ){
+        this.setResetTermFinishVariables(prevOrCurrentTerm);
       }
     }
     else if ( termObjGrouping.imageIndex >= termObjGrouping.numImages - 1) {

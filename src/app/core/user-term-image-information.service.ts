@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AuthService} from './auth.service';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {forkJoin} from 'rxjs';
 
 
 @Injectable({
@@ -32,54 +33,64 @@ export class UserTermImageInformationService {
   }
   constructTermObj() {
     return {
-      termId: '1QW5NOAT1U3RkHt9kF5F',
-      allTermImages: {
-        "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
-        "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
-        "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
-        "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
-        "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
-        "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
-        "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
-        "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
-        "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
-        "L1710031354_C7": "B448FESXmtHi14rOoARq",
-        "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
-        "L1710031354_C9": "B410icQTa6xzVz5PrpOW"
-      },
-      individualImages: {
-        "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
-        "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
-        "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
-        "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
-        "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
-        "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
-        "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
-        "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
-        "L1710031354_C7": "B448FESXmtHi14rOoARq",
-        "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
-        "L1710031354_C9": "B410icQTa6xzVz5PrpOW"},
-      groupImages: {
-        "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
-        "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
-        "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
-        "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
-        "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
-        "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
-        "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
-        "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
-        "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
-        "L1710031354_C7": "B448FESXmtHi14rOoARq",
-        "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
-        "L1710031354_C9": "B410icQTa6xzVz5PrpOW"
-      },
-      isoImages:{
-        "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
-      },
+      termId: '',
+      allTermImages: {},
+      individualImages: {},
+      groupImages: {},
+      isoImages:{},
       loadedFromDatabase: false,
       keyImages: {},
       finished: false
     };
+    // return {
+    //   termId: '1QW5NOAT1U3RkHt9kF5F',
+    //   allTermImages: {
+    //     "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
+    //     "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
+    //     "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
+    //     "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
+    //     "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
+    //     "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
+    //     "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
+    //     "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
+    //     "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
+    //     "L1710031354_C7": "B448FESXmtHi14rOoARq",
+    //     "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
+    //     "L1710031354_C9": "B410icQTa6xzVz5PrpOW"
+    //   },
+    //   individualImages: {
+    //     "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
+    //     "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
+    //     "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
+    //     "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
+    //     "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
+    //     "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
+    //     "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
+    //     "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
+    //     "L1710031354_C7": "B448FESXmtHi14rOoARq",
+    //     "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
+    //     "L1710031354_C9": "B410icQTa6xzVz5PrpOW"},
+    //   groupImages: {
+    //     "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
+    //     "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
+    //     "L1710031354_C11": "vgawjhYw4oxAWIRYvCym",
+    //     "L1710031354_C12": "VY7Z3Q9EqoryaQG7of1d",
+    //     "L1710031354_C2": "QwDghFK3Fd25Iq6zHiKJ",
+    //     "L1710031354_C3": "nc36VPWG8BzxTGY2bUyv",
+    //     "L1710031354_C4": "NwYDlxHyWtgnmXFjIYxX",
+    //     "L1710031354_C5": "HJXwrWCAfrAjPrcr2H6p",
+    //     "L1710031354_C6": "gjlzfSBjexvXwrNMMdTP",
+    //     "L1710031354_C7": "B448FESXmtHi14rOoARq",
+    //     "L1710031354_C8": "1pPrW9wrBiOcadO9wxNO",
+    //     "L1710031354_C9": "B410icQTa6xzVz5PrpOW"
+    //   },
+    //   isoImages:{
+    //     "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
+    //   },
+    //   loadedFromDatabase: false,
+    //   keyImages: {},
+    //   finished: false
+    // };
   }
   get userIdVal() {
     if ( this.userId === '' ){
@@ -226,12 +237,28 @@ export class UserTermImageInformationService {
     this.http.post("/imagesPost",{'prevTerm':"1QW5NOAT1U3RkHt9kF5F", 'currTerm':"1QW5NOAT1U3RkHt9kF5F"},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
         responseType:'text'}).subscribe((res) => {console.log(res);});
+    // let keyImages = Object.assign({}, this.prevTermIndividualImages, this.prevTermGroupImages, this.prevTermIsoImages);
+    // keyImages = Object.values(keyImages);
+    // console.log(keyImages);
+    // let allPromises = [];
+    // var t0 = performance.now();
+    // for ( let key of keyImages ){
+    //   console.log(key);
+    //   console.log(typeof key);
+    //   allPromises.push(this.makeSingleRequest(""+key));
+    // }
+    // // Promise.all(allPromises).then(value=>{
+    // forkJoin(allPromises).subscribe(value=>{
+    //   console.log(value + " finished all values");
+    //   var t1 = performance.now();
+    //   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+    // });
   }
 
   makeSingleRequest(imageIdVal: string){
     return this.http.post("/singleImagesPost",{'prevTermImageId': imageIdVal, 'currTerm': "1QW5NOAT1U3RkHt9kF5F"},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
-        responseType:'text'}).toPromise();
+        responseType:'text'});
   }
 
 }
