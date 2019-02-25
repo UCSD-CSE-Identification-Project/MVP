@@ -157,6 +157,15 @@ export class UserTermImageInformationService {
   set prevTermIndividualImages(arrIndImgNames: any) {
     this.prevTermGeneralInfo.individualImages = arrIndImgNames;
   }
+  set prevTermGroupImages(arrIndImgNames: any) {
+    this.prevTermGeneralInfo.groupImages = arrIndImgNames;
+  }
+  set prevTermIsoImages(arrIndImgNames: any) {
+    this.prevTermGeneralInfo.isoImages = arrIndImgNames;
+  }
+  set prevTermKeyImages(arrIndImgNames: any) {
+    this.prevTermGeneralInfo.keyImages = arrIndImgNames;
+  }
   saveImageToPrevIndImages(imageName: string, imageKey: string) {
     this.prevTermGeneralInfo.individualImages[imageName] = imageKey;
   }

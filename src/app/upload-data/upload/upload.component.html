@@ -50,12 +50,15 @@
     <button type="button" (click)="onUpload()">Submit</button>
   </div>
   <h2>Percentage is {{percentage}}%</h2>
+  <h2>OVERALL PERCENTAGE {{allPercentageObservable | async}}</h2>
   <h2> Files uploaded: {{counter}}//{{totalFiles}}</h2>
+  <h2>{{uploadPercentage}}</h2>
   <div *ngIf="finishedUpload" style="float: right;">
     <nav>
       <button routerLink="/navigator/upload">NEXT</button>
     </nav>
   </div>
+  <progress-bar class='progress' [progress]='uploadPercentage | async' [color]="'#488aff'"></progress-bar>
   <ul>
     <li *ngFor="let name of fileNames">
       {{ name }}
