@@ -136,14 +136,22 @@ export class ChooseGroupsComponent implements OnInit {
       this.currTermGrouping.imageIndex = 2;
       // todo come back here
       let termObj = {
-        all_images: this.generalInfo.prevTermAllImages,
-        ind_images: this.generalInfo.prevTermIndividualImages,
-        group_images: this.generalInfo.prevTermGroupImages,
-        iso_images: this.generalInfo.prevTermIsoImages,
-        key_images: this.generalInfo.prevTermKeyImages,
+        all_images: {},
+        ind_images: {},
+        group_images: {},
+        iso_images: {},
+        key_images:{},
         class_data: {},
         results: ''
       };
+
+      termObj.all_images = this.generalInfo.prevTermAllImages;
+      termObj.ind_images = this.generalInfo.prevTermIndividualImages;
+      termObj.group_images = this.generalInfo.prevTermGroupImages;
+      termObj.iso_images = this.generalInfo.prevTermIsoImages;
+      termObj.key_images = this.generalInfo.prevTermKeyImages;
+
+
       this.db.collection('terms').doc(this.generalInfo.prevTermIdVal).ref.set(termObj).then((val)=>{
         console.log("prevTerm: " + val);
       });
@@ -152,39 +160,59 @@ export class ChooseGroupsComponent implements OnInit {
       this.currTermGrouping.needGrouping = false;
       this.generalInfo.currTermFinished = true;
 
-      // this.currTermGrouping.termFinishedAnswering = true;
+      this.currTermGrouping.termFinishedAnswering = true;
       this.imagesFinished = true;
-      let termObj = {
-        all_images: this.generalInfo.currTermAllImages,
-        ind_images: this.generalInfo.currTermIndividualImages,
-        group_images: this.generalInfo.currTermGroupImages,
-        iso_images: this.generalInfo.currTermIsoImages,
-        key_images: this.generalInfo.currTermKeyImages,
-        class_data: {},
-        results: ''
-      };
+      let termObj =
+        {
+          all_images: {},
+          ind_images: {},
+          group_images: {},
+          iso_images: {},
+          key_images:{},
+          class_data: {},
+          results: ''
+        };
+
+      //   {
+      //   all_images: this.generalInfo.currTermAllImages,
+      //   ind_images: this.generalInfo.currTermIndividualImages,
+      //   group_images: this.generalInfo.currTermGroupImages,
+      //   iso_images: this.generalInfo.currTermIsoImages,
+      //   key_images: this.generalInfo.currTermKeyImages,
+      //   class_data: {},
+      //   results: ''
+      // };
+      termObj.all_images = this.generalInfo.currTermAllImages;
+      termObj.ind_images = this.generalInfo.currTermIndividualImages;
+      termObj.group_images = this.generalInfo.currTermGroupImages;
+      termObj.iso_images = this.generalInfo.currTermIsoImages;
+      termObj.key_images = this.generalInfo.currTermKeyImages,
+
       this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
       });
+      this.imagesFinished = true;
+
       // all non ignored images need to find matches
-      let keyImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages);
-      keyImages = Object.values(keyImages);
-      console.log(keyImages);
-      let allPromises = [];
-      var t0 = performance.now();
-      for ( let key of keyImages ){
-        console.log(key);
-        console.log(typeof key);
-        allPromises.push(this.generalInfo.makeSingleRequest(""+key));
-      }
-      // Promise.all(allPromises).then(value=>{
-      forkJoin(allPromises).subscribe(value=>{
-        console.log(value + " finished all values");
-        var t1 = performance.now();
-        console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
-      });
-      var t1 = performance.now();
-      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
+      // let keyImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages);
+      // keyImages = Object.values(keyImages);
+      // console.log(keyImages);
+      // let allPromises = [];
+      // var t0 = performance.now();
+      // for ( let key of keyImages ){
+      //   console.log(key);
+      //   console.log(typeof key);
+      //   allPromises.push(this.generalInfo.makeSingleRequest(""+key));
+      // }
+      // // Promise.all(allPromises).then(value=>{
+      // forkJoin(allPromises).subscribe(value=>{
+      //   console.log(value + " finished all values");
+      //   var t1 = performance.now();
+      //   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
+      //   this.imagesFinished = true;
+      // });
+      // var t1 = performance.now();
+      // console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
       // this.generalInfo.makePostRequest();
 
     }

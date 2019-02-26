@@ -26,8 +26,7 @@
 
 
     <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" /></div>
-      <p>{{this.downloadURL | async}}</p>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
     </div>
   </div>
 
@@ -38,7 +37,7 @@
     </div>
 
     <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" /></div>
+      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
     </div>
 
   </div>
@@ -49,20 +48,20 @@
   <div *ngIf="prevTermZip != null && currTermZip != null">
     <button type="button" (click)="onUpload()">Submit</button>
   </div>
+  <br />
+  <br />
+  <progress-bar class='progress' [progress]=' allPercentageObservable | async' [color]="'#488aff'"></progress-bar>
+  <br />
+  <br />
+  <!--
   <h2>Percentage is {{percentage}}%</h2>
   <h2>OVERALL PERCENTAGE {{allPercentageObservable | async}}</h2>
   <h2> Files uploaded: {{counter}}//{{totalFiles}}</h2>
   <h2>{{uploadPercentage}}</h2>
+  -->
   <div *ngIf="finishedUpload" style="float: right;">
     <nav>
       <button routerLink="/navigator/upload">NEXT</button>
     </nav>
   </div>
-  <progress-bar class='progress' [progress]='uploadPercentage | async' [color]="'#488aff'"></progress-bar>
-  <ul>
-    <li *ngFor="let name of fileNames">
-      {{ name }}
-    </li>
-  </ul>
-  <img id="one" src="">
 </div>

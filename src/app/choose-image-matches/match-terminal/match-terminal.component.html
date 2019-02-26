@@ -65,7 +65,13 @@
     </style>
 </head>
 
-<div class="col-sm-6">
+<div *ngIf="!matchesFinished">
+  <mat-spinner ></mat-spinner>
+  <h2>  Generating Matches for previous -> current term </h2>
+</div>
+
+
+<div class="col-sm-6" *ngIf="matchesFinished">
   <h3>Search Image: Term 1 Images:</h3>
   <!-- The Term 1 Images-->
   <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="400px"> <br />
@@ -88,7 +94,7 @@
   <h3>Display: Term 2 Matches</h3>
 
     <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
-    <ng-container *ngIf="matchBar.matchUrl.length > 0">
+    <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
       <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
         <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
           <h2>{{i}}</h2>

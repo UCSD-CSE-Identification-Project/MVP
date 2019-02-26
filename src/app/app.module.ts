@@ -15,7 +15,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatListModule } from '@angular/material';
+import {MatListModule, MatProgressBarModule, MatProgressSpinnerModule} from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 @NgModule({
@@ -33,6 +33,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     AppRoutingModule,
     BrowserModule,
     BrowserAnimationsModule,
+    MatProgressSpinnerModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,

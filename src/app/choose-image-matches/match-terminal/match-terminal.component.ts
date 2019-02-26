@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, HostListener } from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
-import {Observable} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import { AuthService, termData } from 'src/app/core/auth.service';
 
 
@@ -16,12 +16,15 @@ export class MatchTerminalComponent implements OnInit {
   termMatching;
   matchBar;
   imagesFinished: boolean;
+  matchesFinished: boolean = false;
 
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
 
   // Execute right after constructor
   ngOnInit() {
+    this.matchesFinished = false;
+
 /*
     let data: termData = this.authService.getStorage("session");
     this.generalInfo.prevTerm = data.prevTermInfo;
@@ -29,7 +32,7 @@ export class MatchTerminalComponent implements OnInit {
     this.imageInputIndex = data.imageIndex;
     console.log(this.generalInfo.prevTermAllImages);
 
-    this.imageNames = this.getImageNames(); 
+    this.imageNames = this.getImageNames();
     // get image names from firebase here TODO make sure to update value of imagesource in async func also
     // TODO ALSO UPDATE THE VALUE OF THE MATCHES
     this.imageInput = this.getImageInput();
@@ -38,17 +41,31 @@ export class MatchTerminalComponent implements OnInit {
     this.mediumMatches = this.imageNames.slice(2,7);
     this.lowMatches = this.imageNames.slice(7,12);
 */
+    let keyImages = Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages);
+    keyImages = Object.values(keyImages);
+    console.log(keyImages);
+    let allPromises = [];
+    var t0 = performance.now();
+    for ( let key of keyImages ){
+      console.log(key);
+      allPromises.push(this.generalInfo.makeSingleRequest(""+key));
+    }
+    // Promise.all(allPromises).then(value=>{
+    forkJoin(allPromises).subscribe(value=>{
+      console.log(value + " finished all values");
+      var t1 = performance.now();
+      console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
+      this.matchesFinished = true;
+      this.ref.detectChanges();
+    });
     // TODO the following argument needs to be the union of single, group and iso
-    this.termMatching = this.createChooseMatchesTermObject(this.generalInfo.prevTermAllImages);
+    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
     this.matchBar = this.createMatchBarObject(0);
     // console.log(this.matchBar.matchUrl);
     this.completeMatchBarObject();
 
   }
 
-  /*
-   *
-   */
   createMatchBarObject(imageIndex: number){
     let obj = {
       matchIds: [],
@@ -69,10 +86,6 @@ export class MatchTerminalComponent implements OnInit {
       self.matchBar.indexSelected = 0;
       self.ref.detectChanges();
     });
-    // console.log(typeof this.matchBar.matchUrl);
-    // console.log(this.matchBar.matchUrl);
-
-
   }
   createChooseMatchesTermObject(imgNames){
     let obj = {
@@ -175,7 +188,7 @@ export class MatchTerminalComponent implements OnInit {
 
     this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.imageInputIndex);
   }
-  
+
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification($event: any) {
     let object: termData = {
