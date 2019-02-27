@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
-import {combineLatest, Observable} from 'rxjs';
+import {combineLatest, forkJoin, Observable} from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
 import { AuthService, termData } from 'src/app/core/auth.service';
@@ -50,6 +50,9 @@ export class UploadComponent implements OnInit {
   numByteTotal = 0;
   allPercentage = [];
   allPercentageObservable: Observable<any>;
+  prevObjectPromise = [];
+  currObjectPromise = [];
+  numTermsPushed: number;
 
   constructor( private http: HttpClient,
               private uploadService: UploadService,
@@ -77,6 +80,8 @@ export class UploadComponent implements OnInit {
     this.prevTermZip = null;
     this.currTermZip = null;
     this.allPastTermArray = null;
+    this.numTermsPushed = 0;
+    this.finishedUpload = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
   }
 
@@ -114,7 +119,7 @@ export class UploadComponent implements OnInit {
 
     const file = eventZipFile;
     const self = this;
-
+    const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise: this.currObjectPromise;
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
@@ -171,9 +176,13 @@ export class UploadComponent implements OnInit {
                 matches: {},
                 downloadURL: url,
               };
-              self.db.collection('images').add(imageObj).then((ref) =>{
+              var x = self.db.collection('images').add(imageObj);
+              console.log(x + "" + typeof x);
+              x.then((ref) =>{
+                const termObjUpdate = {};
                 const imageId = ref.id;
                 const imageName = filename;
+                console.log(imageName);
                 // termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
                 // self.db.collection('terms').doc(termId).update(termObjUpdate);
                 const filePrefix = filename[filename.lastIndexOf('_')+1];
@@ -183,6 +192,8 @@ export class UploadComponent implements OnInit {
                   self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
                 }
               });
+
+              promiseArr.push(x);
             } else if(fileType === '.csv'){
               termObj.update({
                 class_data: firebase.firestore.FieldValue.arrayUnion(filename)
@@ -204,12 +215,23 @@ export class UploadComponent implements OnInit {
         }),
         tap(console.log)
       );
+
+    forkJoin(this.allPercentage).subscribe( value => {
+      Promise.all(promiseArr).then( (val)=>{
+        console.log("pushed all of one terms object to the database" + val);
+        self.numTermsPushed++;
+        if( self.numTermsPushed === 2) {
+          console.log("both terms pushed");
+          self.finishedUpload = true;
+        }
+      });
+    });
   } // end of method
 
   // Use this to fill sessionStorage from UPLOAD page
   async onUpload(){
     var self = this;
-    this.finishedUpload = false;
+    // this.finishedUpload = false;
     if ( this.prevTermZip === null ){
       this.generalInfo.prevTermLoadedFromDatabase = true;
       this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc) => {
@@ -232,7 +254,7 @@ export class UploadComponent implements OnInit {
     } else {
       this.uploadTermZip(this.currTermZip, 1);
     }
-    this.finishedUpload = true;
+    // this.finishedUpload = true;
 
     // Promise.all(prms).then(()=>{
     //   console.log("this is the then message");
