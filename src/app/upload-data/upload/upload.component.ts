@@ -181,10 +181,10 @@ export class UploadComponent implements OnInit {
               x.then((ref) =>{
                 const termObjUpdate = {};
                 const imageId = ref.id;
-                const imageName = filename;
+                const imageName = filename.slice(0,filename.lastIndexOf('.'));
                 console.log(imageName);
-                // termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
-                // self.db.collection('terms').doc(termId).update(termObjUpdate);
+                termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
+                self.db.collection('terms').doc(termId).update(termObjUpdate);
                 const filePrefix = filename[filename.lastIndexOf('_')+1];
                 if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
                   self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
