@@ -232,7 +232,7 @@ export class UploadComponent implements OnInit {
     console.log(this.generalInfo.currTerm);
 
     this.alreadyUpload = true;
-    this.authService.setStorage("session", object);
+    this.authService.setStorage("session", object, "termData");
 
     // COMMENTED OUT
     //this.generalInfo.makePostRequest();

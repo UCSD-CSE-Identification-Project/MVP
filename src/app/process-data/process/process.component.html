@@ -9,31 +9,31 @@
 -->
 <div class="col-lg-8">
   <h1>Process the clicker data</h1>
-  <button style="margin-top: 40%;" (click)="process()">Process</button>
+  <button style="margin-top: 40%;" (click)="openDialog()">Process</button>
 </div>
 <div class="col-lg-4">
-  <button style="position: absolute; top: 0; right: 0; margin: 10px;" (click)="logout()">Logout</button>
+  <!--<button style="position: absolute; top: 0; right: 0; margin: 10px;" (click)="logout()">Logout</button>-->
   <div style="margin-top: 100px;">
-  <h4 align="center">Before processing the data, you can also select how many weeks of data to include:
-    <h4 style="display: inline-block;">
-      <form>
-        <select name="weeks">
-          <option value="0"></option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-          <option value="5">5</option>
-          <option value="6">6</option>
-          <option value="7">7</option>
-          <option value="8">8</option>
-          <option value="9">9</option>
-          <option value="10">10</option>
-        </select>
-      </form>
+    <h4 align="center">Before processing the data, you can also select how many weeks of data to include:
+      <h4 style="display: inline-block;">
+        <form>
+          <select name="weeks">
+            <option value="0"></option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </form>
+      </h4>
     </h4>
-  </h4>
-  <!--
+    <!--
   <div>
     <h4 style="display: inline-block;">Add other score components:</h4><br>
   
@@ -62,11 +62,11 @@
       <span class="checkmark"></span>
     </label>
   </div>
--->
-</div>
+--><mat-spinner *ngIf=showSpinner></mat-spinner>
+  </div>
 </div>
 
-    <button style="position: absolute; bottom: 0; right: 0; margin: 10px;" routerLink="/navigator/process">NEXT</button>
+<button *ngIf="startProcess && !showSpinner" style="position: absolute; bottom: 0; right: 0; margin: 10px;" routerLink="/navigator/process">NEXT</button>
 
 <div>
   <button type="button" (click)="downloadcsv()">Download</button>

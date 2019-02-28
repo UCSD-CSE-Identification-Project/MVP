@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import {HttpClient, HttpClientModule} from '@angular/common/http';
+import {HttpClient, HttpClientModule, HttpParams} from '@angular/common/http';
+import { HttpModule, Http } from '@angular/http';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
 import { AngularFireStorageModule, AngularFireStorage } from '@angular/fire/storage';
@@ -17,6 +18,14 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+// All the services
+import { UploadService } from './upload-data/upload.service';
+import { ZipService } from './unzipFolder/zip.service';
+import { UserTermImageInformationService } from './core/user-term-image-information.service';
+import { AuthService } from './core/auth.service';
+import { AuthGuard } from './core/auth.guard';
+import { ChooseViewService } from './choose-answers/choose-view/choose-view.service';
+
 
 @NgModule({
   declarations: [
@@ -24,6 +33,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   ],
   imports: [
     BrowserModule,
+    HttpModule,
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
@@ -40,7 +50,7 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatListModule,
     ScrollingModule
   ],
-  providers: [AngularFireStorage],
+  providers: [AngularFireStorage, UploadService, ZipService, UserTermImageInformationService, AuthService, AuthGuard, ChooseViewService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,7 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
-import { AuthService, termData } from 'src/app/core/auth.service';
+import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import { getCurrentDebugContext } from '@angular/core/src/view/services';
 import {isLowerCase} from 'tslint/lib/utils';
@@ -27,10 +27,13 @@ export class ChooseGroupsComponent implements OnInit {
   boxTwo;
   boxThreeRelation;
   boxThree;
-  startingIndex:number = 0;
   doesNotNeedImageIndex = 0;
   partOfTheSameSubPair;
 
+  startingIndex: number = 0;
+  boxLocked: boolean = false;
+  savedIndex: number = 0;
+  savedChoice: string = "";
 
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
@@ -43,10 +46,20 @@ export class ChooseGroupsComponent implements OnInit {
 
   ngOnInit() {
     // Everytime we get data from sessionStorage
-    let data:termData = this.authService.getStorage("session");
+    let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.startingIndex = data.imageIndex;
+    let box1Index = data.imageIndex;
+    let box2Index = data.imageIndex + 1;
+    let box3Index = data.imageIndex + 2;
+
+    let lock: groupLock = this.authService.getStorage("session", "groupLock");
+
+    if (lock.boxLocked) {
+      box1Index = lock.savedIndex;
+      box2Index = data.imageIndex - 1;
+      box3Index = data.imageIndex;
+    }
     
     //this.setResetTermFinishVariables('curr');
 
@@ -54,11 +67,26 @@ export class ChooseGroupsComponent implements OnInit {
     console.log(this.generalInfo.currTermAllImages);
     // Initialize the "relation" for all three boxes
     this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxOne = this.createBoxObj(0);
+    this.boxOne = this.createBoxObj(box1Index);
+
+    if (lock.boxLocked) {
+      this.boxOne.disabledRadioButton = true;
+      this.boxOneRelation.disabledRadioButton = true;
+
+      this.boxOne.boxVal.controls.option.value = lock.savedChoice;
+      this.boxOneRelation.boxVal.controls.option.value = "New Question";
+      
+      this.boxOne.radioClicked = true;
+      this.boxOneRelation.radioClicked = true;
+
+      this.boxLocked = true;
+      this.savedIndex = this.boxOne.imgIndex;
+      this.savedChoice = lock.savedChoice;
+    }
     this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxTwo = this.createBoxObj(1);
+    this.boxTwo = this.createBoxObj(box2Index);
     this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxThree = this.createBoxObj(2);
+    this.boxThree = this.createBoxObj(box3Index);
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
@@ -76,44 +104,21 @@ export class ChooseGroupsComponent implements OnInit {
         //self.startingIndex = +localStorage.getItem("imageIndex");
 
     if( this.prevTermGrouping.needGrouping ){
-      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[0],'prev' );
-      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[1],'prev');
-      this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[2],'prev');
-      this.prevTermGrouping.imageIndex = 2;
+      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[box1Index],'prev' );
+      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[box2Index],'prev');
+      if (box3Index < this.prevTermGrouping.numImages) {
+        this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[box3Index],'prev');
+      }
+      this.prevTermGrouping.imageIndex = box3Index;
     }
     else{
-      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
-      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
-      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
-      this.currTermGrouping.imageIndex = 2;
+      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[box1Index],'curr');
+      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[box2Index],'curr');
+      if (box3Index < this.currTermGrouping.numImages) {
+        this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[box3Index],'curr');
+      }
+      this.currTermGrouping.imageIndex = box3Index;
     }
-
-    // console.log(this.prevTermGrouping.imageKeysSorted);
-    // console.log(this.currTermGrouping.imageKeysSorted);
-/*
-
-        console.log("startingIndex is " + self.startingIndex);
-        if (self.prevTermGrouping.needGrouping) {
-          // TODO: edge cases
-          self.prevTermGrouping.imageIndex = self.startingIndex;
-          self.getImageURLsetInHTML(0, self.prevTermGrouping.imageKeysSorted[self.startingIndex], 'prev');
-          self.getImageURLsetInHTML(1, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 1], 'prev');
-          self.getImageURLsetInHTML(2, self.prevTermGrouping.imageKeysSorted[self.startingIndex + 2], 'prev');
-        }
-        else {
-          self.currTermGrouping.imageIndex = self.startingIndex;
-          self.getImageURLsetInHTML(0, self.currTermGrouping.imageKeysSorted[self.startingIndex], 'curr');
-          self.getImageURLsetInHTML(1, self.currTermGrouping.imageKeysSorted[self.startingIndex + 1], 'curr');
-          self.getImageURLsetInHTML(2, self.currTermGrouping.imageKeysSorted[self.startingIndex + 2], 'curr');
-        }
-
-        console.log(self.prevTermGrouping.imageKeysSorted);
-        console.log(self.currTermGrouping.imageKeysSorted);
-      }
-      else {
-        console.log("this won't happen.");
-      }
-    });*/
   }
 
   createBoxObj(imageIndex: number) {
@@ -413,6 +418,13 @@ export class ChooseGroupsComponent implements OnInit {
         console.log("Current image index is ");
         console.log(termObjGrouping.imageIndex);
       }
+      if (this.boxOne.radioClicked && this.boxOneRelation.radioClicked) {
+        this.boxOne.disabledRadioButton = true;
+        this.boxOneRelation.disabledRadioButton = true;
+        this.boxLocked = true;
+        this.savedIndex = this.boxOne.imgIndex;
+        this.savedChoice = boxOneValue;
+      }
     }
     else if ( termObjGrouping.imageIndex >= termObjGrouping.numImages - 1) {
       console.log("in last iteration");
@@ -465,6 +477,9 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.boxOne.disabledRadioButton = true;
       this.boxOneRelation.disabledRadioButton = true;
+      this.boxLocked = true;
+      this.savedIndex = this.boxOne.imgIndex;
+      this.savedChoice = boxOneValue;
       this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxTwo.imgIndex]]] = boxTwoValue;
       this.partOfTheSameSubPair[termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[this.boxThree.imgIndex]]] = boxThreeValue;
 
@@ -512,6 +527,9 @@ export class ChooseGroupsComponent implements OnInit {
         this.boxOneRelation = this.boxThreeRelation;
         this.boxOne.disabledRadioButton = true;
         this.boxOneRelation.disabledRadioButton = true;
+        this.boxLocked = true;
+        this.savedIndex = this.boxOne.imgIndex;
+        this.savedChoice = boxOneValue;
         // Clear boxTwo
         this.boxTwo = this.createBoxObj(termObjGrouping.imageIndex + 1);
         this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
@@ -532,6 +550,7 @@ export class ChooseGroupsComponent implements OnInit {
       }
 
       // If the box Two is new
+      // Is this else supposed to be entered?
       else{
 
         this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
@@ -611,7 +630,13 @@ export class ChooseGroupsComponent implements OnInit {
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: index
     };
-    this.authService.setStorage("local", object);
+    let lock: groupLock = {
+      boxLocked: this.boxLocked,
+      savedIndex: this.savedIndex,
+      savedChoice: this.savedChoice
+    }
+    this.authService.setStorage("local", object, "termData");
+    this.authService.setStorage("local", lock, "groupLock");
 
     this.authService.logout('/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
   }
@@ -624,7 +649,7 @@ export class ChooseGroupsComponent implements OnInit {
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
     };
-    this.authService.setStorage("session", object);
+    this.authService.setStorage("session", object, "termData");
     this.authService.unloadNotification(event);
   }
 

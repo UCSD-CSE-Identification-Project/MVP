@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { UserTermImageInformationService } from 'src/app/core/user-term-image-information.service';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { AuthService, termData } from 'src/app/core/auth.service';
 
 @Component({
@@ -13,6 +14,8 @@ export class ProcessComponent implements OnInit {
   percentage = 0;
   checked = false;
   csvfile;
+  startProcess: boolean = false;
+  showSpinner: boolean = false
   //csvdata: [['placeholder', 'ind']];
 
 
@@ -21,9 +24,22 @@ export class ProcessComponent implements OnInit {
     this.checked = !this.checked;
   }
 
+  openDialog() {
+    this.startProcess = true;
+    const dialogRef = this.dialog.open(Notice, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      this.process();
+    });
+  }
 
   process() {
     // Initialize Params Object
+    let headers = new HttpHeaders();
+    headers.append('Content-Type', 'application/json');
     let params = new HttpParams();
 
     // Begin assigning parameters
@@ -34,17 +50,23 @@ export class ProcessComponent implements OnInit {
     params = params.append('currTermId', "10hGi0jfsWhL3pkYfiLd");
     params = params.append('userId', "QdVQwhUCY6Wi7JieDktj4qjF1ju2");
 
-    this.http.get('https://us-central1-ersp-identification.cloudfunctions.net/prediction', { params: params }).subscribe(
-      result => console.log(result)
+    this.showSpinner = true;
+    this.http.get('https://us-central1-ersp-identification.cloudfunctions.net/predict', { headers: headers,params: params }).subscribe(
+      result => {
+        console.log(result);
+        this.showSpinner = false;
+      }
     );
   }
 
 
   constructor(private http: HttpClient,
-              private generalInfo: UserTermImageInformationService) {
+              private generalInfo: UserTermImageInformationService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {
+    this.showSpinner = false;
     let obj =  {
       imageNames: {},
       imageKeysSorted: [],
@@ -99,5 +121,16 @@ export class ProcessComponent implements OnInit {
     hiddenElement.download = 'results.csv';
     hiddenElement.click();
   }
+
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Notice {
+
+  constructor(
+    public dialogRef: MatDialogRef<Notice>) { }
 
 }

@@ -24,7 +24,7 @@ export class MatchTerminalComponent implements OnInit {
   // Execute right after constructor
   ngOnInit() {
 
-    let data: termData = this.authService.getStorage("session");
+    let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.imageInd = data.imageIndex;
@@ -172,7 +172,7 @@ export class MatchTerminalComponent implements OnInit {
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: this.termMatching.imageIndex
     };
-    this.authService.setStorage("local", object);
+    this.authService.setStorage("local", object, "termData");
 
     this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.termMatching.imageIndex);
   }
@@ -185,7 +185,7 @@ export class MatchTerminalComponent implements OnInit {
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: this.termMatching.imageIndex
     };
-    this.authService.setStorage("session", object);
+    this.authService.setStorage("session", object, "termData");
     this.authService.unloadNotification(event);
   }
 
