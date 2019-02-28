@@ -75,7 +75,7 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.boxOne.boxVal.controls.option.value = lock.savedChoice;
       this.boxOneRelation.boxVal.controls.option.value = "New Question";
-      
+
       this.boxOne.radioClicked = true;
       this.boxOneRelation.radioClicked = true;
 
@@ -550,7 +550,6 @@ export class ChooseGroupsComponent implements OnInit {
       }
 
       // If the box Two is new
-      // Is this else supposed to be entered?
       else{
 
         this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
@@ -562,6 +561,10 @@ export class ChooseGroupsComponent implements OnInit {
         this.boxOneRelation = this.boxTwoRelation;
         this.boxOne.disabledRadioButton = true;
         this.boxOneRelation.disabledRadioButton = true;
+
+        this.boxLocked = true;
+        this.savedIndex = this.boxOne.imgIndex;
+        this.savedChoice = boxOneValue;
 
         this.boxTwo = this.boxThree;
         this.boxTwoRelation = this.boxThreeRelation;
