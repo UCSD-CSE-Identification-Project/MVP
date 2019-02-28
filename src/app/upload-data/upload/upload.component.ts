@@ -53,6 +53,8 @@ export class UploadComponent implements OnInit {
   prevObjectPromise = [];
   currObjectPromise = [];
   numTermsPushed: number;
+  startSpinning: boolean;
+  stopSpinning: boolean;
 
   constructor( private http: HttpClient,
               private uploadService: UploadService,
@@ -82,6 +84,8 @@ export class UploadComponent implements OnInit {
     this.allPastTermArray = null;
     this.numTermsPushed = 0;
     this.finishedUpload = false;
+    this.startSpinning = false;
+    this.stopSpinning = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
   }
 
@@ -217,12 +221,14 @@ export class UploadComponent implements OnInit {
       );
 
     forkJoin(this.allPercentage).subscribe( value => {
+      self.startSpinning = true;
       Promise.all(promiseArr).then( (val)=>{
         console.log("pushed all of one terms object to the database" + val);
         self.numTermsPushed++;
-        if( self.numTermsPushed === 2) {
+        if( self.numTermsPushed === 2 || (self.numTermsPushed === 1 && self.usePreexistTerm )) {
           console.log("both terms pushed");
           self.finishedUpload = true;
+          self.stopSpinning = true;
         }
       });
     });
@@ -234,16 +240,18 @@ export class UploadComponent implements OnInit {
     // this.finishedUpload = false;
     if ( this.prevTermZip === null ){
       this.generalInfo.prevTermLoadedFromDatabase = true;
+      console.log("find me " + this.generalInfo.prevTermLoadedFromDatabase);
       this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc) => {
         if ( ! doc.exists ) {
           console.log("document somethign doesnt exist");
         }
         var prevTermData = doc.data();
-        self.generalInfo.prevTermAllImages = prevTermData.allTermImages;
-        self.generalInfo.prevTermIndividualImages = prevTermData.individualImages;
-        self.generalInfo.prevTermGroupImages = prevTermData.groupImages;
-        self.generalInfo.prevTermIsoImages = prevTermData.isoImages;
-        self.generalInfo.prevTermKeyImages = prevTermData.keyImages;
+        console.log(doc.data());
+        self.generalInfo.prevTermAllImages = prevTermData.all_images;
+        self.generalInfo.prevTermIndividualImages = prevTermData.ind_images;
+        self.generalInfo.prevTermGroupImages = prevTermData.group_images;
+        self.generalInfo.prevTermIsoImages = prevTermData.iso_images;
+        self.generalInfo.prevTermKeyImages = prevTermData.key_images;
       });
     } else {
       this.uploadTermZip(this.prevTermZip, 0);

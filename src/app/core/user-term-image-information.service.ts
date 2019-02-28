@@ -188,9 +188,11 @@ export class UserTermImageInformationService {
   }
 
   get prevTermLoadedFromDatabase(){
+    console.log("in get " + this.prevTermGeneralInfo.loadedFromDatabase);
     return this.prevTermGeneralInfo.loadedFromDatabase;
   }
   set prevTermLoadedFromDatabase( boolVal: boolean){
+    console.log("in set " + boolVal);
     this.prevTermGeneralInfo.loadedFromDatabase = boolVal;
   }
   get currTermLoadedFromDatabase(){

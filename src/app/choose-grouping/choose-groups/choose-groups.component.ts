@@ -64,8 +64,8 @@ export class ChooseGroupsComponent implements OnInit {
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
     // this.setResetTermFinishVariables('curr');
 
-    this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
-    this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
+    // this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
+    // this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
     console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
 
@@ -118,7 +118,7 @@ export class ChooseGroupsComponent implements OnInit {
     console.log("inside set and reset");
 
     if ( prevOrCurrentTerm === 'prev'){
-      this.prevTermGrouping.imageFinishedGrouping = true;
+      // this.prevTermGrouping.imageFinishedGrouping = true;
       this.prevTermGrouping.needGrouping = false;
       this.generalInfo.prevTermFinished = true;
       this.prevTermGrouping.termFinishedAnswering = true;

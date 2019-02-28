@@ -45,7 +45,7 @@
   <div *ngIf="samePrevTermName">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </div>
   <div *ngIf="sameCurrTermName">Warning: current term name cannot be a preexisting term name </div>
 
-  <div *ngIf="prevTermZip != null && currTermZip != null">
+  <div *ngIf="( prevTermZip != null  || usePreexistTerm) && currTermZip != null">
     <button type="button" (click)="onUpload()">Submit</button>
   </div>
   <br />
@@ -59,9 +59,15 @@
   <h2> Files uploaded: {{counter}}//{{totalFiles}}</h2>
   <h2>{{uploadPercentage}}</h2>
   -->
-  <div *ngIf="finishedUpload" style="float: right;">
-    <nav>
-      <button routerLink="/navigator/upload">NEXT</button>
-    </nav>
+  <div>
+    <mat-spinner *ngIf="startSpinning && !stopSpinning">
+      <h4> Updating all the images to the database </h4>
+    </mat-spinner>
+    <div *ngIf="finishedUpload" style="float: right;">
+      <nav>
+        <button routerLink="/navigator/upload">NEXT</button>
+      </nav>
+    </div>
   </div>
+
 </div>
