@@ -154,6 +154,7 @@ export class UploadComponent implements OnInit {
       let filename : string = ent.name;
       // console.log(filename);
       filename = filename.slice(filename.lastIndexOf('/')+1);
+      filename = this.generalInfo.addZero(filename);
       const fileType = filename.slice(filename.lastIndexOf("."));
       if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
 
@@ -262,28 +263,6 @@ export class UploadComponent implements OnInit {
     } else {
       this.uploadTermZip(this.currTermZip, 1);
     }
-    // this.finishedUpload = true;
-
-    // Promise.all(prms).then(()=>{
-    //   console.log("this is the then message");
-    //   self.finishedUpload = true;
-    //   // this.generalInfo.makePostRequest();
-    //   let object:termData = {
-    //     logoutUrl: "/",
-    //     prevTermInfo: self.generalInfo.prevTerm,
-    //     currTermInfo: self.generalInfo.currTerm,
-    //     imageIndex: 0
-    //   };
-    //   console.log(self.generalInfo.prevTerm);
-    //   console.log(self.generalInfo.currTerm);
-    //
-    //   self.alreadyUpload = true;
-    //   self.authService.setStorage("session", object);
-    //
-    // }).catch((error)=>{
-    //   console.log(error);
-    // });
-    // this.finishedUpload = true;
     console.log("this is the previous message");
     return;
 

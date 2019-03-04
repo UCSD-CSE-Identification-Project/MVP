@@ -19,10 +19,7 @@ export class ChooseViewComponent implements OnInit {
   startingIndex;
 
   constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
-    // this.imageNames = this.getImageNames();
-    // this.imageIndex = 0;
     this.imagesFinished = false;
-    // this.numCheckedBoxes = 0;
   }
 
   createChooseAnswersTermObj(imgNames, loadedFromDatabase: boolean, termIdVal: string, index: number) {
@@ -35,12 +32,13 @@ export class ChooseViewComponent implements OnInit {
       numImages: 0,
     };
 
-    obj.imageIndex = index;
+    // obj.imageIndex = index;
     obj.imageNames = imgNames;
     obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
     obj.needGrouping = !loadedFromDatabase;
     obj.termFinishedAnswering = loadedFromDatabase;
     obj.numImages = obj.imageKeysSorted.length;
+    // console.log(typeof index);
     return obj;
   }
 
@@ -61,23 +59,57 @@ export class ChooseViewComponent implements OnInit {
 
   getKeyAndIsoImages( prevOrCurrentTerm: string){
     let retVal = {};
+    var reversed;
+    var tempArr;
+    reversed = this.reverseKeyInAllImages(prevOrCurrentTerm);
+    console.log(reversed);
+    tempArr = {};
     switch (prevOrCurrentTerm){
       case 'prev':
         retVal = Object.assign({}, this.generalInfo.prevTermIsoImages );
         for( let key of Object.keys(this.generalInfo.prevTermKeyImages)){
-          retVal = Object.assign(retVal, this.generalInfo.prevTermKeyImages[key]);
+          // retVal = Object.assign(retVal, key);//this.generalInfo.prevTermKeyImages[key]);
+          tempArr[reversed[key]] = key;
         }
+        console.log(retVal);
+        retVal = Object.assign(retVal, tempArr );
+        console.log(this.generalInfo.prevTermIsoImages);
+        console.log(this.generalInfo.prevTermKeyImages);
         return retVal;
         break;
       case 'curr':
         retVal = Object.assign({}, this.generalInfo.currTermIsoImages );
         for( let key of Object.keys(this.generalInfo.currTermKeyImages)){
-          retVal = Object.assign(retVal, this.generalInfo.currTermKeyImages[key]);
+          tempArr[reversed[key]] = key;
         }
+
+        console.log(retVal);
+        retVal = Object.assign(retVal, tempArr );
+        console.log(this.generalInfo.currTermIsoImages);
+        console.log(this.generalInfo.currTermKeyImages);
         return retVal;
         break;
       default: break;
     }
+  }
+
+  reverseKeyInAllImages( prevOrCurrentTerm: string) {
+    let retVal = {};
+    switch (prevOrCurrentTerm){
+      case 'prev':
+        for(let key of Object.keys(this.generalInfo.prevTermAllImages)){
+          retVal[this.generalInfo.prevTermAllImages[key]] = key;
+        }
+        break;
+      case 'curr':
+        for (let key of Object.keys(this.generalInfo.currTermAllImages)){
+          retVal[this.generalInfo.currTermAllImages[key]] = key;
+        }
+        break;
+      default: break;
+    };
+
+    return retVal;
   }
   ngOnInit() {
 
@@ -89,25 +121,23 @@ export class ChooseViewComponent implements OnInit {
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
 
-    let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev'); //Object.assign({}, this.generalInfo.prevTermKeyImages, this.generalInfo.prevTermIsoImages);
+    let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev');
     this.prevTermAnswerObj =
-      this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermFinished, this.generalInfo.prevTermIdVal, 0);
-    //this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal);
+      this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal, 0);
 
-    let currTermIndIsoImages = this.getKeyAndIsoImages('curr'); // Object.assign({}, this.generalInfo.currTermIndividualImages, this.generalInfo.currTermIsoImages);
-    this.currTermAnswerObj =
-      this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermFinished, this.generalInfo.currTermIdVal, 0);
-    //this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal);
+    let currTermIndIsoImages = this.getKeyAndIsoImages('curr');
+    this.currTermAnswerObj = this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal, 0);
 
-    if (!this.generalInfo.prevTermFinished && this.prevTermAnswerObj.needGrouping) {
+    if (!this.generalInfo.prevTermLoadedFromDatabase) {
       this.prevTermAnswerObj.imageIndex = this.startingIndex;
-      this.getImageURLsetInHTML('prev', this.prevTermAnswerObj.imageKeysSorted[this.startingIndex]);
+      this.getImageURLsetInHTML('prev', this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
     }
     else {
       this.currTermAnswerObj.imageIndex = this.startingIndex;
-      this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[this.startingIndex]);
+      this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[this.currTermAnswerObj.imageIndex]);
     }
-    //console.log(this.currTermAnswerObj);
+    console.log(this.prevTermAnswerObj);
+    console.log(this.currTermAnswerObj);
   }
 
 
@@ -125,10 +155,10 @@ export class ChooseViewComponent implements OnInit {
     }
   }
   getImageURLsetInHTML(prevOrCurr: string, imageKey: string) {
-    // console.log(imageKey === 'L1710031354_C10');
-    // console.log(prevOrCurr);
-    // console.log(this.prevTermAnswerObj.imageNames['L1710031354_C10']);
-    // console.log(this.prevTermAnswerObj.imageNames);
+    console.log(this.prevTermAnswerObj.imageNames[imageKey]);
+    console.log(this.prevTermAnswerObj.imageNames);
+    console.log(this.prevTermAnswerObj.imageKeysSorted[0]);
+    console.log(imageKey);
     let url = prevOrCurr === "prev" ?
       this.db.collection('images').doc(this.prevTermAnswerObj.imageNames[imageKey]).ref.get() :
       this.db.collection('images').doc(this.currTermAnswerObj.imageNames[imageKey]).ref.get();
@@ -136,13 +166,26 @@ export class ChooseViewComponent implements OnInit {
   }
   updateSubGrouping( prevOrCurrentTerm: string, imageKey: string, correctAnswer ){
     var subGroupingArr;
+    console.log(this.generalInfo.prevTermKeyImages);
     if( prevOrCurrentTerm === 'prev'){
+      if ( !(imageKey in this.generalInfo.prevTermKeyImages) ) return;
       subGroupingArr = this.generalInfo.prevTermKeyImages[imageKey];
-      for ( var key of subGroupingArr ){
+      for ( var key of Object.keys(subGroupingArr) ){
         if ( subGroupingArr[key] === 'Group' || subGroupingArr[key] === 'Individual') {
           this.db.collection('images').doc(key).update({correct_answers: correctAnswer});
         }
       }
+    }
+
+    else {
+      if ( !(imageKey in this.generalInfo.currTermKeyImages) ) return;
+      subGroupingArr = this.generalInfo.currTermKeyImages[imageKey];
+      for ( var key of Object.keys(subGroupingArr) ){
+        if ( subGroupingArr[key] === 'Group' || subGroupingArr[key] === 'Individual') {
+          this.db.collection('images').doc(key).update({correct_answers: correctAnswer});
+        }
+      }
+
     }
   }
   async nextImage(prevOrCurrentTerm: string) {

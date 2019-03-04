@@ -56,6 +56,7 @@ export class MatchTerminalComponent implements OnInit {
       var t1 = performance.now();
       console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
       this.matchesFinished = true;
+      console.log(this.matchesFinished);
       this.ref.detectChanges();
     });
     // TODO the following argument needs to be the union of single, group and iso

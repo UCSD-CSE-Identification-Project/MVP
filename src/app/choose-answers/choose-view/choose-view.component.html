@@ -1,10 +1,10 @@
 <div class="container">
 <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
   <div class="row">
-    <h2 *ngIf="!prevTermAnswerObj.needGrouping || prevTermAnswerObj.termFinishedAnswering">
+    <h2 *ngIf="!prevTermAnswerObj.needGrouping">
       Finished Choosing for Previous Term
     </h2>
-    <div *ngIf="prevTermAnswerObj.needGrouping && !prevTermAnswerObj.termFinishedAnswering">
+    <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
         <h2> Choose Answer for Previous Term</h2>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
@@ -24,10 +24,10 @@
 
 
   <div class="row">
-    <h2 *ngIf="!currTermAnswerObj.needGrouping || currTermAnswerObj.termFinishedAnswering && prevTermAnswerObj.termFinishedAnswering">
+    <h2 *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
       Finished Choosing for Current Term
     </h2>
-    <div *ngIf="currTermAnswerObj.needGrouping && !currTermAnswerObj.termFinishedAnswering && prevTermAnswerObj.termFinishedAnswering">
+    <div *ngIf="currTermAnswerObj.needGrouping  && !prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
         <h2> Choose Answer for Current Term</h2>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
