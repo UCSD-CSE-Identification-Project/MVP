@@ -5,7 +5,7 @@ import { Router } from "@angular/router";
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import * as firebase from 'firebase';
-import { AuthService, termData } from 'src/app/core/auth.service';
+import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -83,7 +83,10 @@ export class AuthComponent implements OnInit {
             finishedLastRun: false,
             lastUrl: '',
             current_terms_generalInfo: [],
-            imageNum: 0
+            imageNum: 0,
+            boxLocked: false,
+            savedIndex: 0,
+            savedChoice: ""
           }).catch((error) => {
             console.log("Error in creating a user auth.componenet.ts line 74", error);
           });
@@ -121,27 +124,44 @@ export class AuthComponent implements OnInit {
   }
 
   continue(doc: firebase.firestore.DocumentSnapshot) {
-    let url = localStorage.getItem("logoutUrl");
+    //TODO add groupLock for second stage
+    let term = localStorage.getItem("termData");
+    let url;
     // If localstorage is empty, get data from database instead, then fill sessionStorage
-    if (url == null) {
+    if (term == null) {
       url = doc.data()["lastUrl"];
       let terms = doc.data()["current_terms_generalInfo"];
       this.generalInfo.prevTerm = terms[0];
       this.generalInfo.currTerm = terms[1];
-      let imageNum:number = doc.data()["imageNum"];
+      let imageNum: number = doc.data()["imageNum"];
+      let boxLocked: boolean = doc.data()["boxLocked"];
+      let savedIndex: number = doc.data()["savedIndex"];
+      let savedChoice: string = doc.data()["savedChoice"];
 
       // Store in localstorage
-      let object:termData = {
+      let object: termData = {
         logoutUrl: url,
         prevTermInfo: this.generalInfo.prevTerm,
         currTermInfo: this.generalInfo.currTerm,
         imageIndex: imageNum
       };
-      this.authService.setStorage("session", object);
+
+      let lock: groupLock = {
+        boxLocked: boxLocked,
+        savedIndex: savedIndex,
+        savedChoice: savedChoice
+      }
+      this.authService.setStorage("session", lock, "groupLock");
+      this.authService.setStorage("session", object, "termData");
     }
     // Simply read from localStorage and set sessionStorage
     else {
-      this.authService.setStorage("session", this.authService.getStorage("local"));
+      url = this.authService.getStorage("local", "termData").logoutUrl;
+      this.authService.setStorage("session", this.authService.getStorage("local", "termData"), "termData");
+      console.log(localStorage.getItem("groupLock"));
+      if (localStorage.getItem("groupLock") !== null) {
+        this.authService.setStorage("session", this.authService.getStorage("local", "groupLock"), "groupLock");
+      }
     }
     this.router.navigate([url]);
   }

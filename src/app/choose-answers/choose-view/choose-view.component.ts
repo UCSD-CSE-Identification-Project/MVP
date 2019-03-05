@@ -116,7 +116,7 @@ export class ChooseViewComponent implements OnInit {
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
 
-    let data: termData = this.authService.getStorage("session");
+    let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.imageIndex;
@@ -243,13 +243,13 @@ export class ChooseViewComponent implements OnInit {
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: index
     };
-    this.authService.setStorage("local", object);
+    this.authService.setStorage("local", object, "termData");
 
     this.authService.logout('/choose-answers', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
   }
 
   @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
+  unloadNotification() {
     if (!this.prevTermAnswerObj.needGrouping) {
       this.generalInfo.prevTermFinished = true;
     }
@@ -262,8 +262,8 @@ export class ChooseViewComponent implements OnInit {
     console.log(this.prevTermAnswerObj.needGrouping);
     console.log(this.prevTermAnswerObj.imageIndex)
     console.log(this.currTermAnswerObj.imageIndex);
-    this.authService.setStorage("session", object);
-    this.authService.unloadNotification(event);
+    this.authService.setStorage("session", object, "termData");
+    return false;
   }
 
 }

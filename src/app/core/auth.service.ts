@@ -12,6 +12,12 @@ export interface termData {
   imageIndex: number
 }
 
+export interface groupLock {
+  boxLocked: boolean,
+  savedIndex: number,
+  savedChoice: string
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -22,22 +28,22 @@ export class AuthService {
   private uid: string = '';
 
   constructor(private firebaseAuth: AngularFireAuth,
-              private db: AngularFirestore,
-              private router: Router) {
+    private db: AngularFirestore,
+    private router: Router) {
     this.user = this.firebaseAuth.authState;
 
     this.user.subscribe(user => {
-        if (user) {
-          this.userDetails = user;
-          this.uid = user.uid;
-          // console.log(this.userDetails);
-          // console.log(this.uid);
-        }
-        else {
-          this.userDetails = null;
-          this.uid = '';
-        }
+      if (user) {
+        this.userDetails = user;
+        this.uid = user.uid;
+        // console.log(this.userDetails);
+        // console.log(this.uid);
       }
+      else {
+        this.userDetails = null;
+        this.uid = '';
+      }
+    }
     );
     // TODO: Switch map, user credential or NULL, logout, log in status
   }
@@ -59,32 +65,35 @@ export class AuthService {
     $event.returnValue = false;
   }
 
-  setStorage(type: string, object:termData) {
+  setStorage(type: string, object: any, name: string) {
     if (type === "local") {
-      localStorage.setItem("termData", JSON.stringify(object));
-    }
-    else if(type === "session") {
-      sessionStorage.setItem("termData", JSON.stringify(object));
-    }
-  }
-
-  getStorage(type: string):termData {
-    if (type === "local") {
-      return JSON.parse(localStorage.getItem("termData"));
+      localStorage.setItem(name, JSON.stringify(object));
     }
     else if (type === "session") {
-      return JSON.parse(sessionStorage.getItem("termData"));
+      sessionStorage.setItem(name, JSON.stringify(object));
     }
   }
 
-  logout(lastUrl: string, terms, imageNum: number) {
+  getStorage(type: string, name: string): any {
+    if (type === "local") {
+      return JSON.parse(localStorage.getItem(name));
+    }
+    else if (type === "session") {
+      return JSON.parse(sessionStorage.getItem(name));
+    }
+  }
+
+  logout(lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
     // When logout, get that user info
     let self = this;
     let docRef = this.db.collection('users').doc(this.uid).ref;
     docRef.update({
       lastUrl: lastUrl,
       current_terms_generalInfo: terms,
-      imageNum: imageNum
+      imageNum: imageNum,
+      boxLocked: boxLocked,
+      savedIndex: savedIndex,
+      savedChoice: savedChoice
     }).then(function() {
       self.firebaseAuth.auth.signOut();
       self.router.navigate(['/']);

@@ -5,12 +5,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { UploadDataRoutingModule } from './upload-data-routing.module';
 import { UploadComponent } from './upload/upload.component';
-import { DropZoneDirective } from './drop-zone.directive';
 import { FormsModule } from '@angular/forms';
 import {MatProgressSpinnerModule} from '@angular/material';
 
 @NgModule({
-  declarations: [UploadComponent, DropZoneDirective],
+  declarations: [UploadComponent],
   imports: [
     CommonModule,
     FormsModule,

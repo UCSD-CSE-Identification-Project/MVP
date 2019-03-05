@@ -17,6 +17,7 @@ export class MatchTerminalComponent implements OnInit {
   matchBar;
   imagesFinished: boolean;
   matchesFinished: boolean = false;
+  imageInd: number = 0;
 
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
@@ -24,7 +25,11 @@ export class MatchTerminalComponent implements OnInit {
   // Execute right after constructor
   ngOnInit() {
     this.matchesFinished = false;
-
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+    this.imageInd = data.imageIndex;
+    console.log(this.generalInfo.prevTermAllImages);
 /*
     let data: termData = this.authService.getStorage("session");
     this.generalInfo.prevTerm = data.prevTermInfo;
@@ -92,7 +97,7 @@ export class MatchTerminalComponent implements OnInit {
   createChooseMatchesTermObject(imgNames){
     let obj = {
       imageNames: {},
-      imageIndex: 0,
+      imageIndex: this.imageInd,
       imageKeysSorted: [],
       termFinishedMatching: false,
       numImages: 0,
@@ -178,30 +183,29 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
     this.completeMatchBarObject();
   }
-/*
+
   logout() {
     let object: termData = {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.imageInputIndex
+      imageIndex: this.termMatching.imageIndex
     };
-    this.authService.setStorage("local", object);
+    this.authService.setStorage("local", object, "termData");
 
-    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.imageInputIndex);
+    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.termMatching.imageIndex);
   }
 
   @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
+  unloadNotification() {
     let object: termData = {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.imageInputIndex
+      imageIndex: this.termMatching.imageIndex
     };
-    this.authService.setStorage("session", object);
-    this.authService.unloadNotification(event);
+    this.authService.setStorage("session", object, "termData");
+    return false;
   }
-*/
 
 }

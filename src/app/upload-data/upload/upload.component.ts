@@ -263,6 +263,18 @@ export class UploadComponent implements OnInit {
     } else {
       this.uploadTermZip(this.currTermZip, 1);
     }
+
+    let object:termData = {
+      logoutUrl: "/",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    console.log(this.generalInfo.prevTerm);
+    console.log(this.generalInfo.currTerm);
+
+    this.alreadyUpload = true;
+    this.authService.setStorage("session", object);
     console.log("this is the previous message");
     return;
 

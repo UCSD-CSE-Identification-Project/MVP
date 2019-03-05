@@ -188,11 +188,9 @@ export class UserTermImageInformationService {
   }
 
   get prevTermLoadedFromDatabase(){
-    console.log("in get " + this.prevTermGeneralInfo.loadedFromDatabase);
     return this.prevTermGeneralInfo.loadedFromDatabase;
   }
   set prevTermLoadedFromDatabase( boolVal: boolean){
-    console.log("in set " + boolVal);
     this.prevTermGeneralInfo.loadedFromDatabase = boolVal;
   }
   get currTermLoadedFromDatabase(){
@@ -248,22 +246,6 @@ export class UserTermImageInformationService {
     this.http.post("/imagesPost",{'prevTerm':"1QW5NOAT1U3RkHt9kF5F", 'currTerm':"1QW5NOAT1U3RkHt9kF5F"},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
         responseType:'text'}).subscribe((res) => {console.log(res);});
-    // let keyImages = Object.assign({}, this.prevTermIndividualImages, this.prevTermGroupImages, this.prevTermIsoImages);
-    // keyImages = Object.values(keyImages);
-    // console.log(keyImages);
-    // let allPromises = [];
-    // var t0 = performance.now();
-    // for ( let key of keyImages ){
-    //   console.log(key);
-    //   console.log(typeof key);
-    //   allPromises.push(this.makeSingleRequest(""+key));
-    // }
-    // // Promise.all(allPromises).then(value=>{
-    // forkJoin(allPromises).subscribe(value=>{
-    //   console.log(value + " finished all values");
-    //   var t1 = performance.now();
-    //   console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.")
-    // });
   }
 
   makeSingleRequest(imageIdVal: string){

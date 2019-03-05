@@ -41,6 +41,12 @@ const routes: Routes = [
     path: 'results',
     canActivate: [AuthGuard],
     loadChildren: './results/results.module#ResultsModule'
+  },
+  {
+    path: '**',
+    canActivate: [AuthGuard],
+    redirectTo: '/upload',
+    pathMatch: 'full'
   }
 ];
 
