@@ -56,14 +56,15 @@ export class MatchTerminalComponent implements OnInit {
       var t1 = performance.now();
       console.log("Call to doSomething took " + (t1 - t0) + " milliseconds.");
       this.matchesFinished = true;
-      console.log(this.matchesFinished);
+      // console.log(this.matchesFinished);
+      // console.log(this.matchBar.matchUrl);
+      this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
+      this.matchBar = this.createMatchBarObject(0);
+      // console.log(this.matchBar.matchUrl);
+      this.completeMatchBarObject();
       this.ref.detectChanges();
     });
     // TODO the following argument needs to be the union of single, group and iso
-    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
-    this.matchBar = this.createMatchBarObject(0);
-    // console.log(this.matchBar.matchUrl);
-    this.completeMatchBarObject();
 
   }
 

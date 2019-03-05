@@ -284,8 +284,6 @@ export class ChooseGroupsComponent implements OnInit {
         //Clear box three
         this.boxThree = this.createBoxObj(termObjGrouping.imageIndex + 1);
         this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-        // Move forward one place
-        termObjGrouping.imageIndex += 1;
         // Get the next picture
         if ( termObjGrouping.imageIndex + 1 < termObjGrouping.numImages){
           this.getImageURLsetInHTML(2, termObjGrouping.imageKeysSorted[termObjGrouping.imageIndex + 1], prevOrCurrentTerm);
