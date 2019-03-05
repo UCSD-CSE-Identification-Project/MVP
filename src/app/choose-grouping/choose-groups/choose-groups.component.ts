@@ -49,16 +49,23 @@ export class ChooseGroupsComponent implements OnInit {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
+
+    let lock: groupLock = this.authService.getStorage("session", "groupLock");
+
     let box1Index = data.imageIndex;
     let box2Index = data.imageIndex + 1;
     let box3Index = data.imageIndex + 2;
-
-    let lock: groupLock = this.authService.getStorage("session", "groupLock");
 
     if (lock.boxLocked) {
       box1Index = lock.savedIndex;
       box2Index = data.imageIndex - 1;
       box3Index = data.imageIndex;
+    }
+
+    if (!lock.boxLocked && data.imageIndex === 2) {
+      box1Index -= 2;
+      box2Index -= 2;
+      box3Index -= 2;
     }
     
     //this.setResetTermFinishVariables('curr');
@@ -92,16 +99,14 @@ export class ChooseGroupsComponent implements OnInit {
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
 
     this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
+
+    // Comment this out before we merge
+    this.prevTermGrouping.termFinishedAnswering = this.generalInfo.prevTermFinished;
+
     this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
     console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
-
-    //let docRef = this.db.collection('users').doc(this.authService.getUser()).ref;
-    //const self = this;
-    //docRef.get().then(function (doc) {
-      //if (doc.exists) {
-        //console.log(doc.data()["imageNum"]);
-        //self.startingIndex = +localStorage.getItem("imageIndex");
+    console.log("First thing to check is " + (this.currTermGrouping.needGrouping && !this.currTermGrouping.termFinishedAnswering && this.prevTermGrouping.termFinishedAnswering));
 
     if( this.prevTermGrouping.needGrouping ){
       this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[box1Index],'prev' );
@@ -171,6 +176,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
       this.currTermGrouping.imageIndex = 2;
+      this.boxLocked = false;
     } else{
       this.currTermGrouping.imageFinishedGrouping = true;
       this.currTermGrouping.needGrouping = false;
@@ -432,7 +438,7 @@ export class ChooseGroupsComponent implements OnInit {
       // todo this section was written under the assumption that there will be more than one picture shown on teh screen at any given point
       // todo finish this section
       if ( this.boxOne.imgIndex < termObjGrouping.numImages ) {
-        this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imageIndex);
+        this.addGroupingToGenInfo(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxOneValue, this.boxOne.imgIndex);
         // groupedVal.push(this.boxOne.boxVal.controls.option.value);
       }
@@ -626,7 +632,7 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   logout() {
-    let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
+    let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex;
     let object: termData = {
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -641,11 +647,15 @@ export class ChooseGroupsComponent implements OnInit {
     this.authService.setStorage("local", object, "termData");
     this.authService.setStorage("local", lock, "groupLock");
 
-    this.authService.logout('/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
+    console.log(this.generalInfo.prevTerm);
+    console.log(this.generalInfo.currTerm);
+    console.log("is the box locked " + this.boxLocked);
+
+    this.authService.logout('/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index, this.boxLocked, this.savedIndex, this.savedChoice);
   }
 
   @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
+  unloadNotification() {
     let object: termData = {
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -653,7 +663,7 @@ export class ChooseGroupsComponent implements OnInit {
       imageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
     };
     this.authService.setStorage("session", object, "termData");
-    this.authService.unloadNotification(event);
+    return false;
   }
 
 }

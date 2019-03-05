@@ -190,7 +190,7 @@ export class ChooseViewComponent implements OnInit {
   }
 
   @HostListener('window:beforeunload', ['$event'])
-  unloadNotification($event: any) {
+  unloadNotification() {
     if (!this.prevTermAnswerObj.needGrouping) {
       this.generalInfo.prevTermFinished = true;
     }
@@ -204,7 +204,7 @@ export class ChooseViewComponent implements OnInit {
     console.log(this.prevTermAnswerObj.imageIndex)
     console.log(this.currTermAnswerObj.imageIndex);
     this.authService.setStorage("session", object, "termData");
-    this.authService.unloadNotification(event);
+    return false;
   }
 
 }

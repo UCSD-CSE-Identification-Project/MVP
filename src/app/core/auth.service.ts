@@ -28,22 +28,22 @@ export class AuthService {
   private uid: string = '';
 
   constructor(private firebaseAuth: AngularFireAuth,
-              private db: AngularFirestore,
-              private router: Router) {
+    private db: AngularFirestore,
+    private router: Router) {
     this.user = this.firebaseAuth.authState;
 
     this.user.subscribe(user => {
-        if (user) {
-          this.userDetails = user;
-          this.uid = user.uid;
-          // console.log(this.userDetails);
-          // console.log(this.uid);
-        }
-        else {
-          this.userDetails = null;
-          this.uid = '';
-        }
+      if (user) {
+        this.userDetails = user;
+        this.uid = user.uid;
+        // console.log(this.userDetails);
+        // console.log(this.uid);
       }
+      else {
+        this.userDetails = null;
+        this.uid = '';
+      }
+    }
     );
     // TODO: Switch map, user credential or NULL, logout, log in status
   }
@@ -69,12 +69,12 @@ export class AuthService {
     if (type === "local") {
       localStorage.setItem(name, JSON.stringify(object));
     }
-    else if(type === "session") {
+    else if (type === "session") {
       sessionStorage.setItem(name, JSON.stringify(object));
     }
   }
 
-  getStorage(type: string, name: string):any {
+  getStorage(type: string, name: string): any {
     if (type === "local") {
       return JSON.parse(localStorage.getItem(name));
     }
@@ -83,7 +83,7 @@ export class AuthService {
     }
   }
 
-  logout(lastUrl: string, terms, imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
+  logout(lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
     // When logout, get that user info
     let self = this;
     let docRef = this.db.collection('users').doc(this.uid).ref;

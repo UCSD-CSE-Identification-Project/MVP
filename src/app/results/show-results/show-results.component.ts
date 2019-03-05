@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ViewChild } from '@angular/core';
-import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
-import { AngularFirestore } from '@angular/fire/firestore';
-// import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
+import { AngularFireStorage } from '@angular/fire/storage';
+import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 
 @Component({
   selector: 'app-show-results',
@@ -17,30 +16,31 @@ export class ShowResultsComponent implements OnInit {
   numStudents = 15;
   csvFile;
   url;
+  hasCsv: boolean = false;
 
   constructor(private storage: AngularFireStorage,
-              private db: AngularFirestore,
-              /*private generalInfo: UserTermImageInformationService*/) { }
+              private generalInfo: UserTermImageInformationService) { }
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
   ngOnInit() {}
 
   outputRows() {
+    this.hasCsv = true;
     this.getFile();
   }
 
   getFile() {
     const self = this;
-    this.storage.ref('confidence.csv').getDownloadURL().subscribe(async url => {
-      console.log(url);
-      // console.log('user id', self.generalInfo.userIdVal);
-      self.url = url;
-      const result = await self.makeRequest(null, url);
-      console.log(result);
+    // This is what we should have
+    //let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
+    // This is default
+    let filePath = this.generalInfo.userIdVal + "/results/" + "0n69l9uRVa6k5rUAxYob" + "-" + "10hGi0jfsWhL3pkYfiLd" + "/" + "confidence.csv";
 
+    this.storage.ref(filePath).getDownloadURL().subscribe(async url => {
+      self.url = url;
+      const result = await self.makeRequest('GET', url);
       this.csvFile = new File([result], 'studentResults.csv', {type: 'text/csv'});
-      console.log(this.csvFile);
 
       this.fileChangeListener(this.csvFile);
     });
@@ -48,10 +48,9 @@ export class ShowResultsComponent implements OnInit {
 
   makeRequest(method, url): Promise<Blob> {
     let blob = null;
-    const file = null;
     return new Promise(function (resolve, reject) {
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', url);
+      xhr.open(method, url);
       xhr.responseType = 'blob';
       xhr.onload = function () {
         if (this.status >= 200 && this.status < 300) {
@@ -82,10 +81,7 @@ export class ShowResultsComponent implements OnInit {
       reader.onload = (data) => {
         const csvData = reader.result;
         this.csvRecordsArray = csvData.toString().split(/\r\n|\n/);
-        // console.log(this.csvRecordsArray);
-
         this.headersRow = this.getHeaderArray(this.csvRecordsArray);
-
         this.csvRecords = this.getDataRecordsArrayFromCSVFile(this.csvRecordsArray, this.headersRow.length);
       };
 
@@ -107,8 +103,10 @@ export class ShowResultsComponent implements OnInit {
 
         const csvRecord: CSVRecordComponent = new CSVRecordComponent();
 
-        csvRecord.studentName = data[0].trim();
-        csvRecord.failProbability = data[1].trim();
+        let stringArray = data[0].trim().match(/[^ ]+/g);
+
+        csvRecord.studentName = stringArray[0];
+        csvRecord.failProbability = stringArray[1];
 
         dataArr.push(csvRecord);
       }
@@ -136,36 +134,8 @@ export class ShowResultsComponent implements OnInit {
     this.csvRecords = [];
   }
 
-  /*downloadCSV(csv: any, filename: any) {
-    let csvFile;
-    let downloadLink;
-
-    // CSV file
-    csvFile = new Blob([csv], {type: 'text/csv'});
-
-    // Download link
-    downloadLink = document.createElement('a');
-
-    // File name
-    downloadLink.download = filename;
-
-    // Create a link to the file
-    downloadLink.href = window.URL.createObjectURL(csvFile);
-
-    // Hide download link
-    downloadLink.style.display = 'none';
-
-    // Add the link to DOM
-    document.body.appendChild(downloadLink);
-
-    // Click download link
-    downloadLink.click();
-  }*/
-
   exportToCSV(filename: any) {
     let dataArray = this.csvRecordsArray.join('\n');
-    console.log(this.csvRecordsArray);
-
     let csvFile;
     let downloadLink;
 
@@ -202,5 +172,3 @@ export class CSVRecordComponent {
   constructor() { }
 
 }
-
-
