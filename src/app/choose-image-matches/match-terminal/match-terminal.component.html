@@ -65,9 +65,11 @@
     </style>
 </head>
 
-<div *ngIf="!matchesFinished">
-  <mat-spinner ></mat-spinner>
-  <h2>  Generating Matches for previous -> current term </h2>
+<div class ='col-sm-6'>
+  <div class ="center" *ngIf="!matchesFinished">
+    <h2>  Generating Matches for previous -> current term </h2>
+    <mat-spinner ></mat-spinner>
+  </div>
 </div>
 
 

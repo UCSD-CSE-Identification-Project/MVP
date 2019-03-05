@@ -51,18 +51,15 @@
   <br />
   <br />
   <progress-bar class='progress' [progress]=' allPercentageObservable | async' [color]="'#488aff'"></progress-bar>
+  <p> Amount of Progress uploading images to Online Storage</p>
   <br />
   <br />
-  <!--
-  <h2>Percentage is {{percentage}}%</h2>
-  <h2>OVERALL PERCENTAGE {{allPercentageObservable | async}}</h2>
-  <h2> Files uploaded: {{counter}}//{{totalFiles}}</h2>
-  <h2>{{uploadPercentage}}</h2>
-  -->
   <div>
-    <mat-spinner *ngIf="startSpinning && !stopSpinning">
-      <h4> Updating all the images to the database </h4>
-    </mat-spinner>
+    <div class="center">
+      <mat-spinner *ngIf="startSpinning && !stopSpinning">
+      </mat-spinner>
+      <h4 *ngIf="startSpinning && !stopSpinning"> Updating image metadata to database </h4>
+    </div>
     <div *ngIf="finishedUpload" style="float: right;">
       <nav>
         <button routerLink="/navigator/upload">NEXT</button>
