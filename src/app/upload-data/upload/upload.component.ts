@@ -274,7 +274,7 @@ export class UploadComponent implements OnInit {
     console.log(this.generalInfo.currTerm);
 
     this.alreadyUpload = true;
-    this.authService.setStorage("session", object);
+    this.authService.setStorage("session", object, "termData");
     console.log("this is the previous message");
     return;
 

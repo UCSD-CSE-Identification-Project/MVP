@@ -156,9 +156,9 @@ export class ChooseViewComponent implements OnInit {
   }
   getImageURLsetInHTML(prevOrCurr: string, imageKey: string) {
     console.log(this.prevTermAnswerObj.imageNames[imageKey]);
-    console.log(this.prevTermAnswerObj.imageNames);
-    console.log(this.prevTermAnswerObj.imageKeysSorted[0]);
-    console.log(imageKey);
+    //console.log(this.prevTermAnswerObj.imageNames);
+    //console.log(this.prevTermAnswerObj.imageKeysSorted[0]);
+    //console.log(imageKey);
     let url = prevOrCurr === "prev" ?
       this.db.collection('images').doc(this.prevTermAnswerObj.imageNames[imageKey]).ref.get() :
       this.db.collection('images').doc(this.currTermAnswerObj.imageNames[imageKey]).ref.get();

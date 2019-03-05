@@ -229,6 +229,8 @@ export class ChooseGroupsComponent implements OnInit {
         console.log("currTerm: " + val);
       });
       this.imagesFinished = true;
+      console.log(this.generalInfo.prevTerm);
+      console.log(this.generalInfo.currTerm);
     }
   }
   getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){

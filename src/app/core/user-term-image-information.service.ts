@@ -249,9 +249,19 @@ export class UserTermImageInformationService {
   }
 
   makeSingleRequest(imageIdVal: string){
-    return this.http.post("/singleImagesPost",{'prevTermImageId': imageIdVal, 'currTerm': this.currTermIdVal},
+    console.log(imageIdVal);
+    console.log(this.currTermIdVal);
+    let headers = new HttpHeaders();
+    headers.append('Content-Type', 'application/json');
+    let params = new HttpParams();
+
+    // Begin assigning parameters
+    params = params.append('prevTermImageId', imageIdVal);
+    params = params.append('currTerm', this.currTermIdVal);
+    /*return this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch",{'prevTermImageId': imageIdVal, 'currTerm': this.currTermIdVal},
       {headers: new HttpHeaders({'Content-Type':'application/json'}),
-        responseType:'text'});
+        responseType:'text'});*/
+    return this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch", { headers: headers, params: params });
 
     // return this.http.post("/singleImagesPost",{'prevTermImageId': imageIdVal, 'currTerm': "1QW5NOAT1U3RkHt9kF5F"},
     //   {headers: new HttpHeaders({'Content-Type':'application/json'}),

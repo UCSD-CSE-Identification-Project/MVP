@@ -61,7 +61,6 @@ export class ProcessComponent implements OnInit {
 
 
   constructor(private http: HttpClient,
-              private generalInfo: UserTermImageInformationService) {
               private generalInfo: UserTermImageInformationService,
               private dialog: MatDialog) {
   }
