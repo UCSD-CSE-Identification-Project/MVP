@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { UserTermImageInformationService } from 'src/app/core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
+import {AngularFirestore} from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-process',
@@ -40,50 +41,73 @@ export class ProcessComponent implements OnInit {
   }
 
 
-  constructor(private http: HttpClient,
+  constructor(private db: AngularFirestore,
+              private http: HttpClient,
               private generalInfo: UserTermImageInformationService) {
   }
 
   ngOnInit() {
-    let obj =  {
-      imageNames: {},
-      imageKeysSorted: [],
-      indKeysSorted: [],
-      groupKeysSorted: [],
-      isoKeysSorted: [],
-      csvdata: [],
+    const obj =  {
+      allData: [],
     };
 
-    obj.imageNames = this.generalInfo.prevTermAllImages;
-    console.log("all prev term images")
-    console.log(obj.imageNames);
-    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
-    console.log("sorted image keys")
-    console.log(obj.imageKeysSorted);
-    obj.indKeysSorted = Object.keys(this.generalInfo.prevTermIndividualImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.indKeysSorted);
-    obj.groupKeysSorted = Object.keys(this.generalInfo.prevTermGroupImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.groupKeysSorted);
-    obj.isoKeysSorted = Object.keys(this.generalInfo.prevTermIsoImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.isoKeysSorted);
+    let allImages = this.generalInfo.prevTermAllImages;
+    console.log(allImages);
+    console.log(Object.keys(allImages));
 
-    //Sorting in lexicographical order, i.e. Q1, Q10, Q11... instead of Q1, Q2, Q3
+    for (let i = 0; i < Object.keys(allImages).length; i++) {
+      let imgName = '';
+      imgName += Object.keys(allImages)[i];
+      let currTermID = this.generalInfo.prevTermIdVal;
 
-    for (let i=0; i<obj.imageKeysSorted.length; i++) {
-      if (obj.indKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'ind']);
-      } else if (obj.groupKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'group']);
-      } else if (obj.isoKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'iso']);
-      }
-      //works on the assumption that all images are in one of these three categories i.e. not 'ignore'
+      this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then(function (doc) {
+        if (doc.exists) {
+
+
+          let cans = '';
+
+          if (doc.data().correct_answers['N'] === true) {
+            cans += '0';
+          } else {
+          if (doc.data().correct_answers['A'] === true) {
+            cans += '1';
+          }
+          if (doc.data().correct_answers['B'] === true) {
+            cans += '2';
+          }
+          if (doc.data().correct_answers['C'] === true) {
+            cans += '3';
+          }
+          if (doc.data().correct_answers['D'] === true) {
+            cans += '4';
+          }
+          if (doc.data().correct_answers['E'] === true) {
+            cans += '5';
+          }
+        }
+
+        let imgGrp = '';
+          imgGrp += doc.data().grouping;
+
+          //Bug 1: outputting value not key
+          let imgMatch = '';
+          imgMatch = Object.keys(doc.data().matches[currTermID])[0];
+
+          obj.allData.push([i, imgName, imgMatch, imgGrp, cans]);
+        }
+      });
     }
+    console.log(obj.allData);
 
-    console.log(obj.csvdata);
+    //need the keys not the values
+    var prevTermID = '';
+    prevTermID += this.generalInfo.prevTermIdVal;
+    var currTermID = '';
+    currTermID += this.generalInfo.currTermIdVal;
+    var csv = 'qid,' + prevTermID + ',' + currTermID + ',VoteType,cans\n';
 
-    var csv = 'PrevTermImage, Grouping\n';
-    obj.csvdata.forEach(function(row) {
+    obj.allData.forEach(function(row) {
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       csv += row.join(',');
       csv += '\n';
     });
