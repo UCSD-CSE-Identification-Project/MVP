@@ -31,12 +31,6 @@ export class MatchTerminalComponent implements OnInit {
     this.imageInd = data.imageIndex;
     console.log(this.generalInfo.prevTermAllImages);
 /*
-    let data: termData = this.authService.getStorage("session");
-    this.generalInfo.prevTerm = data.prevTermInfo;
-    this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInputIndex = data.imageIndex;
-    console.log(this.generalInfo.prevTermAllImages);
-
     this.imageNames = this.getImageNames();
     // get image names from firebase here TODO make sure to update value of imagesource in async func also
     // TODO ALSO UPDATE THE VALUE OF THE MATCHES
@@ -64,7 +58,7 @@ export class MatchTerminalComponent implements OnInit {
       // console.log(this.matchesFinished);
       // console.log(this.matchBar.matchUrl);
       this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
-      this.matchBar = this.createMatchBarObject(0);
+      this.matchBar = this.createMatchBarObject(this.imageInd);
       // console.log(this.matchBar.matchUrl);
       this.completeMatchBarObject();
       this.ref.detectChanges();

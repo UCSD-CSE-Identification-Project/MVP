@@ -674,12 +674,18 @@ export class ChooseGroupsComponent implements OnInit {
 
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
+    let lock: groupLock = {
+      boxLocked: this.boxLocked,
+      savedIndex: this.savedIndex,
+      savedChoice: this.savedChoice
+    }
     let object: termData = {
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
       imageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
     };
+    this.authService.setStorage("session", lock, "groupLock");
     this.authService.setStorage("session", object, "termData");
     return false;
   }

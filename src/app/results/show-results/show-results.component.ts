@@ -35,7 +35,7 @@ export class ShowResultsComponent implements OnInit {
     // This is what we should have
     //let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
     // This is default
-    let filePath = this.generalInfo.userIdVal + "/results/" + "0n69l9uRVa6k5rUAxYob" + "-" + "10hGi0jfsWhL3pkYfiLd" + "/" + "confidence.csv";
+    let filePath = "QdVQwhUCY6Wi7JieDktj4qjF1ju2" + "/results/" + "0n69l9uRVa6k5rUAxYob" + "-" + "10hGi0jfsWhL3pkYfiLd" + "/" + "confidence.csv";
 
     this.storage.ref(filePath).getDownloadURL().subscribe(async url => {
       self.url = url;

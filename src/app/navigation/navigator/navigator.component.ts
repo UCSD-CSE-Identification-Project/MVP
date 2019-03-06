@@ -32,7 +32,10 @@ export class NavigatorComponent implements OnInit {
   ngOnInit() {
     // Store generalInfo into sessionStorage, and set both terms to not finished
     this.generalInfo.prevTermFinished = false;
+    this.generalInfo.prevTermLoadedFromDatabase = false;
     this.generalInfo.currTermFinished = false;
+    this.generalInfo.currTermLoadedFromDatabase = false;
+    
     let object: termData = {
       logoutUrl: "/",
       prevTermInfo: this.generalInfo.prevTerm,

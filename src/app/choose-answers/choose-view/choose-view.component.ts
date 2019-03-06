@@ -143,12 +143,14 @@ export class ChooseViewComponent implements OnInit {
 
   setResetTermFinishVariables(prevOrCurrentTerm: string) {
     if (prevOrCurrentTerm === 'prev') {
+      this.generalInfo.prevTermLoadedFromDatabase = true;
       this.prevTermAnswerObj.termFinishedAnswering = true;
       this.boxOnScreen = this.createBoxObj();
       this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[0]);
-      // Added set needGrouping
+      //TODO Which of the 2 boolean do we use?
       this.prevTermAnswerObj.needGrouping = false;
     } else {
+      this.generalInfo.currTermLoadedFromDatabase = true;
       this.currTermAnswerObj.termFinishedAnswering = true;
       this.imagesFinished = true;
       this.currTermAnswerObj.needGrouping = false;

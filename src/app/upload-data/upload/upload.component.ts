@@ -192,9 +192,11 @@ export class UploadComponent implements OnInit {
                 self.db.collection('terms').doc(termId).update(termObjUpdate);
                 const filePrefix = filename[filename.lastIndexOf('_')+1];
                 if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
+                  console.log(imageName, imageId);
                   self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
                 } else if( prevOrCurrTerm === 1 && filePrefix !== 'C') {
                   self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
+                  console.log(imageName, imageId);
                 }
               });
 
