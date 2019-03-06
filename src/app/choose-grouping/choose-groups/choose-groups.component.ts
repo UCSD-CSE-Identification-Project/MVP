@@ -180,6 +180,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
       this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
       this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
+      this.partOfTheSameSubPair = {};
       this.currTermGrouping.imageIndex = 2;
       this.boxLocked = false;
       let termObj = {};
@@ -261,7 +262,7 @@ export class ChooseGroupsComponent implements OnInit {
         //Move boxTwo to boxOne
         this.boxOne = this.boxTwo;
         this.boxOneRelation = this.boxTwoRelation;
-        if (this.boxOne.boxVal.controls.option.value !== ''){
+        if (this.boxOne.radioClicked){
           this.boxOne.disabledRadioButton = true;
           this.boxOneRelation.disabledRadioButton = true;
         }
@@ -269,7 +270,7 @@ export class ChooseGroupsComponent implements OnInit {
         // Move boxThree to boxTwo
         this.boxTwo = this.boxThree;
         this.boxTwoRelation = this.boxThreeRelation;
-        if ( this.boxTwo.boxVal.controls.option.value !== ''){
+        if ( this.boxTwo.radioClicked){
           this.boxTwo.disabledRadioButton = true;
           this.boxTwoRelation.disabledRadioButton = true;
         }
@@ -305,7 +306,7 @@ export class ChooseGroupsComponent implements OnInit {
         //Move box three to box two
         this.boxTwo = this.boxThree;
         this.boxTwoRelation = this.boxThreeRelation;
-        if ( this.boxTwo.boxVal.controls.option.value !== ''){
+        if ( this.boxTwo.radioClicked ) {
           this.boxTwo.disabledRadioButton = true;
           this.boxTwoRelation.disabledRadioButton = true;
         }
@@ -349,6 +350,8 @@ export class ChooseGroupsComponent implements OnInit {
 
 
   async pushSubGroupToFirestore ( prevOrCurrentTerm: string, imgIndexToPush: number) {
+    console.log("inside pushsubgroupfirestore with value " + imgIndexToPush);
+    console.log(this.partOfTheSameSubPair);
     let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
 
     const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
@@ -362,6 +365,8 @@ export class ChooseGroupsComponent implements OnInit {
     await this.db.collection('images')
       .doc(imgToPush)
       .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
+
+    this.partOfTheSameSubPair = {};
   }
 
   async pushImageObjectToFirestore( prevOrCurrentTerm: string, boxVal: string, imageIndex: number ){
@@ -426,18 +431,12 @@ export class ChooseGroupsComponent implements OnInit {
       console.log("inside ignore ");
       if (boxOneValue === 'Ignore'){
         this.removeIgnore(0,prevOrCurrentTerm);
-        console.log("Current image index is ");
-        console.log(termObjGrouping.imageIndex);
       }
       else if (boxTwoValue === 'Ignore'){
         this.removeIgnore(1,prevOrCurrentTerm);
-        console.log("Current image index is ");
-        console.log(termObjGrouping.imageIndex);
       }
       else{
         this.removeIgnore(2,prevOrCurrentTerm);
-        console.log("Current image index is ");
-        console.log(termObjGrouping.imageIndex);
       }
 
       if ( this.boxOne.imgIndex >= termObjGrouping.numImages - 1 ){
@@ -446,7 +445,6 @@ export class ChooseGroupsComponent implements OnInit {
     }
     else if ( termObjGrouping.imageIndex >= termObjGrouping.numImages - 1) {
       console.log("in last iteration");
-      console.log(this.boxThree.imgIndex);
       let lastQuestionToPush = this.boxOne;
       // todo this section was written under the assumption that there will be more than one picture shown on teh screen at any given point
       // todo finish this section
@@ -456,9 +454,11 @@ export class ChooseGroupsComponent implements OnInit {
         // groupedVal.push(this.boxOne.boxVal.controls.option.value);
       }
       if ( this.boxTwo.imgIndex < termObjGrouping.numImages ) {
+        console.log("inside 2 outside " + boxTwoValue + "  " + this.boxTwo.imgIndex );
         this.addGroupingToGenInfo(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, boxTwoValue, this.boxTwo.imgIndex);
-        if ( boxTwoValue === 'New Question' ){
+        if ( boxTwoRValue === 'New Question' ){
+          console.log("inside 2: last iteration");
           // push to firestore
           this.pushSubGroupToFirestore(prevOrCurrentTerm, lastQuestionToPush.imgIndex);
           this.partOfTheSameSubPair = {};
@@ -470,7 +470,8 @@ export class ChooseGroupsComponent implements OnInit {
       if ( this.boxThree.imgIndex < termObjGrouping.numImages ) {
         this.addGroupingToGenInfo(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, this.boxThree.imgIndex);
         await this.pushImageObjectToFirestore(prevOrCurrentTerm, this.boxThree.boxVal.controls.option.value, this.boxThree.imgIndex);
-        if( boxThreeValue === 'New Question') {
+        if( boxThreeRValue === 'New Question') {
+          console.log("inside 3: last iteration");
           // push last question to firestore and then push empty value to this last box
           this.pushSubGroupToFirestore(prevOrCurrentTerm, lastQuestionToPush.imgIndex);
           this.partOfTheSameSubPair = {};
@@ -480,7 +481,7 @@ export class ChooseGroupsComponent implements OnInit {
           // push this array to firestore using the last question pushed value
         }
       }
-
+      console.log("readched to last statement in else if");
       this.pushSubGroupToFirestore(prevOrCurrentTerm,lastQuestionToPush.imgIndex);
       // push empty array to last box if it is a new question, if it is related then push the array to the right box
       this.setResetTermFinishVariables(prevOrCurrentTerm);
@@ -569,8 +570,6 @@ export class ChooseGroupsComponent implements OnInit {
         }
         // Move forward two places
         termObjGrouping.imageIndex += 2;
-        console.log("Current image index is ");
-        console.log(termObjGrouping.imageIndex);
       }
 
       // If the box Two is new
