@@ -87,6 +87,9 @@ export class UploadComponent implements OnInit {
     this.startSpinning = false;
     this.stopSpinning = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
+    this.authService.clearStorage();
+    console.log(this.generalInfo.prevTerm);
+    console.log(this.generalInfo.currTerm);
   }
 
 
@@ -112,11 +115,18 @@ export class UploadComponent implements OnInit {
     // for ( const files of event.target.files ) {
     //   console.log(files.name);
     // }
+    if( event.target.files.length === 0 ){
+      console.log(this.prevTermZip);
+      return;
+    }
+
     if (prevOrCurrTerm === 0) {
       this.prevTermZip = event.target.files;
     } else {
       this.currTermZip = event.target.files;
     }
+    console.log(event.target.files);
+    console.log(event);
   }
 
   async uploadTermZip(eventZipFile, prevOrCurrTerm) {
@@ -194,6 +204,8 @@ export class UploadComponent implements OnInit {
                 if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
                   console.log(imageName, imageId);
                   self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
+                  console.log("find me ra");
+                  console.log(self.generalInfo.prevTermAllImages);
                 } else if( prevOrCurrTerm === 1 && filePrefix !== 'C') {
                   self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
                   console.log(imageName, imageId);
@@ -257,26 +269,24 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
       });
     } else {
-      this.uploadTermZip(this.prevTermZip, 0);
+      this.uploadTermZip(this.prevTermZip, 0).then(()=>{
+        console.log(this.generalInfo.prevTerm);
+      });
     }
 
     if ( this.currTermZip === null ) {
       this.generalInfo.currTermLoadedFromDatabase = true;
     } else {
-      this.uploadTermZip(this.currTermZip, 1);
+      this.uploadTermZip(this.currTermZip, 1).then(()=>{
+        console.log(this.generalInfo.currTerm);
+      });
     }
 
-    let object:termData = {
-      logoutUrl: "/",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
-    };
+
     console.log(this.generalInfo.prevTerm);
     console.log(this.generalInfo.currTerm);
 
     this.alreadyUpload = true;
-    console.log("this is the previous message");
     return;
 
   }

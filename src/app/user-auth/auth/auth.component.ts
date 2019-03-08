@@ -111,14 +111,19 @@ export class AuthComponent implements OnInit {
       }
       else {
         // Clean up
-        localStorage.clear();
-        sessionStorage.clear();
+        this.authService.clearStorage();
         docRef.update({
           finishedLastRun: false,
           lastUrl: '',
           current_terms_generalInfo: [],
           imageNum: 0
         }).then(() => this.router.navigate(["/upload"]));
+
+        this.generalInfo.prevTerm = this.generalInfo.constructTermObj();
+        this.generalInfo.currTerm = this.generalInfo.constructTermObj();
+
+        console.log(this.generalInfo.prevTerm);
+        console.log(this.generalInfo.currTerm);
       }
     });
   }
@@ -129,6 +134,7 @@ export class AuthComponent implements OnInit {
     let url;
     // If localstorage is empty, get data from database instead, then fill sessionStorage
     if (term == null) {
+      console.log("inside firebase ref ra");
       url = doc.data()["lastUrl"];
       let terms = doc.data()["current_terms_generalInfo"];
       this.generalInfo.prevTerm = terms[0];
