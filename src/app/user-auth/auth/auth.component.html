@@ -1,12 +1,19 @@
 <div class="container">
   <h2>Welcome Guest!</h2>
   <div class="child">
-    <input type="email" placeholder="Email" [(ngModel)]="email" required>
-    <input type="password" placeholder="Password" [(ngModel)]="password" required>
+    <mat-card>
+      <input type="email" placeholder="Email" [(ngModel)]="email" required>
+      <input type="password" placeholder="Password" [(ngModel)]="password" required>
 
-    <div>
-      <button (click)="logIn()">Log in</button>
-      <button (click)="signUp()">(OR) Sign up</button>
-    </div>
+      <div>
+        <br>
+        <button mat-stroked-button (click)="logIn()">Log In</button>
+        or
+        <button mat-stroked-button (click)="signUp()">Sign Up</button>
+      </div>
+    </mat-card>
   </div>
 </div>
+
+
+

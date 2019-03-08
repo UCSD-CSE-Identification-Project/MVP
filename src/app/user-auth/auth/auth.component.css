@@ -3,8 +3,30 @@
   width: 100%;
   margin: auto;
   text-align: center;
+  background-color: #488AFF;
 }
 
 .child {
-    margin-top: 20%;
+  margin-top: 10%;
+  margin-bottom: 100%;
+}
+
+h2 {
+  color: white;
+}
+
+mat-card {
+  background-color: white;
+  color: black;
+  height: 300px;
+  width: 400px;
+  align-items: center;
+  justify-content: center;
+  display: inline-block;
+  padding-top: 100px;
+}
+
+button {
+  background-color: cornflowerblue;
+  color: white;
 }
