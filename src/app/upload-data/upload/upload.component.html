@@ -57,11 +57,11 @@
   <br />
   <div>
     <div class="center">
-      <mat-spinner *ngIf="startSpinning && !stopSpinning">
+      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)">
       </mat-spinner>
-      <h4 *ngIf="startSpinning && !stopSpinning"> Updating image metadata to database </h4>
+      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
     </div>
-    <div *ngIf="finishedUpload" style="float: right;">
+    <div *ngIf="(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
         <button routerLink="/navigator/upload">NEXT</button>
       </nav>
