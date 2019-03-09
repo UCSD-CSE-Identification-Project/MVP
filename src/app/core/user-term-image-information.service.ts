@@ -44,7 +44,7 @@ export class UserTermImageInformationService {
     //   finished: false
     // };
     return {
-      termId: 'vk8QLcAEIuHg8dq9YvM5',
+      termId: 'lr91zjW6LB2BZZW8NrZ4',
       allTermImages: {
         "L1710031354_C1":"DI2VQtuF7sibjKjvjqr0",
         "L1710031354_C10": "H4YfwwhNKp0O9TyTttBW",
