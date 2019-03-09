@@ -48,8 +48,10 @@ export class UploadComponent implements OnInit {
   numBytesTransferLocal = 0;
   numBytesTransferTotal = 0;
   numByteTotal = 0;
-  allPercentage = [];
-  allPercentageObservable: Observable<any>;
+  allPercentagePrevious = [];
+  allPercentageCurrent = [];
+  allPercentageObservablePrevious: Observable<any>;
+  allPercentageObservableCurrent: Observable<any>;
   prevObjectPromise = [];
   currObjectPromise = [];
   numTermsPushed: number;
@@ -134,6 +136,8 @@ export class UploadComponent implements OnInit {
     const file = eventZipFile;
     const self = this;
     const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise: this.currObjectPromise;
+    const allPercentage = prevOrCurrTerm === 0 ? this.allPercentagePrevious: this.allPercentageCurrent;
+    // var allPercentageObservable = prevOrCurrTerm === 0 ? this.allPercentageObservablePrevious: this.allPercentageObservableCurrent;
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
@@ -177,7 +181,7 @@ export class UploadComponent implements OnInit {
       const taskVal = self.storage.upload(filePath, ent);
       const fileRef = self.storage.ref(filePath);
       const _percentage$ = taskVal.percentageChanges();
-      self.allPercentage.push(_percentage$);
+      allPercentage.push(_percentage$);
       // console.log(self.allPercentage);
       taskVal.snapshotChanges().pipe(
         finalize(()=>{
@@ -192,6 +196,7 @@ export class UploadComponent implements OnInit {
                 downloadURL: url,
               };
               var x = self.db.collection('images').add(imageObj);
+              promiseArr.push(x);
               console.log(x + "" + typeof x);
               x.then((ref) =>{
                 const termObjUpdate = {};
@@ -215,7 +220,6 @@ export class UploadComponent implements OnInit {
                 }
               });
 
-              promiseArr.push(x);
             } else if(fileType === '.csv'){
               termObj.update({
                 class_data: firebase.firestore.FieldValue.arrayUnion(filename)
@@ -225,22 +229,36 @@ export class UploadComponent implements OnInit {
         })
       ).subscribe();
     } // end of for loop looping through files
+    if (prevOrCurrTerm === 0 ){
+      this.allPercentageObservablePrevious = combineLatest(allPercentage)
+        .pipe(
+          map((percentages) => {
+            let result = 0;
+            for (const percentage of percentages) {
+              result = result + percentage;
+            }
+            return result / percentages.length;
+          }),
+          tap(console.log)
+        );
+    } else {
+      this.allPercentageObservableCurrent = combineLatest(allPercentage)
+        .pipe(
+          map((percentages) => {
+            let result = 0;
+            for (const percentage of percentages) {
+              result = result + percentage;
+            }
+            return result / percentages.length;
+          }),
+          tap(console.log)
+        );
+    }
 
-    this.allPercentageObservable = combineLatest(this.allPercentage)
-      .pipe(
-        map((percentages) => {
-          let result = 0;
-          for (const percentage of percentages) {
-            result = result + percentage;
-          }
-          return result / percentages.length;
-        }),
-        tap(console.log)
-      );
-
-    forkJoin(this.allPercentage).subscribe( value => {
+    forkJoin(allPercentage).subscribe( value => {
       self.startSpinning = true;
       Promise.all(promiseArr).then( (val)=>{
+        console.log(promiseArr.length);
         console.log("pushed all of one terms object to the database" + val);
         self.numTermsPushed++;
         if( self.numTermsPushed === 2 || (self.numTermsPushed === 1 && self.usePreexistTerm )) {

@@ -50,7 +50,8 @@
   </div>
   <br />
   <br />
-  <progress-bar class='progress' [progress]=' allPercentageObservable | async' [color]="'#488aff'"></progress-bar>
+  <progress-bar class='progress' [progress]=' allPercentageObservablePrevious | async' [color]="'#488aff'"></progress-bar>
+  <progress-bar class='progress' [progress]=' allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
   <p> Amount of Progress uploading images to Online Storage</p>
   <br />
   <br />
