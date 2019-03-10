@@ -7,8 +7,8 @@
   padding-bottom: 10px;
 }
 
-.container {
-  padding-left: -10px;
+.row {
+  padding-left: 1.5%;
 }
 
 button {
@@ -33,8 +33,10 @@ button {
 
 .activeButton {
   background-color: mediumseagreen;
+  /*right: 10px;*/
 }
 
 .disabledButton {
   background-color: #dddddd;
+  /*right: 10px;*/
 }

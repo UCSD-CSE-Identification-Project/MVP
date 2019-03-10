@@ -12,7 +12,7 @@
       <h2>Previous Term</h2>
       <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexisting term</mat-checkbox>
       <div *ngIf="!usePreexistTerm">
-        Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018">
+        <h5>Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
         <!--Input term name: <input id="prevTermName" name="prevTermName" class="form-control" required minlength="1" #name="ngModel" [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
         <div *ngIf="prevTermName.invalid && (prevTermName.dirty || prevTermName.touched)"
              class="alert alert-danger">
@@ -41,7 +41,7 @@
     <mat-card class="termCard">
       <h2>Current Term</h2>
       <div>
-        Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018">
+        <h5>Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018"></h5>
       </div>
 
       <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
@@ -70,7 +70,7 @@
   <br />
 
   <progress-bar class='progress' [progress]=' allPercentageObservable | async' [color]="'#488aff'"></progress-bar>
-  <p> Percentage of Progress Uploading Images to Online Storage</p>
+  <h5>Percentage of Progress Uploading Images to Online Storage</h5>
   <br />
   <br />
   <div>
