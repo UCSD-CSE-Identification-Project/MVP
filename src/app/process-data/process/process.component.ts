@@ -47,11 +47,16 @@ export class ProcessComponent implements OnInit {
   }
 
   ngOnInit() {
-    const obj =  {
+    var obj =  {
       allData: [],
+      prevTermID: '',
+      currTermID: '',
     };
-
+    let promises = [];
     let allImages = this.generalInfo.prevTermAllImages;
+    let currImages = this.generalInfo.currTermAllImages;
+    var x;
+    var y;
     console.log(allImages);
     console.log(Object.keys(allImages));
 
@@ -60,7 +65,9 @@ export class ProcessComponent implements OnInit {
       imgName += Object.keys(allImages)[i];
       let currTermID = this.generalInfo.prevTermIdVal;
 
-      this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get().then(function (doc) {
+      x = this.db.collection('images').doc(allImages[Object.keys(allImages)[i]]).ref.get();
+      promises.push(x);
+      x.then(function (doc) {
         if (doc.exists) {
 
 
@@ -89,39 +96,76 @@ export class ProcessComponent implements OnInit {
         let imgGrp = '';
           imgGrp += doc.data().grouping;
 
-          //Bug 1: outputting value not key
           let imgMatch = '';
-          imgMatch = Object.keys(doc.data().matches[currTermID])[0];
+          //imgMatch = Object.keys(doc.data().matches[currTermID])[0];
+          //console.log(imgMatch);
+          imgMatch = doc.data().actual_matches[currTermID];
+          //console.log(imgMatch);
+          for(const[key, value] of Object.entries(currImages)) {
+            if (value == imgMatch) {
+              imgMatch = key;
+              break;
+            }
+          }
 
           obj.allData.push([i, imgName, imgMatch, imgGrp, cans]);
         }
       });
     }
     console.log(obj.allData);
+    console.log(obj.allData.length);
+
 
     //need the keys not the values
-    var prevTermID = '';
-    prevTermID += this.generalInfo.prevTermIdVal;
-    var currTermID = '';
-    currTermID += this.generalInfo.currTermIdVal;
-    var csv = 'qid,' + prevTermID + ',' + currTermID + ',VoteType,cans\n';
+    obj.prevTermID = '';
+    obj.prevTermID += this.generalInfo.prevTermIdVal;
+    obj.currTermID = '';
+    obj.currTermID += this.generalInfo.currTermIdVal;
 
-    obj.allData.forEach(function(row) {
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-      csv += row.join(',');
-      csv += '\n';
+    y = this.db.collection('users').doc(this.generalInfo.userIdVal).ref.get();
+    promises.push(y);
+    y.then(function(doc) {
+      if (doc.exists) {
+        for(const[key, value] of Object.entries(doc.data().class_term)) {
+          if (value === obj.prevTermID) {
+            obj.prevTermID = key;
+          }
+          if (value === obj.currTermID) {
+            obj.currTermID = key;
+          }
+        }
+      }
     });
 
-    console.log(csv);
-    this.csvfile = csv;
+console.log(this.generalInfo.userIdVal);
+
+    Promise.all(promises).then((val) => {
+      var csv = 'qid,' + obj.prevTermID + ',' + obj.currTermID + ',VoteType,cans\n';
+      //console.log(val);
+      obj.allData.forEach(function(row) {
+        //console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+        csv += row.join(',');
+        csv += '\n';
+      });
+      console.log(csv);
+      this.csvfile = csv;
+
+      var storageRef = firebase.storage().ref();
+      var corrcsvRef = storageRef.child(this.generalInfo.userIdVal+'/corresponding_questions/'+obj.prevTermID+'-'+obj.currTermID+'/corresponding_questions.csv');
+      corrcsvRef.putString(this.csvfile).then(function(snapshot) {
+        console.log('Hi');
+      });
+    });
+
+
   }
 
-  downloadcsv() {
+  /*downloadcsv() {
     var hiddenElement = document.createElement('a');
     hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(this.csvfile);
     hiddenElement.target = '_blank';
-    hiddenElement.download = 'results.csv';
+    hiddenElement.download = 'corresponding_questions.csv';
     hiddenElement.click();
-  }
+  }*/
 
 }
