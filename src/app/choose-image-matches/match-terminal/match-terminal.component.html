@@ -67,7 +67,7 @@
 
 <div class="title">
   <h2 style="color: white">Match Images</h2>
-  <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
+  <button *ngIf="matchesFinished" mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
 </div>
 
 <br>

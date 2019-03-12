@@ -1,9 +1,18 @@
 <div>
-  <h1>Results: Percentage of Failure for Each Student</h1>
-  <p>Number of students to display:</p>
+  <div class="title">
+    <h2 style="color: white">Results: Percentage of Failure for Each Student</h2>
+  </div>
+
+  <br>
+  <br>
+  <br>
+  <br>
+
+  <h4>Number of students to display:</h4>
 
   <input type="number" min="0" [(ngModel)]="numStudents">
-  <input type="submit" (click)="outputRows()">
+  <br>
+  <button mat-raised-button type="submit" (click)="outputRows()">Submit</button>
   
 </div>
 
@@ -24,7 +33,7 @@
 
 <div *ngIf="this.hasCsv">
 
-  <button (click)="exportToCSV('Student Struggle Prob')">Export to CSV File</button>
+  <button mat-raised-button class="exportButton" (click)="exportToCSV('Student Struggle Prob')">Export to CSV File</button>
 
 </div>
 
