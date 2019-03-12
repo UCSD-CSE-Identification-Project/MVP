@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 export interface termData {
+  usePrev: boolean,
   logoutUrl: string,
   prevTermInfo: any,
   currTermInfo: any,
@@ -36,8 +37,6 @@ export class AuthService {
       if (user) {
         this.userDetails = user;
         this.uid = user.uid;
-        // console.log(this.userDetails);
-        // console.log(this.uid);
       }
       else {
         this.userDetails = null;
@@ -45,7 +44,6 @@ export class AuthService {
       }
     }
     );
-    // TODO: Switch map, user credential or NULL, logout, log in status
   }
 
   getUser() {
@@ -59,10 +57,6 @@ export class AuthService {
 
   signUpRegular(email: string, password: string) {
     return this.firebaseAuth.auth.createUserWithEmailAndPassword(email, password);
-  }
-
-  unloadNotification($event: any) {
-    $event.returnValue = false;
   }
 
   setStorage(type: string, object: any, name: string) {
@@ -83,18 +77,19 @@ export class AuthService {
     }
   }
 
-  logout(lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
+  logout(usePrev: boolean, lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
     // When logout, get that user info
     let self = this;
     let docRef = this.db.collection('users').doc(this.uid).ref;
     docRef.update({
+      useExistingPrev: usePrev,
       lastUrl: lastUrl,
       current_terms_generalInfo: terms,
       imageNum: imageNum,
       boxLocked: boxLocked,
       savedIndex: savedIndex,
       savedChoice: savedChoice
-    }).then(function() {
+    }).then(function () {
       self.firebaseAuth.auth.signOut();
       self.router.navigate(['/']);
     });

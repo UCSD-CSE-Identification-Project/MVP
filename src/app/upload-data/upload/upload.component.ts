@@ -266,12 +266,6 @@ export class UploadComponent implements OnInit {
       this.uploadTermZip(this.currTermZip, 1);
     }
 
-    let object:termData = {
-      logoutUrl: "/",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
-    };
     console.log(this.generalInfo.prevTerm);
     console.log(this.generalInfo.currTerm);
 
@@ -282,6 +276,6 @@ export class UploadComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout(this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase ,this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
 }

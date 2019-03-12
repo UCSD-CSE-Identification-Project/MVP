@@ -18,6 +18,7 @@ export class MatchTerminalComponent implements OnInit {
   imagesFinished: boolean;
   matchesFinished: boolean = false;
   imageInd: number = 0;
+  logoutEnabled: boolean = false;
 
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
@@ -62,6 +63,7 @@ export class MatchTerminalComponent implements OnInit {
       // console.log(this.matchBar.matchUrl);
       this.completeMatchBarObject();
       this.ref.detectChanges();
+      this.logoutEnabled = true;
     });
     // TODO the following argument needs to be the union of single, group and iso
 
@@ -180,6 +182,7 @@ export class MatchTerminalComponent implements OnInit {
 
   logout() {
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
@@ -187,12 +190,13 @@ export class MatchTerminalComponent implements OnInit {
     };
     this.authService.setStorage("local", object, "termData");
 
-    this.authService.logout('/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.termMatching.imageIndex);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/choose-image-matches', [this.generalInfo.prevTerm, this.generalInfo.currTerm], this.termMatching.imageIndex);
   }
 
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
