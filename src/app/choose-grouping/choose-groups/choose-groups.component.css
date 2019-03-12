@@ -31,12 +31,15 @@ button {
   right: 10px;
 }
 
+.finishButton {
+  background-color: mediumseagreen;
+  right: 10px;
+}
+
 .activeButton {
   background-color: mediumseagreen;
-  /*right: 10px;*/
 }
 
 .disabledButton {
   background-color: #dddddd;
-  /*right: 10px;*/
 }

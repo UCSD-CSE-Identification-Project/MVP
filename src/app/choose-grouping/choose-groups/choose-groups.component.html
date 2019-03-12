@@ -1,14 +1,14 @@
 <div>
   <div class="title">
     <h2 style="color: white"> Classify Questions</h2>
-    <button mat-raised-button class="logoutButton" (click)="logout()">Logout</button>
+    <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
   </div>
 
   <br>
   <br>
   <br>
 
-  <h2 *ngIf="!prevTermGrouping.needGrouping">
+  <h2 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
     You have finished previous term grouping.
   </h2>
   <div *ngIf="prevTermGrouping.needGrouping">
@@ -77,7 +77,7 @@
 
     </div>
   </div>
-  <h2 *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+  <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
     You have finished current term grouping.
   </h2>
   <div *ngIf="currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
@@ -154,11 +154,11 @@
 <div style="text-align: right">
   <div style="display:inline-block">
     <button mat-raised-button class="activeButton" *ngIf="!prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
-    <button mat-raised-button class="disabledButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
+    <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
   </div>
   &nbsp;
   <div style="display:inline-block">
-    <button mat-raised-button class="activeButton" *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
+    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
   </div>
 
 </div>
