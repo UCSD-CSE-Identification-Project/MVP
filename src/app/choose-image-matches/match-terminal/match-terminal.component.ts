@@ -25,10 +25,10 @@ export class MatchTerminalComponent implements OnInit {
   // Execute right after constructor
   ngOnInit() {
     this.matchesFinished = false;
-    // let data: termData = this.authService.getStorage("session", "termData");
-    // this.generalInfo.prevTerm = data.prevTermInfo;
-    // this.generalInfo.currTerm = data.currTermInfo;
-    // this.imageInd = data.imageIndex;
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+    this.imageInd = data.imageIndex;
     console.log(this.generalInfo.prevTermAllImages);
 /*
     this.imageNames = this.getImageNames();
