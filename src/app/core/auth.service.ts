@@ -77,6 +77,11 @@ export class AuthService {
     }
   }
 
+  clearStorage(){
+    localStorage.clear();
+    sessionStorage.clear();
+  }
+
   logout(usePrev: boolean, lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
     // When logout, get that user info
     let self = this;

@@ -110,8 +110,7 @@ export class AuthComponent implements OnInit {
       }
       else {
         // Clean up
-        localStorage.clear();
-        sessionStorage.clear();
+        this.authService.clearStorage();
         docRef.update({
           finishedLastRun: false,
           useExistingPrev: false,
@@ -122,6 +121,12 @@ export class AuthComponent implements OnInit {
           savedIndex: 0,
           savedChoice: ""
         }).then(() => this.router.navigate(["/upload"]));
+
+        this.generalInfo.prevTerm = this.generalInfo.constructTermObj();
+        this.generalInfo.currTerm = this.generalInfo.constructTermObj();
+
+        console.log(this.generalInfo.prevTerm);
+        console.log(this.generalInfo.currTerm);
       }
     });
   }

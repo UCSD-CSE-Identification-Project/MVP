@@ -48,8 +48,14 @@ export class UploadComponent implements OnInit {
   numBytesTransferLocal = 0;
   numBytesTransferTotal = 0;
   numByteTotal = 0;
-  allPercentage = [];
-  allPercentageObservable: Observable<any>;
+  totalFilesPrev;
+  totalFilesCurr;
+  numFilePrev = 0;
+  numFileCurr = 0;
+  allPercentagePrevious = [];
+  allPercentageCurrent = [];
+  allPercentageObservablePrevious: Observable<any>;
+  allPercentageObservableCurrent: Observable<any>;
   prevObjectPromise = [];
   currObjectPromise = [];
   numTermsPushed: number;
@@ -87,6 +93,9 @@ export class UploadComponent implements OnInit {
     this.startSpinning = false;
     this.stopSpinning = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
+    this.authService.clearStorage();
+    //console.log(this.generalInfo.prevTerm);
+    //console.log(this.generalInfo.currTerm);
   }
 
 
@@ -112,11 +121,20 @@ export class UploadComponent implements OnInit {
     // for ( const files of event.target.files ) {
     //   console.log(files.name);
     // }
+    if( event.target.files.length === 0 ){
+      console.log(this.prevTermZip);
+      return;
+    }
+
     if (prevOrCurrTerm === 0) {
       this.prevTermZip = event.target.files;
+      this.totalFilesPrev = this.prevTermZip.length;
     } else {
       this.currTermZip = event.target.files;
+      this.totalFilesCurr = this.currTermZip.length;
     }
+    // console.log(event.target.files);
+    // console.log(event);
   }
 
   async uploadTermZip(eventZipFile, prevOrCurrTerm) {
@@ -124,6 +142,7 @@ export class UploadComponent implements OnInit {
     const file = eventZipFile;
     const self = this;
     const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise: this.currObjectPromise;
+    const allPercentage = prevOrCurrTerm === 0 ? this.allPercentagePrevious: this.allPercentageCurrent;
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
@@ -150,16 +169,22 @@ export class UploadComponent implements OnInit {
     await this.db.collection('users').doc(this.generalInfo.userIdVal).update(userObjUpdate);
 
     const termObj = this.db.collection('terms').doc(termId).ref;
+    let i = 0;
+    console.log(eventZipFile.length);
     for (const ent of eventZipFile) {
+      console.log(i);
+      i++;
       let filename : string = ent.name;
       // console.log(filename);
       filename = filename.slice(filename.lastIndexOf('/')+1);
       filename = this.generalInfo.addZero(filename);
       const fileType = filename.slice(filename.lastIndexOf("."));
-      if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '') continue;
+      if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '' || filename[0] === '_' || filename[0] === '.') {
+        if ( prevOrCurrTerm === 0 ){ self.totalFilesPrev--;} else{ self.totalFilesCurr--;}
+        continue;
+      }
 
-      if (filename[0] === '_' || filename[0] === '.') continue;
-      console.log(filename);
+      // console.log(filename);
       // filename = filename
       // let blobFile = new File([val], filename);
       // TODO ALERT: self.task was assigned here
@@ -167,13 +192,11 @@ export class UploadComponent implements OnInit {
       const taskVal = self.storage.upload(filePath, ent);
       const fileRef = self.storage.ref(filePath);
       const _percentage$ = taskVal.percentageChanges();
-      self.allPercentage.push(_percentage$);
+      allPercentage.push(_percentage$);
       // console.log(self.allPercentage);
       taskVal.snapshotChanges().pipe(
         finalize(()=>{
           fileRef.getDownloadURL().toPromise().then((url)=>{
-            self.counter = self.counter + 1;
-            self.percentage = self.counter / self.totalFiles*100;
             if (fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png') {
               let imageObj = {
                 correct_answers: [],
@@ -182,58 +205,97 @@ export class UploadComponent implements OnInit {
                 downloadURL: url,
               };
               var x = self.db.collection('images').add(imageObj);
-              console.log(x + "" + typeof x);
+              promiseArr.push(x);
+              // console.log(x + "" + typeof x);
               x.then((ref) =>{
+                if ( prevOrCurrTerm === 0 ){
+                  self.numFilePrev++;
+                  console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
+                } else{ self.numFileCurr++; console.log("currRa "+ self.numFileCurr + " total: " + self.totalFilesCurr);}
                 const termObjUpdate = {};
                 const imageId = ref.id;
                 const imageName = filename.slice(0,filename.lastIndexOf('.'));
-                console.log(imageName);
-                termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
-                self.db.collection('terms').doc(termId).update(termObjUpdate);
                 const filePrefix = filename[filename.lastIndexOf('_')+1];
+                // console.log(imageName);
+                if (prevOrCurrTerm === 0 && filePrefix !== 'C') {
+                  termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
+                }
+                self.db.collection('terms').doc(termId).update(termObjUpdate);
+
                 if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
                   console.log(imageName, imageId);
                   self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
+                  // console.log("find me ra");
+                  // console.log(self.generalInfo.prevTermAllImages);
                 } else if( prevOrCurrTerm === 1 && filePrefix !== 'C') {
                   self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
-                  console.log(imageName, imageId);
+                  // console.log(imageName, imageId);
                 }
               });
 
-              promiseArr.push(x);
             } else if(fileType === '.csv'){
               termObj.update({
                 class_data: firebase.firestore.FieldValue.arrayUnion(filename)
+              }).then(()=>{
+                if ( prevOrCurrTerm === 0 ){
+                  self.numFilePrev++;
+                  console.log("prevRa " + self.numFilePrev+" total: " + self.totalFilesPrev);
+                } else{
+                  self.numFileCurr++;
+                  console.log("currRa "+ self.numFileCurr+" total: " + self.totalFilesCurr);
+                }
               });
+            } else{
+              if ( prevOrCurrTerm === 0 ){
+                self.numFilePrev++;
+                console.log("prevRa " + self.numFilePrev+" total: " + self.totalFilesPrev);
+              } else{
+                self.numFileCurr++;
+                console.log("currRa "+ self.numFileCurr+" total: " + self.totalFilesCurr);
+              }
             }
           });
         })
       ).subscribe();
     } // end of for loop looping through files
+    if (prevOrCurrTerm === 0 ){
+      this.allPercentageObservablePrevious = combineLatest(allPercentage)
+        .pipe(
+          map((percentages) => {
+            let result = 0;
+            for (const percentage of percentages) {
+              result = result + percentage;
+            }
+            return result / percentages.length;
+          }),
+          tap(console.log)
+        );
+    } else {
+      this.allPercentageObservableCurrent = combineLatest(allPercentage)
+        .pipe(
+          map((percentages) => {
+            let result = 0;
+            for (const percentage of percentages) {
+              result = result + percentage;
+            }
+            return result / percentages.length;
+          }),
+          tap(console.log)
+        );
+    }
 
-    this.allPercentageObservable = combineLatest(this.allPercentage)
-      .pipe(
-        map((percentages) => {
-          let result = 0;
-          for (const percentage of percentages) {
-            result = result + percentage;
-          }
-          return result / percentages.length;
-        }),
-        tap(console.log)
-      );
-
-    forkJoin(this.allPercentage).subscribe( value => {
+    forkJoin(allPercentage).subscribe( value => {
       self.startSpinning = true;
-      Promise.all(promiseArr).then( (val)=>{
-        console.log("pushed all of one terms object to the database" + val);
-        self.numTermsPushed++;
-        if( self.numTermsPushed === 2 || (self.numTermsPushed === 1 && self.usePreexistTerm )) {
-          console.log("both terms pushed");
-          self.finishedUpload = true;
-          self.stopSpinning = true;
-        }
-      });
+      // Promise.all(promiseArr).then( (val)=>{
+      //   console.log(promiseArr.length);
+      //   console.log("pushed all of one terms object to the database" + val);
+      //   self.numTermsPushed++;
+      //   if( self.numTermsPushed === 2 || (self.numTermsPushed === 1 && self.usePreexistTerm )) {
+      //     console.log("both terms pushed");
+      //     self.finishedUpload = true;
+      //     self.stopSpinning = true;
+      //   }
+      // });
     });
   } // end of method
 
@@ -257,20 +319,23 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
       });
     } else {
-      this.uploadTermZip(this.prevTermZip, 0);
+      this.uploadTermZip(this.prevTermZip, 0).then(()=>{
+        console.log(this.generalInfo.prevTerm);
+      });
     }
 
     if ( this.currTermZip === null ) {
       this.generalInfo.currTermLoadedFromDatabase = true;
     } else {
-      this.uploadTermZip(this.currTermZip, 1);
+      this.uploadTermZip(this.currTermZip, 1).then(()=>{
+        console.log(this.generalInfo.currTerm);
+      });
     }
 
     console.log(this.generalInfo.prevTerm);
     console.log(this.generalInfo.currTerm);
 
     this.alreadyUpload = true;
-    console.log("this is the previous message");
     return;
 
   }

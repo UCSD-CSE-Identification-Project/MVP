@@ -50,6 +50,7 @@ export class MatchTerminalComponent implements OnInit {
       console.log(key);
       allPromises.push(this.generalInfo.makeSingleRequest(""+key));
     }
+    console.log(allPromises);
     // Promise.all(allPromises).then(value=>{
     forkJoin(allPromises).subscribe(value=>{
       console.log(value + " finished all values");
