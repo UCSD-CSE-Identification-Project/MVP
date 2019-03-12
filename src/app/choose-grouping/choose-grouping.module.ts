@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChooseGroupingRoutingModule } from './choose-grouping-routing.module';
 import { ChooseGroupsComponent } from './choose-groups/choose-groups.component';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [ChooseGroupsComponent],
@@ -12,6 +13,7 @@ import { ChooseGroupsComponent } from './choose-groups/choose-groups.component';
     ChooseGroupingRoutingModule,
     FormsModule,
     ReactiveFormsModule,
+    MatButtonModule
   ],
   exports:[]
 })

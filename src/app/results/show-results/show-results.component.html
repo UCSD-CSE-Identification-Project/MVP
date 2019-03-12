@@ -1,11 +1,19 @@
 <div>
   <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Logout</button>
-  <h1>Results: Percentage of Failure for Each Student</h1>
-  <p>Number of students to display:</p>
+  <div class="title">
+    <h2 style="color: white">Results: Percentage of Failure for Each Student</h2>
+  </div>
+  <br>
+  <br>
+  <br>
+  <br>
+  <h4>Number of students to display:</h4>
+
 
   <input type="number" min="0" [(ngModel)]="numStudents">
-  <input type="submit" (click)="outputRows()">
-  
+  <br>
+  <button mat-raised-button type="submit" (click)="outputRows()">Submit</button>
+
 </div>
 
 <!--<div>
@@ -25,7 +33,7 @@
 
 <div *ngIf="this.hasCsv">
 
-  <button (click)="exportToCSV('Student Struggle Prob')">Export to CSV File</button>
+  <button mat-raised-button class="exportButton" (click)="exportToCSV('Student Struggle Prob')">Export to CSV File</button>
 
 </div>
 
@@ -35,20 +43,20 @@
 
   <table class="center">
     <thead>
-    <tr>
-      <th>#</th>
-      <th>Student</th>
-      <th>Fail Probability</th>
-    </tr>
+      <tr>
+        <th>#</th>
+        <th>Student</th>
+        <th>Fail Probability</th>
+      </tr>
     </thead>
     <tbody>
-    <tr *ngFor="let csvData of csvRecords;let i = index;">
+      <tr *ngFor="let csvData of csvRecords;let i = index;">
 
-      <td>{{i+1}}</td>
-      <td>{{csvData.studentName}}</td>
-      <td>{{csvData.failProbability}}</td>
+        <td>{{i+1}}</td>
+        <td>{{csvData.studentName}}</td>
+        <td>{{csvData.failProbability}}</td>
 
-    </tr>
+      </tr>
     </tbody>
   </table>
 

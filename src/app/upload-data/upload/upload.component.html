@@ -1,58 +1,79 @@
+<div class="title">
+  <h2 style="color: white">Upload clicker questions & images for previous and current terms</h2>
+</div>
+
 <div>
-  <h1>Upload clicker questions, images for past term and current term</h1>
-  <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Logout</button>
+  <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
 </div>
 
 <div class="container">
   <div class="previous">
-    <h2>Previous Term</h2>
-    <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexist term?</mat-checkbox>
-    <div *ngIf="!usePreexistTerm">
-      Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018">
-      <!--Input term name: <input id="prevTermName" name="prevTermName" class="form-control" required minlength="1" #name="ngModel" [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
-      <div *ngIf="prevTermName.invalid && (prevTermName.dirty || prevTermName.touched)"
-           class="alert alert-danger">
-      </div>-->
-    </div>
+    <mat-card class="termCard">
+      <h2>Previous Term</h2>
+      <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexisting term</mat-checkbox>
+      <div *ngIf="!usePreexistTerm">
+        <h5>Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
+        <!--Input term name: <input id="prevTermName" name="prevTermName" class="form-control" required minlength="1" #name="ngModel" [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
+        <div *ngIf="prevTermName.invalid && (prevTermName.dirty || prevTermName.touched)"
+             class="alert alert-danger">
+        </div>-->
+      </div>
 
-    <div *ngIf="usePreexistTerm">
-      <h4 style="display: inline-block;">Select a term you want to use:</h4>
-      <form style="display: inline-block;">
-        <select name="weeks" [(ngModel)]="prevTerm" >
-          <option *ngFor="let optionTerm of prevTermsCreated" value="{{optionTerm}}">{{optionTerm}}</option>
-        </select>
-      </form>
-    </div>
+      <div *ngIf="usePreexistTerm">
+        <h5 style="display: inline-block;">Select a term you want to use: </h5>
+        <br>
+        <form style="display: inline-block;">
+          <select name="weeks" [(ngModel)]="prevTerm" >
+            <option *ngFor="let optionTerm of prevTermsCreated" value="{{optionTerm}}">{{optionTerm}}</option>
+          </select>
+        </form>
+      </div>
 
 
-    <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
-    </div>
+      <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
+        <br>
+        <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
+      </div>
+    </mat-card>
   </div>
 
   <div class="current">
-    <h2>Current Term</h2>
-    <div>
-      Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018">
-    </div>
+    <mat-card class="termCard">
+      <h2>Current Term</h2>
+      <div>
+        <h5>Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018"></h5>
+      </div>
 
-    <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
-      <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
-    </div>
-
+      <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
+        <br>
+        <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
+      </div>
+    </mat-card>
   </div>
-  <div *ngIf="prevTerm == currTerm && prevTerm!=''">Warning: previous term name cannot be the same as current term name </div>
-  <div *ngIf="samePrevTermName">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </div>
-  <div *ngIf="sameCurrTermName">Warning: current term name cannot be a preexisting term name </div>
+
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+
+  <div *ngIf="prevTerm == currTerm && prevTerm!=''"><mat-card class="warning">Warning: previous term name cannot be the same as current term name </mat-card></div>
+  <div *ngIf="samePrevTermName"><mat-card class="warning">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </mat-card></div>
+  <div *ngIf="sameCurrTermName"><mat-card class="warning">Warning: current term name cannot be a preexisting term name </mat-card></div>
 
   <div *ngIf="( prevTermZip != null  || usePreexistTerm) && currTermZip != null">
-    <button type="button" (click)="onUpload()">Submit</button>
+    <button mat-raised-button (click)="onUpload()">Submit</button>
   </div>
+
   <br />
   <br />
+  Prev Term
   <progress-bar class='progress' [progress]=' allPercentageObservablePrevious | async' [color]="'#488aff'"></progress-bar>
+  <br>
+  Curr Term
   <progress-bar class='progress' [progress]=' allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
-  <p> Amount of Progress uploading images to Online Storage</p>
+  <h5>Percentage of Progress Uploading Images to Online Storage</h5>
+
   <br />
   <br />
   <div>
@@ -63,7 +84,7 @@
     </div>
     <div *ngIf="(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
-        <button routerLink="/navigator/upload">NEXT</button>
+        <button mat-raised-button class="nextButton" routerLink="/navigator/upload">Next</button>
       </nav>
     </div>
   </div>

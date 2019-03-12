@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material';
 import { Notice } from './process/process.component';
+import {MatButtonModule} from '@angular/material/button';
+import {MatSelectModule} from '@angular/material/select';
 
 import { ProcessDataRoutingModule } from './process-data-routing.module';
 import { ProcessComponent } from './process/process.component';
@@ -13,7 +15,9 @@ import { ProcessComponent } from './process/process.component';
     CommonModule,
     MatProgressSpinnerModule,
     ProcessDataRoutingModule,
-    MatDialogModule
+    MatDialogModule,
+    MatButtonModule,
+    MatSelectModule
   ],
   entryComponents: [
     Notice

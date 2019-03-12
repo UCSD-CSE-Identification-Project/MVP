@@ -1,6 +1,15 @@
 <div>
-  <h2>Next: {{stage[nextStage]}}</h2>
-  <h3>{{summary[nextStage]}}</h3>
+  <div class="title">
+    <h2>Next: {{stage[nextStage]}}</h2>
+    <h3>{{summary[nextStage]}}</h3>
+  </div>
+
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
 
   <div class="container">
     <ul class="progressbar">
@@ -15,7 +24,7 @@
 
   <div style="float: right;">
     <nav>
-      <button routerLink={{url}}>CONTINUE</button>
+      <button mat-raised-button routerLink={{url}}>CONTINUE</button>
     </nav>
   </div>
 </div>

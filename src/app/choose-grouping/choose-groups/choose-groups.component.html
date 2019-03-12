@@ -1,18 +1,25 @@
-<div class="container">
-  <h2> Classify Questions</h2>
-  <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
-  <h2 *ngIf="!prevTermGrouping.needGrouping">
+<div>
+  <div class="title">
+    <h2 style="color: white">Classify Questions</h2>
+    <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
+  </div>
+
+  <br>
+  <br>
+  <br>
+
+  <h2 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
     You have finished previous term grouping.
   </h2>
   <div *ngIf="prevTermGrouping.needGrouping">
     <div class="row">
-      <h3>Previous Term</h3>
+      <h2>Previous Term</h2>
       <div class="col-lg-4" *ngIf="boxOne.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxOne.imgIndex+1}}</h2>
-        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxOneRelation.boxVal">
-            <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
             <div *ngFor="let data of relationToPreImg">
                   <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOneRelation.disabledRadioButton || null"
                   (click)="updateChecked(11)"> {{data.opt}}<br>
@@ -20,7 +27,7 @@
         </form>
         <br>
         <form [formGroup]="boxOne.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
                    (click)="updateChecked(10)"> {{data.opt}}<br>
@@ -30,10 +37,10 @@
 
       <div class="col-lg-4" *ngIf="boxTwo.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxTwo.imgIndex+1}}</h2>
-        <img src="{{(boxTwo.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxTwo.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxTwoRelation.boxVal">
-            <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
             <div *ngFor="let data of relationToPreImg">
                   <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxTwoRelation.disabledRadioButton || null"
                   (click)="updateChecked(21)"> {{data.opt}}<br>
@@ -41,7 +48,7 @@
         </form>
         <br>
         <form [formGroup]="boxTwo.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxTwo.disabledRadioButton || null"
                    (click)="updateChecked(20)"> {{data.opt}}<br>
@@ -51,17 +58,17 @@
 
       <div class="col-lg-4" *ngIf="boxThree.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxThree.imgIndex+1}}</h2>
-        <img src="{{(boxThree.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxThree.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
          <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxThreeRelation.boxVal">
-            <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
             <div *ngFor="let data of relationToPreImg">
                   <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(31)"> {{data.opt}}<br>
             </div>
         </form>
         <br>
         <form [formGroup]="boxThree.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(30)"> {{data.opt}}<br>
           </div>
@@ -70,18 +77,18 @@
 
     </div>
   </div>
-  <h2 *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+  <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
     You have finished current term grouping.
   </h2>
   <div *ngIf="currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
     <div class="row">
-      <h3>Current Term</h3>
+      <h2>Current Term</h2>
       <div class="col-lg-4" *ngIf="boxOne.imgIndex<currTermGrouping.numImages">
         <h2> Question {{boxOne.imgIndex+1}}</h2>
-        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxOneRelation.boxVal">
-          <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
           <div *ngFor="let data of relationToPreImg">
                 <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOneRelation.disabledRadioButton || null"
                 (click)="updateChecked(11)"> {{data.opt}}<br>
@@ -89,7 +96,7 @@
       </form>
       <br>
         <form [formGroup]="boxOne.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
                    (click)="updateChecked(10)"> {{data.opt}}<br>
@@ -99,10 +106,10 @@
 
       <div class="col-lg-4" *ngIf="boxTwo.imgIndex<currTermGrouping.numImages">
         <h2> Question {{boxTwo.imgIndex+1}}</h2>
-        <img src="{{(boxTwo.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxTwo.imageSourceURL| async)?.data().downloadURL}}" width="100%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxTwoRelation.boxVal">
-          <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
           <div *ngFor="let data of relationToPreImg">
                 <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxTwoRelation.disabledRadioButton || null"
                 (click)="updateChecked(21)"> {{data.opt}}<br>
@@ -110,7 +117,7 @@
       </form>
       <br>
         <form [formGroup]="boxTwo.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxTwo.disabledRadioButton || null"
                    (click)="updateChecked(20)"> {{data.opt}}<br>
@@ -120,17 +127,17 @@
 
       <div class="col-lg-4" *ngIf="boxThree.imgIndex<currTermGrouping.numImages">
         <h2> Question {{boxThree.imgIndex+1}}</h2>
-        <img src="{{(boxThree.imageSourceURL| async)?.data().downloadURL}}" width="300px" />
+        <img src="{{(boxThree.imageSourceURL| async)?.data().downloadURL}}" width="100%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxThreeRelation.boxVal">
-          <div>Relation to the Previous Question</div>
+          <div><h4>Relation to the Previous Question</h4></div>
           <div *ngFor="let data of relationToPreImg">
                 <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(31)"> {{data.opt}}<br>
           </div>
       </form>
       <br>
         <form [formGroup]="boxThree.boxVal">
-          <div>Classification of this Question</div>
+          <div><h4>Classification of this Question</h4></div>
           <div *ngFor="let data of boxValues">
             <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(30)"> {{data.opt}}<br>
           </div>
@@ -146,19 +153,19 @@
 
 <div style="text-align: right">
   <div style="display:inline-block">
-    <button *ngIf="!prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
-    <button *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
+    <button mat-raised-button class="activeButton" *ngIf="!prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
+    <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
   </div>
   &nbsp;
   <div style="display:inline-block">
-    <button *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
+    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
   </div>
 
 </div>
 
 
 
-<div>
+<!--<div>
   boxOne: {{this.boxOne.radioClicked }} <br>
   boxOneRelation: {{this.boxOneRelation.radioClicked}} <br>
   boxTwo: {{this.boxTwo.radioClicked }}  <br>
@@ -175,6 +182,6 @@
   boxOneValue: {{boxOne.imgIndex}} <br />
   boxTwoValue: {{boxTwo.imgIndex}} <br />
   boxThreeValue: {{ boxThree.imgIndex}} <br />
-</div>
+</div>-->
 
 

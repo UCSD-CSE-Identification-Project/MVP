@@ -5,6 +5,8 @@ import { MatDialogModule } from '@angular/material';
 import { UserAuthRoutingModule } from './user-auth-routing.module';
 import { AuthComponent } from './auth/auth.component';
 import { Dialog } from './auth/auth.component';
+import {MatCardModule} from '@angular/material/card';
+import {MatButtonModule} from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -15,7 +17,9 @@ import { Dialog } from './auth/auth.component';
     CommonModule,
     FormsModule,
     MatDialogModule,
-    UserAuthRoutingModule
+    UserAuthRoutingModule,
+    MatCardModule,
+    MatButtonModule
   ],
   entryComponents: [
     Dialog
