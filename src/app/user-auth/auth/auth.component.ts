@@ -184,6 +184,8 @@ export class AuthComponent implements OnInit {
 export class Dialog {
 
   constructor(
-    public dialogRef: MatDialogRef<Dialog>) { }
+    public dialogRef: MatDialogRef<Dialog>) {
+      dialogRef.disableClose = true;
+    }
 
 }

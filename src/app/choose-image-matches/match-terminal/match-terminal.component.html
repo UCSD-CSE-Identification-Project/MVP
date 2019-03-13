@@ -98,7 +98,7 @@
 </div>
 
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">
-  <button *ngIf="logoutEnabled" style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
+  <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
   <h3>Display: Term 2 Matches</h3>
     <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
     <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">

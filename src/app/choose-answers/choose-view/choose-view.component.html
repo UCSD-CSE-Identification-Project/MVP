@@ -24,6 +24,7 @@
             <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
           </div>
         </form>
+        <button mat-raised-button class="activeButton" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
       </div>
 
     </div>
@@ -47,13 +48,15 @@
             <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
           </div>
         </form>
+        <button mat-raised-button class="activeButton" *ngIf="prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
       </div>
     </div>
 
-    <div>
+    <div style="text-align: center;">
+      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
     </div>
 
-    <div>
+    <!--<div>
       <div style="display:inline-block; padding-right: 10px">
         <button mat-raised-button class="activeButton" *ngIf="!prevTermAnswerObj.termFinishedAnswering" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
         <button mat-raised-button class="activeButton" *ngIf= "prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
@@ -61,7 +64,7 @@
       <div style="display:inline-block">
         <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
       </div>
-    </div>
+    </div>-->
 </div>
 
 <!--<div>

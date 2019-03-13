@@ -54,6 +54,14 @@ button {
   cursor: pointer;
 }
 
+.logoutButton {
+  background-color: #F4F4F4;
+  color: black;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
 .exportButton {
   background-color: #F4F4F4;
   color: black;

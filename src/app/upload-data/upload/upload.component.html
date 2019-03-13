@@ -67,22 +67,22 @@
 
   <br />
   <br />
-  Prev Term
-  <progress-bar class='progress' [progress]=' allPercentageObservablePrevious | async' [color]="'#488aff'"></progress-bar>
+  Previous Term
+  <progress-bar class='progress' [progress]='usePreexistTerm ? 100 : allPercentageObservablePrevious | async' [color]="'#488aff'"></progress-bar>
   <br>
-  Curr Term
-  <progress-bar class='progress' [progress]=' allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
+  Current Term
+  <progress-bar class='progress' [progress]='allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
   <h5>Percentage of Progress Uploading Images to Online Storage</h5>
 
   <br />
   <br />
   <div>
     <div class="center">
-      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)">
+      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)">
       </mat-spinner>
-      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
+      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
     </div>
-    <div *ngIf="(numFilePrev===totalFilesPrev && numFileCurr===totalFilesCurr)" style="float: right;">
+    <div *ngIf="(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
         <button mat-raised-button class="nextButton" routerLink="/navigator/upload">Next</button>
       </nav>

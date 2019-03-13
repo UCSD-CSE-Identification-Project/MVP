@@ -103,7 +103,7 @@ export class ChooseGroupsComponent implements OnInit {
     this.prevTermGrouping.needGrouping = !data.usePrev && !this.generalInfo.prevTermFinished;
 
     // Comment this out before we merge
-    this.prevTermGrouping.termFinishedAnswering = this.generalInfo.prevTermFinished;
+    this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
 
     this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
