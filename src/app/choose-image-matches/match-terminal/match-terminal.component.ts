@@ -48,15 +48,10 @@ export class MatchTerminalComponent implements OnInit {
       console.log(this.generalInfo.currTermIdVal);
       console.log(val["matches"]);
       if ( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ) {
-        if( Object.keys(val["matches"][this.generalInfo.currTermIdVal])[0] === 'notFound' ){
-          console.log("no matches found for current object");
-          this.noMatchesFoundForCurrentImage();
-        } else {
-          this.matchesFinished = true;
-          this.matchBar = this.createMatchBarObject(this.imageInd);
-          this.completeMatchBarObject();
-          this.ref.detectChanges();
-        }
+        this.matchesFinished = true;
+        this.matchBar = this.createMatchBarObject(this.imageInd);
+        this.completeMatchBarObject();
+        this.ref.detectChanges();
       }
     });
   }
@@ -97,47 +92,8 @@ export class MatchTerminalComponent implements OnInit {
     return obj;
   }
 
-  noMatchesFoundForCurrentImage(){
-    this.curPic.unsubscribe();
-    this.termMatching.imageIndex++;
-    console.log(this.termMatching.imageIndex);
-    if ( this.termMatching.imageIndex >= this.termMatching.numImages ){
-      this.curPic.unsubscribe();
-      this.matchesFinished = true;
-      this.imagesFinished = true;
-      this.termMatching.termFinishedMatching = true;
-      return;
-    }
-    this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val)=>{
-      console.log(val);
-      var mat = Object.keys(val["matches"]);
-      var lenMatch = mat.length;
-      var containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
-      console.log(Object.keys(val["matches"]).length);
-      if(lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length === 1 ){
-        if(Object.keys(val["matches"][this.generalInfo.currTermIdVal])[0] === 'notFound' ) {
-          console.log("no matches found for current object");
-          this.noMatchesFoundForCurrentImage();
-        }
-        else{
-          this.matchesFinished = true;
-          this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-          this.completeMatchBarObject();
-          this.ref.detectChanges();
-        }
-      }
-      else if( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ){
-        this.matchesFinished = true;
-        this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-        this.completeMatchBarObject();
-        this.ref.detectChanges();
-      }
-    });
-  }
-
   // imageKey here refers what the id of that image is
   getKeyImageURL(imageKey: string){
-    // console.log(imageKey);
     return this.db.collection('images').doc(this.termMatching.imageNames[imageKey]).ref.get();
   }
 
@@ -145,13 +101,8 @@ export class MatchTerminalComponent implements OnInit {
     let matches;
     let sortable = [];
     var self = this;
-    // let retVal = [];
-    // console.log(imageKey);
-    // console.log(this.termMatching.imageNames);
-    // console.log(this.termMatching.imageNames[imageKey]);
     await this.db.collection('images').doc(this.termMatching.imageNames[imageKey]).ref.get().then((doc)=>{
       if (doc.exists){
-        // console.log(doc.data().matches[self.generalInfo.currTermIdVal]);
         matches = doc.data().matches[self.generalInfo.currTermIdVal]; // todo pull the term match and not entire object
         for (var imgId in matches ) {
           sortable.push([imgId, matches[imgId]]);
@@ -165,8 +116,6 @@ export class MatchTerminalComponent implements OnInit {
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
     }
-    // console.log(this.matchBar.matchIds);
-    // return retVal;
   }
 
   populateImageURLMatches(){
@@ -184,6 +133,11 @@ export class MatchTerminalComponent implements OnInit {
   }
 
   async updateImageWithMatch(imageId: string, matchId: string, matchTermId: string) {
+
+    if ( matchId === 'notFound' ) {
+      return;
+    }
+
     var imageObj = {};
     imageObj[`actual_matches.${matchTermId}`] = matchId;
     this.db.collection('images').doc(imageId).update(imageObj);
@@ -203,12 +157,13 @@ export class MatchTerminalComponent implements OnInit {
     console.log("matchBar Image index" + this.matchBar.keyImgIndex);
     console.log("difference:" + (this.termMatching.numImages - this.matchBar.keyImgIndex));
     if ( (this.termMatching.numImages - this.matchBar.keyImgIndex) <= 1 ) {
+      this.matchesFinished = true;
       this.imagesFinished = true;
       this.termMatching.termFinishedMatching = true;
       return;
     }
     this.termMatching.imageIndex++;
-    this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val)=>{
+    this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
       console.log(val);
       console.log(Object.keys(val["matches"]).length);
 
@@ -216,19 +171,7 @@ export class MatchTerminalComponent implements OnInit {
       var lenMatch = mat.length;
       var containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
 
-      if(lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length === 1 ){
-        if(Object.keys(val["matches"][this.generalInfo.currTermIdVal])[0] === 'notFound' ){
-          console.log("no matches found for current object");
-          this.noMatchesFoundForCurrentImage();
-        }
-        else{
-          this.matchesFinished = true;
-          this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-          this.completeMatchBarObject();
-          this.ref.detectChanges();
-        }
-      }
-      else if(lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ){
+      if(lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ){
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
         this.completeMatchBarObject();
@@ -262,5 +205,4 @@ export class MatchTerminalComponent implements OnInit {
   }
 
 }
-// {"logoutUrl":"/choose-image-matches","prevTermInfo":{"termId":"Wo8RKXtwA3odEMoTpJjO","allTermImages":{"L1804050925_Q02":"O7APZtAreABc8dddXJK1","L1804050925_Q04":"DAX3zhHBtoJ8A2qkfXki","L1710031354_Q04":"hcdxDAbfwNuzaFsAhxHg","L1710031354_Q02":"0WSSHXCzH8qoT06d9hlC","L1804050925_Q03":"952MyI7OEXIKLgazNt3G","L1804050925_Q01":"DqkT4nv1sqCzKJdi0x9A","L1710031354_Q01":"2nUlErDDUCUg04a6FIOE","L1710031354_Q03":"wc0vGOx24SRx5DONN598"},"individualImages":{"L1710031354_Q01":"2nUlErDDUCUg04a6FIOE","L1804050925_Q04":"DAX3zhHBtoJ8A2qkfXki"},"groupImages":{"L1710031354_Q02":"0WSSHXCzH8qoT06d9hlC","L1710031354_Q03":"wc0vGOx24SRx5DONN598","L1710031354_Q04":"hcdxDAbfwNuzaFsAhxHg","L1804050925_Q01":"DqkT4nv1sqCzKJdi0x9A","L1804050925_Q02":"O7APZtAreABc8dddXJK1","L1804050925_Q03":"952MyI7OEXIKLgazNt3G"},"isoImages":{},"loadedFromDatabase":false,"keyImages":{"2nUlErDDUCUg04a6FIOE":{"0WSSHXCzH8qoT06d9hlC":"Group","wc0vGOx24SRx5DONN598":"Group","hcdxDAbfwNuzaFsAhxHg":"Group","DqkT4nv1sqCzKJdi0x9A":"Group","O7APZtAreABc8dddXJK1":"Group","952MyI7OEXIKLgazNt3G":"Group","DAX3zhHBtoJ8A2qkfXki":"Individual"}},"finished":false},"currTermInfo":"uLSlm2XOeG4mDXufrBLn","imageIndex":0}
 
