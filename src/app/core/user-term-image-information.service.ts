@@ -11,24 +11,12 @@ import {catchError, timeout} from 'rxjs/internal/operators';
 export class UserTermImageInformationService {
 
   private userId: string;
-  /*
-  private prevTermId: string;
-  private currTermId: string;
-  private prev_all_image_list: any;
-  private prev_individual_image_list: any;
-  */
   private prevTermGeneralInfo;
   private currTermGeneralInfo;
 
   constructor(private authService: AuthService, private http: HttpClient) {
     this.userIdVal = this.authService.getUser();
     console.log(this.userId);
-    /*
-    this.prevTermIdVal = '';
-    this.currTermIdVal = '';
-    this.prevTermAllImages = {};
-    this.prevTermIndividualImages = {};
-    */
     this.prevTermGeneralInfo = this.constructTermObj();
     this.currTermGeneralInfo = this.constructTermObj();
   }
@@ -270,28 +258,32 @@ export class UserTermImageInformationService {
         responseType:'text'});*/
   }
 
-  makeSingleRequest(imageIdVal: string){
-    console.log(imageIdVal);
+  makeSingleRequest(){
     console.log(this.currTermIdVal);
     let headers = new HttpHeaders();
     headers.append('Content-Type', 'application/json');
     let params = new HttpParams();
 
     // Begin assigning parameters
-    params = params.append('prevTermImageId', imageIdVal);
+    params = params.append('prevTerm', this.prevTermIdVal);
     params = params.append('currTerm', this.currTermIdVal);
-    /*return this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch",{'prevTermImageId': imageIdVal, 'currTerm': this.currTermIdVal},
-      {headers: new HttpHeaders({'Content-Type':'application/json'}),
-        responseType:'text'});*/
 
-    return this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch", { headers: headers, params: params });
-
+    // params = params.append('prevTerm', "EkwO3ly8Kl86qk88e1yq");
+    // params = params.append('currTerm', "uLSlm2XOeG4mDXufrBLn");
+    let x = this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/twoTerms", { headers: headers, params: params });
+    x.toPromise().then(()=>{
+      console.log("value returned");
+    });
+    // console.log(x);
     // return x;
 
     // 10 seconds = 10,000 ms
     // return this.http.post("/singleImagesPost",{'prevTermImageId': imageIdVal, 'currTerm': "1QW5NOAT1U3RkHt9kF5F"},
     //   {headers: new HttpHeaders({'Content-Type':'application/json'}),
     //     responseType:'text'});
+    /*return this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/singleImageMatch",{'prevTermImageId': imageIdVal, 'currTerm': this.currTermIdVal},
+      {headers: new HttpHeaders({'Content-Type':'application/json'}),
+        responseType:'text'});*/
   }
 
 

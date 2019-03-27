@@ -24,9 +24,14 @@ export class UploadComponent implements OnInit {
 
   files: File[][] = [[], []];
   percentage = 0;
+  uploadPercentage: Observable<number>;
+  snapshot: Observable<any>;
+  numBytesTransferLocal = 0;
+  numBytesTransferTotal = 0;
+  numByteTotal = 0;
+  fileNames: string[] = [];
   counter = 0;
   totalFiles = 0;
-  fileNames: string[] = [];
   path: string = '';
   alreadyUpload: boolean;
 
@@ -43,11 +48,6 @@ export class UploadComponent implements OnInit {
   finishedUpload: boolean = false;
   allPastTermArray: any = null;
 
-  uploadPercentage: Observable<number>;
-  snapshot: Observable<any>;
-  numBytesTransferLocal = 0;
-  numBytesTransferTotal = 0;
-  numByteTotal = 0;
   totalFilesPrev;
   totalFilesCurr;
   numFilePrev = 0;
@@ -61,6 +61,7 @@ export class UploadComponent implements OnInit {
   numTermsPushed: number;
   startSpinning: boolean;
   stopSpinning: boolean;
+  submitButtonClicked: boolean = false;
 
   constructor( private http: HttpClient,
               private uploadService: UploadService,
@@ -217,7 +218,7 @@ export class UploadComponent implements OnInit {
                 const imageName = filename.slice(0,filename.lastIndexOf('.'));
                 const filePrefix = filename[filename.lastIndexOf('_')+1];
                 // console.log(imageName);
-                if (prevOrCurrTerm === 0 && filePrefix !== 'C') {
+                if (filePrefix !== 'C') {
                   termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
                 }
                 self.db.collection('terms').doc(termId).update(termObjUpdate);

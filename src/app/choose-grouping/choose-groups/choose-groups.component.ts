@@ -229,6 +229,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
       });
+      this.generalInfo.makeSingleRequest();
       this.imagesFinished = true;
       console.log(this.generalInfo.prevTerm);
       console.log(this.generalInfo.currTerm);

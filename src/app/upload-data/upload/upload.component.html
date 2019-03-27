@@ -46,7 +46,7 @@
   <div *ngIf="sameCurrTermName">Warning: current term name cannot be a preexisting term name </div>
 
   <div *ngIf="( prevTermZip != null  || usePreexistTerm) && currTermZip != null">
-    <button type="button" (click)="onUpload()">Submit</button>
+    <button type="button" [disabled]="submitButtonClicked"  (click)="onUpload(); submitButtonClicked=true;">Submit</button>
   </div>
   <br />
   <br />
