@@ -131,6 +131,8 @@ export class ProcessComponent implements OnInit {
 export class Notice {
 
   constructor(
-    public dialogRef: MatDialogRef<Notice>) { }
+    public dialogRef: MatDialogRef<Notice>) {
+      dialogRef.disableClose = true;
+    }
 
 }

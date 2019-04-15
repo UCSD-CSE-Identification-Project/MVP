@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-show-results',
@@ -19,7 +20,8 @@ export class ShowResultsComponent implements OnInit {
   hasCsv: boolean = false;
 
   constructor(private storage: AngularFireStorage,
-              private generalInfo: UserTermImageInformationService) { }
+              private generalInfo: UserTermImageInformationService,
+              private authService: AuthService) { }
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
@@ -161,6 +163,32 @@ export class ShowResultsComponent implements OnInit {
 
     // Click download link
     downloadLink.click();
+  }
+
+  logout() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/results",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    this.authService.setStorage("local", object, "termData");
+
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/results', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/results",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      imageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+    return false;
   }
 }
 

@@ -28,8 +28,6 @@ export class AuthComponent implements OnInit {
   ngOnInit() {
   }
 
-  // TODO: Sanity check
-
   logIn() {
     const self = this;
     let promise = this.authService.signInRegular(this.email, this.password);
@@ -81,6 +79,7 @@ export class AuthComponent implements OnInit {
             email: self.email,
             name: '',
             finishedLastRun: false,
+            useExistingPrev: false,
             lastUrl: '',
             current_terms_generalInfo: [],
             imageNum: 0,
@@ -114,9 +113,13 @@ export class AuthComponent implements OnInit {
         this.authService.clearStorage();
         docRef.update({
           finishedLastRun: false,
+          useExistingPrev: false,
           lastUrl: '',
           current_terms_generalInfo: [],
-          imageNum: 0
+          imageNum: 0,
+          boxLocked: false,
+          savedIndex: 0,
+          savedChoice: ""
         }).then(() => this.router.navigate(["/upload"]));
 
         this.generalInfo.prevTerm = this.generalInfo.constructTermObj();
@@ -129,12 +132,11 @@ export class AuthComponent implements OnInit {
   }
 
   continue(doc: firebase.firestore.DocumentSnapshot) {
-    //TODO add groupLock for second stage
     let term = localStorage.getItem("termData");
-    let url;
+    let url: string;
     // If localstorage is empty, get data from database instead, then fill sessionStorage
     if (term == null) {
-      console.log("inside firebase ref ra");
+      let usePrev = doc.data()["useExistingPrev"];
       url = doc.data()["lastUrl"];
       let terms = doc.data()["current_terms_generalInfo"];
       this.generalInfo.prevTerm = terms[0];
@@ -146,6 +148,7 @@ export class AuthComponent implements OnInit {
 
       // Store in localstorage
       let object: termData = {
+        usePrev: usePrev,
         logoutUrl: url,
         prevTermInfo: this.generalInfo.prevTerm,
         currTermInfo: this.generalInfo.currTerm,
@@ -181,6 +184,8 @@ export class AuthComponent implements OnInit {
 export class Dialog {
 
   constructor(
-    public dialogRef: MatDialogRef<Dialog>) { }
+    public dialogRef: MatDialogRef<Dialog>) {
+      dialogRef.disableClose = true;
+    }
 
 }

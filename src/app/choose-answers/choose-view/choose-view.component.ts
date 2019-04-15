@@ -36,6 +36,7 @@ export class ChooseViewComponent implements OnInit {
     obj.imageNames = imgNames;
     obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
     obj.needGrouping = !loadedFromDatabase;
+    // This does not take care of all the cases
     obj.termFinishedAnswering = loadedFromDatabase;
     obj.numImages = obj.imageKeysSorted.length;
     // console.log(typeof index);
@@ -128,7 +129,11 @@ export class ChooseViewComponent implements OnInit {
     let currTermIndIsoImages = this.getKeyAndIsoImages('curr');
     this.currTermAnswerObj = this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal, 0);
 
-    if (!this.generalInfo.prevTermLoadedFromDatabase) {
+    this.prevTermAnswerObj.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
+    this.currTermAnswerObj.needGrouping = !this.generalInfo.currTermLoadedFromDatabase && !this.generalInfo.currTermFinished;
+    this.prevTermAnswerObj.termFinishedAnswering = !this.prevTermAnswerObj.needGrouping;
+
+    if (this.prevTermAnswerObj.needGrouping) {
       this.prevTermAnswerObj.imageIndex = this.startingIndex;
       this.getImageURLsetInHTML('prev', this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
     }
@@ -148,6 +153,8 @@ export class ChooseViewComponent implements OnInit {
       this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[0]);
       //TODO Which of the 2 boolean do we use?
       this.prevTermAnswerObj.needGrouping = false;
+      // This one must have
+      this.generalInfo.prevTermFinished = true;
     } else {
       this.currTermAnswerObj.termFinishedAnswering = true;
       this.imagesFinished = true;
@@ -238,6 +245,7 @@ export class ChooseViewComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
@@ -245,7 +253,7 @@ export class ChooseViewComponent implements OnInit {
     };
     this.authService.setStorage("local", object, "termData");
 
-    this.authService.logout('/choose-answers', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/choose-answers', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -254,6 +262,7 @@ export class ChooseViewComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,

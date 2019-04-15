@@ -1,21 +1,30 @@
-<div class="container">
-<button style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
+<div>
+  <div class="title">
+    <h2 style="color: white">Choose Correct Answers</h2>
+    <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
+  </div>
+
+  <br>
+  <br>
+  <br>
+
   <div class="row">
-    <h2 *ngIf="!prevTermAnswerObj.needGrouping">
+    <h2 style="padding: 1%" *ngIf="!prevTermAnswerObj.needGrouping">
       Finished Choosing for Previous Term
     </h2>
     <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
         <h2> Choose Answer for Previous Term</h2>
-        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
+        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">
-        <h4>Correct Answer</h4>
+        <h3>Correct Answer</h3>
         <form [formGroup]="boxOnScreen.boxAnswer">
           <div *ngFor="let data of boxValues">
             <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
           </div>
         </form>
+        <button mat-raised-button class="activeButton" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
       </div>
 
     </div>
@@ -24,37 +33,43 @@
 
 
   <div class="row">
-    <h2 *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
+    <h2 style="padding: 1%" *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
       Finished Choosing for Current Term
     </h2>
     <div *ngIf="currTermAnswerObj.needGrouping  && !prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2> Choose Answer for Current Term</h2>
-        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="500px"/>
+        <h2>Choose Answer for Current Term</h2>
+        <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">
-        <h4>Correct Answer</h4>
+        <h3>Correct Answer</h3>
         <form [formGroup]="boxOnScreen.boxAnswer">
           <div *ngFor="let data of boxValues">
             <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
           </div>
         </form>
+        <button mat-raised-button class="activeButton" *ngIf="prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
       </div>
     </div>
-    <div>
+
+    <div style="text-align: center;">
+      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
     </div>
-    <div style="text-align: right">
+
+    <!--<div>
+      <div style="display:inline-block; padding-right: 10px">
+        <button mat-raised-button class="activeButton" *ngIf="!prevTermAnswerObj.termFinishedAnswering" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
+        <button mat-raised-button class="activeButton" *ngIf= "prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
+      </div>
       <div style="display:inline-block">
-        <button *ngIf="!prevTermAnswerObj.termFinishedAnswering" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
-        <button *ngIf= "prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>
-        <button *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
+        <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
       </div>
-  </div>
+    </div>-->
 </div>
 
-<div>
+<!--<div>
   imageFinishedGrouping: {{currTermAnswerObj.termFinishedAnswering}}
   boxVal: {{boxOnScreen.boxAnswer.value | json }}
-</div>
+</div>-->
 
 

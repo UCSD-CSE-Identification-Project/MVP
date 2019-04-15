@@ -100,10 +100,10 @@ export class ChooseGroupsComponent implements OnInit {
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
 
-    this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermFinished;
+    this.prevTermGrouping.needGrouping = !data.usePrev && !this.generalInfo.prevTermFinished;
 
     // Comment this out before we merge
-    this.prevTermGrouping.termFinishedAnswering = this.generalInfo.prevTermFinished;
+    this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
 
     this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
     console.log("prev term finished: " + this.generalInfo.prevTermFinished);
@@ -653,6 +653,7 @@ export class ChooseGroupsComponent implements OnInit {
   logout() {
     let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex;
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
@@ -670,7 +671,7 @@ export class ChooseGroupsComponent implements OnInit {
     console.log(this.generalInfo.currTerm);
     console.log("is the box locked " + this.boxLocked);
 
-    this.authService.logout('/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index, this.boxLocked, this.savedIndex, this.savedChoice);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index, this.boxLocked, this.savedIndex, this.savedChoice);
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -681,6 +682,7 @@ export class ChooseGroupsComponent implements OnInit {
       savedChoice: this.savedChoice
     }
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,

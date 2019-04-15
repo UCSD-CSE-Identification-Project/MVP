@@ -35,6 +35,7 @@ export class NavigatorComponent implements OnInit {
     this.generalInfo.currTermFinished = false;
     
     let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,

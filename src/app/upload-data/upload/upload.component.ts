@@ -333,7 +333,6 @@ export class UploadComponent implements OnInit {
       });
     }
 
-
     console.log(this.generalInfo.prevTerm);
     console.log(this.generalInfo.currTerm);
 
@@ -343,6 +342,6 @@ export class UploadComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout(this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase ,this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
 }

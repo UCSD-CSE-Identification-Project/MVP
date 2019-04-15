@@ -65,44 +65,51 @@
     </style>
 </head>
 
-  <div class ="col-sm-6 center" *ngIf="!matchesFinished">
-    <h2>  Generating Matches for previous -> current term </h2>
-    <mat-spinner ></mat-spinner>
-  </div>
+<div class="title">
+  <h2 style="color: white">Match Images</h2>
+  <button *ngIf="matchesFinished" mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
+</div>
 
+<br>
+<br>
+<br>
+
+<div style="padding: 2%" *ngIf="!matchesFinished">
+  <h2>Generating Current Term Matches for Previous Term</h2>
+  <mat-spinner></mat-spinner>
+</div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">
-  <h3>Search Image: Term 1 Images:</h3>
+  <h3>Previous Term Images:</h3>
+  <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
-  <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="400px"> <br />
+  <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px"> <br />
   <br />
   <!-- The image the user chooses that matches the term 1 picture -->
-  <h4>The Image You Choose: </h4>
+  <h4>Image You Chose:</h4>
   <!-- (imageInput[imageInputIndex]| async)?.data().downloadURL
   (matchBar.selectedURL | async)
   The default is the first image in the highMatches-->
-  <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="400px" id="selectedImg"><br />
+  <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="600px" id="selectedImg"><br />
   <br />
-  <button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col"> Next</button>
-  <button type="submit" *ngIf="imagesFinished" class="col" routerLink="../navigator/match"> Finished </button> <br />
-  <br />
+  <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col activeButton"> Next</button>
+  <button mat-raised-button type="submit" *ngIf="imagesFinished" class="col finishButton" routerLink="../navigator/match">Finish</button>
   <!-- <button mat-flat-button (click)="showMatchesFor(1)" color="primary" class="wid">High Matches</button><br/> -->
 </div>
 
-<div class="col-sm-6 fill-height">
-  <button style="position: absolute; top: 0; right: 0;" (click)="logout()">Save and Logout</button>
+<div class="col-sm-6 fill-height" *ngIf="matchesFinished">
+  <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
   <h3>Display: Term 2 Matches</h3>
-
     <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
     <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
       <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
         <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
           <h2>{{i}}</h2>
-          <img src="{{( url | async )?.data().downloadURL}}" width="300px" (click) = "imgClick(i)"/>
+          <img src="{{( url | async )?.data().downloadURL}}" width="500px" (click) = "imgClick(i)"/>
         </div>
       </cdk-virtual-scroll-viewport>
     </ng-container>
 
 </div>
 
-<h2>matchesFinished: {{matchesFinished}}</h2>
+<!--<h2>matchesFinished: {{matchesFinished}}</h2>-->
