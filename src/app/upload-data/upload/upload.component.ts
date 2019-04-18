@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import {combineLatest, forkJoin, Observable} from 'rxjs';
@@ -34,6 +34,8 @@ export class UploadComponent implements OnInit {
   totalFiles = 0;
   path: string = '';
   alreadyUpload: boolean;
+  prevXmlFiles: string[] = [];
+  currXmlFiles: string[] = [];
 
   usePreexistTerm: boolean = false;
   prevTerm: string = '';
@@ -246,7 +248,17 @@ export class UploadComponent implements OnInit {
                   console.log("currRa "+ self.numFileCurr+" total: " + self.totalFilesCurr);
                 }
               });
-            } else{
+            } else if (fileType === '.xml') {
+              if (prevOrCurrTerm === 0) {
+                self.numFilePrev++;
+                console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
+                this.prevXmlFiles.push(filename);
+              } else {
+                self.numFileCurr++;
+                console.log("currRa " + self.numFileCurr + " total: " + self.totalFilesCurr);
+                this.currXmlFiles.push(filename);
+              }
+            } else {
               if ( prevOrCurrTerm === 0 ){
                 self.numFilePrev++;
                 console.log("prevRa " + self.numFilePrev+" total: " + self.totalFilesPrev);
@@ -339,6 +351,37 @@ export class UploadComponent implements OnInit {
     this.alreadyUpload = true;
     return;
 
+  }
+
+  generateCsv() {
+    let headers = new HttpHeaders();
+    headers.append('Content-Type', 'application/json');
+
+    // Prev term
+    let params = new HttpParams();
+
+    // Begin assigning parameters
+    params = params.append('userId', this.generalInfo.userIdVal);
+    params = params.append('termId', this.generalInfo.prevTermIdVal);
+    params = params.append('xmlFiles', JSON.stringify(this.prevXmlFiles));
+
+    let x = this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/createNametable", { headers: headers, params: params });
+    x.toPromise().then(() => {
+      console.log("value returned");
+    });
+
+    // Curr term
+    params = new HttpParams();
+
+    // Begin assigning parameters
+    params = params.append('userId', this.generalInfo.userIdVal);
+    params = params.append('termId', this.generalInfo.currTermIdVal);
+    params = params.append('xmlFiles', JSON.stringify(this.currXmlFiles));
+
+    x = this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/createNametable", { headers: headers, params: params });
+    x.toPromise().then(() => {
+      console.log("value returned");
+    });
   }
 
   logout() {

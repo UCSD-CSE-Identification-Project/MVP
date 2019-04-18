@@ -32,7 +32,7 @@
 
       <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
         <br>
-        <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
+        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
       </div>
     </mat-card>
   </div>
@@ -46,7 +46,7 @@
 
       <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
         <br>
-        <div class="chooseFile">Select zip file: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
+        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
       </div>
     </mat-card>
   </div>
@@ -84,7 +84,7 @@
     </div>
     <div *ngIf="(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
-        <button mat-raised-button class="nextButton" routerLink="/navigator/upload">Next</button>
+        <button mat-raised-button class="nextButton" routerLink="/navigator/upload" (click)="generateCsv()">Next</button>
       </nav>
     </div>
   </div>
