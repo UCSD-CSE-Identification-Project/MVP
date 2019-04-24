@@ -10,8 +10,12 @@
 <div class="title">
   <h2 style="color: white">Process Clicker Data</h2>
 </div>
+<div *ngIf=csvSpinner style="margin-top: 100px;">
+  <h3>Generating matching results:</h3>
+  <mat-spinner style="margin:0 auto;"></mat-spinner>
+</div>
   <!--<button style="position: absolute; top: 0; right: 0; margin: 10px;" (click)="logout()">Logout</button>-->
-  <div style="margin-top: 100px;">
+  <div *ngIf=!csvSpinner style="margin-top: 100px;">
     <h3>Before processing, you can also select how many weeks of data to include:
       <h4 style="display: inline-block;">
         <form>

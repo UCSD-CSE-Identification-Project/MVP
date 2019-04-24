@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient, HttpEventType } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { AngularFireStorage, AngularFireUploadTask } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
-import {combineLatest, forkJoin, Observable} from 'rxjs';
+import { combineLatest, forkJoin, Observable } from 'rxjs';
 import { UploadService } from '../upload.service';
 import * as firebase from 'firebase';
 import { AuthService, termData } from 'src/app/core/auth.service';
-import {ZipService} from '../../unzipFolder/zip.service';
-import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
-import {finalize, map, tap} from 'rxjs/internal/operators';
+import { ZipService } from '../../unzipFolder/zip.service';
+import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
+import { finalize, map, tap } from 'rxjs/internal/operators';
 
 @Component({
   selector: 'app-upload',
@@ -34,6 +34,8 @@ export class UploadComponent implements OnInit {
   totalFiles = 0;
   path: string = '';
   alreadyUpload: boolean;
+  prevXmlFiles: string[] = [];
+  currXmlFiles: string[] = [];
 
   usePreexistTerm: boolean = false;
   prevTerm: string = '';
@@ -63,19 +65,19 @@ export class UploadComponent implements OnInit {
   stopSpinning: boolean;
   submitButtonClicked: boolean = false;
 
-  constructor( private http: HttpClient,
-              private uploadService: UploadService,
-              private storage: AngularFireStorage,
-              private db: AngularFirestore,
-              private authService: AuthService,
-              private zipService: ZipService,
-              private generalInfo: UserTermImageInformationService) {
+  constructor(private http: HttpClient,
+    private uploadService: UploadService,
+    private storage: AngularFireStorage,
+    private db: AngularFirestore,
+    private authService: AuthService,
+    private zipService: ZipService,
+    private generalInfo: UserTermImageInformationService) {
   }
 
-  populatePrevTermsList(){
+  populatePrevTermsList() {
     const self = this;
 
-    this.uploadService.getTermNames().then((prevTermList)=>{
+    this.uploadService.getTermNames().then((prevTermList) => {
       self.allPastTermArray = prevTermList;
       self.prevTermsCreated = Object.keys(prevTermList);
       console.log(self.prevTermsCreated);
@@ -102,7 +104,7 @@ export class UploadComponent implements OnInit {
 
   checkPrevTermName() {
     this.samePrevTermName = false;
-    for (var i=0; i<this.prevTermsCreated.length; i++){
+    for (var i = 0; i < this.prevTermsCreated.length; i++) {
       if (this.prevTerm === this.prevTermsCreated[i]) {
         this.samePrevTermName = true;
       }
@@ -111,7 +113,7 @@ export class UploadComponent implements OnInit {
 
   checkCurrTermName() {
     this.sameCurrTermName = false;
-    for (var i=0; i<this.prevTermsCreated.length; i++){
+    for (var i = 0; i < this.prevTermsCreated.length; i++) {
       if (this.currTerm === this.prevTermsCreated[i]) {
         this.sameCurrTermName = true;
       }
@@ -122,7 +124,7 @@ export class UploadComponent implements OnInit {
     // for ( const files of event.target.files ) {
     //   console.log(files.name);
     // }
-    if( event.target.files.length === 0 ){
+    if (event.target.files.length === 0) {
       console.log(this.prevTermZip);
       return;
     }
@@ -142,21 +144,21 @@ export class UploadComponent implements OnInit {
 
     const file = eventZipFile;
     const self = this;
-    const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise: this.currObjectPromise;
-    const allPercentage = prevOrCurrTerm === 0 ? this.allPercentagePrevious: this.allPercentageCurrent;
+    const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise : this.currObjectPromise;
+    const allPercentage = prevOrCurrTerm === 0 ? this.allPercentagePrevious : this.allPercentageCurrent;
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
       ind_images: {},
       group_images: {},
       iso_images: {},
-      key_images:{},
+      key_images: {},
       class_data: {},
       results: ''
-    }).then(function(ref) {
+    }).then(function (ref) {
       termId = ref.id;
     });
-    if ( prevOrCurrTerm === 0){
+    if (prevOrCurrTerm === 0) {
       this.generalInfo.prevTermIdVal = termId;
     } else {
       this.generalInfo.currTermIdVal = termId;
@@ -175,13 +177,13 @@ export class UploadComponent implements OnInit {
     for (const ent of eventZipFile) {
       console.log(i);
       i++;
-      let filename : string = ent.name;
+      let filename: string = ent.name;
       // console.log(filename);
-      filename = filename.slice(filename.lastIndexOf('/')+1);
+      filename = filename.slice(filename.lastIndexOf('/') + 1);
       filename = this.generalInfo.addZero(filename);
       const fileType = filename.slice(filename.lastIndexOf("."));
-      if(fileType === '/' || fileType==='.DS_Store' || fileType==='._' || fileType === '' || filename[0] === '_' || filename[0] === '.') {
-        if ( prevOrCurrTerm === 0 ){ self.totalFilesPrev--;} else{ self.totalFilesCurr--;}
+      if (fileType === '/' || fileType === '.DS_Store' || fileType === '._' || fileType === '' || filename[0] === '_' || filename[0] === '.') {
+        if (prevOrCurrTerm === 0) { self.totalFilesPrev--; } else { self.totalFilesCurr--; }
         continue;
       }
 
@@ -196,8 +198,8 @@ export class UploadComponent implements OnInit {
       allPercentage.push(_percentage$);
       // console.log(self.allPercentage);
       taskVal.snapshotChanges().pipe(
-        finalize(()=>{
-          fileRef.getDownloadURL().toPromise().then((url)=>{
+        finalize(() => {
+          fileRef.getDownloadURL().toPromise().then((url) => {
             if (fileType === '.jpg' || fileType === '.jpeg' || fileType === '.png') {
               let imageObj = {
                 correct_answers: [],
@@ -208,58 +210,68 @@ export class UploadComponent implements OnInit {
               var x = self.db.collection('images').add(imageObj);
               promiseArr.push(x);
               // console.log(x + "" + typeof x);
-              x.then((ref) =>{
-                if ( prevOrCurrTerm === 0 ){
+              x.then((ref) => {
+                if (prevOrCurrTerm === 0) {
                   self.numFilePrev++;
                   console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
-                } else{ self.numFileCurr++; console.log("currRa "+ self.numFileCurr + " total: " + self.totalFilesCurr);}
+                } else { self.numFileCurr++; console.log("currRa " + self.numFileCurr + " total: " + self.totalFilesCurr); }
                 const termObjUpdate = {};
                 const imageId = ref.id;
-                const imageName = filename.slice(0,filename.lastIndexOf('.'));
-                const filePrefix = filename[filename.lastIndexOf('_')+1];
+                const imageName = filename.slice(0, filename.lastIndexOf('.'));
+                const filePrefix = filename[filename.lastIndexOf('_') + 1];
                 // console.log(imageName);
                 if (filePrefix !== 'C') {
                   termObjUpdate[`all_images.${imageName}`] = imageId;  // todo this is where we update term object
                 }
                 self.db.collection('terms').doc(termId).update(termObjUpdate);
 
-                if (prevOrCurrTerm === 0 && filePrefix !== 'C'){
+                if (prevOrCurrTerm === 0 && filePrefix !== 'C') {
                   console.log(imageName, imageId);
                   self.generalInfo.pushImageToPrevAllImages(imageName, imageId);
                   // console.log("find me ra");
                   // console.log(self.generalInfo.prevTermAllImages);
-                } else if( prevOrCurrTerm === 1 && filePrefix !== 'C') {
+                } else if (prevOrCurrTerm === 1 && filePrefix !== 'C') {
                   self.generalInfo.pushImageToCurrAllImages(imageName, imageId);
                   // console.log(imageName, imageId);
                 }
               });
 
-            } else if(fileType === '.csv'){
+            } else if (fileType === '.csv') {
               termObj.update({
                 class_data: firebase.firestore.FieldValue.arrayUnion(filename)
-              }).then(()=>{
-                if ( prevOrCurrTerm === 0 ){
+              }).then(() => {
+                if (prevOrCurrTerm === 0) {
                   self.numFilePrev++;
-                  console.log("prevRa " + self.numFilePrev+" total: " + self.totalFilesPrev);
-                } else{
+                  console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
+                } else {
                   self.numFileCurr++;
-                  console.log("currRa "+ self.numFileCurr+" total: " + self.totalFilesCurr);
+                  console.log("currRa " + self.numFileCurr + " total: " + self.totalFilesCurr);
                 }
               });
-            } else{
-              if ( prevOrCurrTerm === 0 ){
+            } else if (fileType === '.xml') {
+              if (prevOrCurrTerm === 0) {
                 self.numFilePrev++;
-                console.log("prevRa " + self.numFilePrev+" total: " + self.totalFilesPrev);
-              } else{
+                console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
+                this.prevXmlFiles.push(filename);
+              } else {
                 self.numFileCurr++;
-                console.log("currRa "+ self.numFileCurr+" total: " + self.totalFilesCurr);
+                console.log("currRa " + self.numFileCurr + " total: " + self.totalFilesCurr);
+                this.currXmlFiles.push(filename);
+              }
+            } else {
+              if (prevOrCurrTerm === 0) {
+                self.numFilePrev++;
+                console.log("prevRa " + self.numFilePrev + " total: " + self.totalFilesPrev);
+              } else {
+                self.numFileCurr++;
+                console.log("currRa " + self.numFileCurr + " total: " + self.totalFilesCurr);
               }
             }
           });
         })
       ).subscribe();
     } // end of for loop looping through files
-    if (prevOrCurrTerm === 0 ){
+    if (prevOrCurrTerm === 0) {
       this.allPercentageObservablePrevious = combineLatest(allPercentage)
         .pipe(
           map((percentages) => {
@@ -285,7 +297,7 @@ export class UploadComponent implements OnInit {
         );
     }
 
-    forkJoin(allPercentage).subscribe( value => {
+    forkJoin(allPercentage).subscribe(value => {
       self.startSpinning = true;
       // Promise.all(promiseArr).then( (val)=>{
       //   console.log(promiseArr.length);
@@ -301,14 +313,14 @@ export class UploadComponent implements OnInit {
   } // end of method
 
   // Use this to fill sessionStorage from UPLOAD page
-  async onUpload(){
+  async onUpload() {
     var self = this;
     // this.finishedUpload = false;
-    if ( this.prevTermZip === null ){
+    if (this.prevTermZip === null) {
       this.generalInfo.prevTermLoadedFromDatabase = true;
       console.log("find me " + this.generalInfo.prevTermLoadedFromDatabase);
       this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc) => {
-        if ( ! doc.exists ) {
+        if (!doc.exists) {
           console.log("document somethign doesnt exist");
         }
         var prevTermData = doc.data();
@@ -320,15 +332,15 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
       });
     } else {
-      this.uploadTermZip(this.prevTermZip, 0).then(()=>{
+      this.uploadTermZip(this.prevTermZip, 0).then(() => {
         console.log(this.generalInfo.prevTerm);
       });
     }
 
-    if ( this.currTermZip === null ) {
+    if (this.currTermZip === null) {
       this.generalInfo.currTermLoadedFromDatabase = true;
     } else {
-      this.uploadTermZip(this.currTermZip, 1).then(()=>{
+      this.uploadTermZip(this.currTermZip, 1).then(() => {
         console.log(this.generalInfo.currTerm);
       });
     }
@@ -341,7 +353,44 @@ export class UploadComponent implements OnInit {
 
   }
 
+  generateCsv() {
+    let headers = new HttpHeaders();
+    headers.append('Content-Type', 'application/json');
+
+    let params: HttpParams;
+    let x: Observable<Object>;
+
+    // If not using prev term from database
+    if (this.generalInfo.prevTermLoadedFromDatabase !== true) {
+      // Prev term
+      params = new HttpParams();
+
+      // Begin assigning parameters
+      params = params.append('userId', this.generalInfo.userIdVal);
+      params = params.append('termId', this.generalInfo.prevTermIdVal);
+      params = params.append('xmlFiles', JSON.stringify(this.prevXmlFiles));
+
+      x = this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/createNametable", { headers: headers, params: params });
+      x.toPromise().then(() => {
+        console.log("Value returned, finished file generation for prev term.");
+      });
+    }
+
+    // Curr term
+    params = new HttpParams();
+
+    // Begin assigning parameters
+    params = params.append('userId', this.generalInfo.userIdVal);
+    params = params.append('termId', this.generalInfo.currTermIdVal);
+    params = params.append('xmlFiles', JSON.stringify(this.currXmlFiles));
+
+    x = this.http.post("https://us-central1-ersp-identification.cloudfunctions.net/createNametable", { headers: headers, params: params });
+    x.toPromise().then(() => {
+      console.log("Value returned, finished file generation for curr term.");
+    });
+  }
+
   logout() {
-    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase ,this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
 }

@@ -1,6 +1,7 @@
 import { Component, OnInit, HostListener } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
 
@@ -20,6 +21,7 @@ export class ShowResultsComponent implements OnInit {
   hasCsv: boolean = false;
 
   constructor(private storage: AngularFireStorage,
+              private db: AngularFirestore,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService) { }
 
@@ -37,7 +39,7 @@ export class ShowResultsComponent implements OnInit {
     // This is what we should have
     //let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
     // This is default
-    let filePath = "QdVQwhUCY6Wi7JieDktj4qjF1ju2" + "/results/" + "0n69l9uRVa6k5rUAxYob" + "-" + "10hGi0jfsWhL3pkYfiLd" + "/" + "confidence.csv";
+    let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
 
     this.storage.ref(filePath).getDownloadURL().subscribe(async url => {
       self.url = url;
@@ -174,8 +176,9 @@ export class ShowResultsComponent implements OnInit {
       imageIndex: 0
     };
     this.authService.setStorage("local", object, "termData");
-
-    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/results', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+    this.db.collection('users').doc(this.generalInfo.userIdVal).ref.update({
+      finishedLastRun: true
+    }).then(() => this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/results', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0));
   }
 
   @HostListener('window:beforeunload', ['$event'])
