@@ -117,6 +117,7 @@ export class MatchTerminalComponent implements OnInit {
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
     }
+    console.log(this.matchBar.matchIds);
   }
 
   populateImageURLMatches(){
@@ -186,12 +187,12 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar = this.createMatchBarObject(this.imageInd);
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
     if( Object.values(this.generalInfo.prevTermIndividualImages).includes( this.matchBar.keyImgUrl ) ){
-      this.matchBar.matchIds = this.generalInfo.currTermIndividualImages;
+      this.matchBar.matchIds = Object.values(this.generalInfo.currTermIndividualImages);
     } else if (Object.values(this.generalInfo.prevTermIsoImages).includes( this.matchBar.keyImgUrl )  ){
-      this.matchBar.matchIds = this.generalInfo.currTermIsoImages;
+      this.matchBar.matchIds = Object.values(this.generalInfo.currTermIsoImages);
     }
     else{
-      this.matchBar.matchIds = this.generalInfo.currTermGroupImages; // TODO make this into values corresponding to the grouping type
+      this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
     this.populateImageURLMatches();
