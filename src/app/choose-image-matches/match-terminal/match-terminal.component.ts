@@ -21,6 +21,7 @@ export class MatchTerminalComponent implements OnInit {
   imageInd: number = 0;
   logoutEnabled: boolean = false;
   curPic;
+  chooseToShowAll: boolean = false;
 
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
@@ -45,9 +46,10 @@ export class MatchTerminalComponent implements OnInit {
       console.log(containsCurrTerm);
       console.log(this.generalInfo.currTermIdVal);
       console.log(val["matches"]);
-      if ( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ) {
+      if ( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll) {
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.imageInd);
+        this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
         // this.logoutEnabled = true;
@@ -118,7 +120,7 @@ export class MatchTerminalComponent implements OnInit {
   }
 
   populateImageURLMatches(){
-    // console.log(this.matchBar.matchIds.length);
+    console.log(this.matchBar.matchIds.length);
     for (var id of this.matchBar.matchIds){
       // console.log(id);
       this.matchBar.matchUrl.push(this.db.collection('images').doc(id).ref.get());
@@ -170,13 +172,33 @@ export class MatchTerminalComponent implements OnInit {
       var lenMatch = mat.length;
       var containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
 
-      if(lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 ){
+      if( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll ){
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
+        this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
       }
     });
+  }
+
+  populateImagesWithoutMatch(){
+    this.matchBar = this.createMatchBarObject(this.imageInd);
+    this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
+    if( Object.values(this.generalInfo.prevTermIndividualImages).includes( this.matchBar.keyImgUrl ) ){
+      this.matchBar.matchIds = this.generalInfo.currTermIndividualImages;
+    } else if (Object.values(this.generalInfo.prevTermIsoImages).includes( this.matchBar.keyImgUrl )  ){
+      this.matchBar.matchIds = this.generalInfo.currTermIsoImages;
+    }
+    else{
+      this.matchBar.matchIds = this.generalInfo.currTermGroupImages; // TODO make this into values corresponding to the grouping type
+    }
+    console.log(this.matchBar.matchIds);
+    this.populateImageURLMatches();
+    this.matchBar.selectedURL = this.matchBar.matchUrl[0];
+    this.matchBar.indexSelected = 0;
+    this.matchesFinished = true;
+    this.ref.detectChanges();
   }
 
   logout() {

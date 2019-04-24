@@ -77,6 +77,9 @@
 <div style="padding: 2%" *ngIf="!matchesFinished">
   <h2>Generating Current Term Matches for Previous Term</h2>
   <mat-spinner></mat-spinner>
+  <p> If you would like to continue without having found match for current image: please click Continue </p>
+  <br />
+  <button mat-raised-button type="submit" (click)="chooseToShowAll=true;populateImagesWithoutMatch();">Continue</button>
 </div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">

@@ -16,7 +16,7 @@
       <h2>Previous Term</h2>
       <div class="col-lg-4" *ngIf="boxOne.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxOne.imgIndex+1}}</h2>
-        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
+        <img src="{{(boxOne.imageSourceURL | async)?.data().downloadURL}}" width="75%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxOneRelation.boxVal">
           <div><h4>Relation to the Previous Question</h4></div>
@@ -37,7 +37,7 @@
 
       <div class="col-lg-4" *ngIf="boxTwo.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxTwo.imgIndex+1}}</h2>
-        <img src="{{(boxTwo.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
+        <img src="{{(boxTwo.imageSourceURL | async)?.data().downloadURL}}" width="75%" />
         <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxTwoRelation.boxVal">
           <div><h4>Relation to the Previous Question</h4></div>
@@ -58,7 +58,7 @@
 
       <div class="col-lg-4" *ngIf="boxThree.imgIndex<prevTermGrouping.numImages">
         <h2> Question {{boxThree.imgIndex+1}}</h2>
-        <img src="{{(boxThree.imageSourceURL | async)?.data().downloadURL}}" width="100%" />
+        <img src="{{(boxThree.imageSourceURL | async)?.data().downloadURL}}" width="75%" />
          <!--Options to choose whether this image is related to previous image-->
         <form [formGroup]="boxThreeRelation.boxVal">
           <div><h4>Relation to the Previous Question</h4></div>
