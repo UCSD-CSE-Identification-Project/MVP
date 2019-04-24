@@ -42,7 +42,9 @@ export class AuthComponent implements OnInit {
           console.log('user exists');
           console.log(doc.data()["finishedLastRun"]);
           if (doc.data()["finishedLastRun"]) {
-            self.router.navigate(["/upload"]);
+            self.db.collection('users').doc(self.generalInfo.userIdVal).ref.update({
+              finishedLastRun: false
+            }).then(() => self.router.navigate(["/upload"]));
           }
           else {
             // The user should be prompted to either resume or start a new one
