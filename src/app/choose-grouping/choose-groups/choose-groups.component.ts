@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import {Component, OnInit, HostListener, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
@@ -8,11 +8,14 @@ import {isLowerCase} from 'tslint/lib/utils';
 import {group} from '@angular/animations';
 import {forkJoin} from 'rxjs';
 // import 'rxjs/add/operator/toPromise';
+//  import {ChangeDetectionStrategy, Component, ViewEncapsulation} from '@angular/core';
 
 @Component({
   selector: 'app-choose-groups',
   templateUrl: './choose-groups.component.html',
-  styleUrls: ['./choose-groups.component.css']
+  styleUrls: ['./choose-groups.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChooseGroupsComponent implements OnInit {
   // Added the property "Relation with previous image"
@@ -37,96 +40,103 @@ export class ChooseGroupsComponent implements OnInit {
   savedIndex: number = 0;
   savedChoice: string = "";
 
+  allImages = [];
+  allImageIds = [];
+  lenVal = 0;
+
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
-              private db: AngularFirestore
+              private db: AngularFirestore,
+              private ref: ChangeDetectorRef
               ) {
     this.imagesFinished = false;
     this.partOfTheSameSubPair  = {};
   }
 
   ngOnInit() {
+    this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
+    this.boxOne = this.createBoxObj(this.doesNotNeedImageIndex);
     // Everytime we get data from sessionStorage
-    let data: termData = this.authService.getStorage("session", "termData");
-    this.generalInfo.prevTerm = data.prevTermInfo;
-    this.generalInfo.currTerm = data.currTermInfo;
-
-    let lock: groupLock = this.authService.getStorage("session", "groupLock");
-
-    let box1Index = data.imageIndex;
-    let box2Index = data.imageIndex + 1;
-    let box3Index = data.imageIndex + 2;
-
-    if (lock.boxLocked) {
-      box1Index = lock.savedIndex;
-      box2Index = data.imageIndex - 1;
-      box3Index = data.imageIndex;
-    }
-
-    if (!lock.boxLocked && data.imageIndex === 2) {
-      box1Index -= 2;
-      box2Index -= 2;
-      box3Index -= 2;
-    }
-
-    //this.setResetTermFinishVariables('curr');
-
-    console.log(this.generalInfo.prevTermIndividualImages);
-    console.log(this.generalInfo.currTermIndividualImages);
-    // Initialize the "relation" for all three boxes
-    this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxOne = this.createBoxObj(box1Index);
-
-    if (lock.boxLocked) {
-      this.boxOne.disabledRadioButton = true;
-      this.boxOneRelation.disabledRadioButton = true;
-
-      this.boxOne.boxVal.controls.option.value = lock.savedChoice;
-      this.boxOneRelation.boxVal.controls.option.value = "New Question";
-
-      this.boxOne.radioClicked = true;
-      this.boxOneRelation.radioClicked = true;
-
-      this.boxLocked = true;
-      this.savedIndex = this.boxOne.imgIndex;
-      this.savedChoice = lock.savedChoice;
-    }
-    this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxTwo = this.createBoxObj(box2Index);
-    this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
-    this.boxThree = this.createBoxObj(box3Index);
-
-    this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
-    this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
-
-    this.prevTermGrouping.needGrouping = !data.usePrev && !this.generalInfo.prevTermFinished;
-
-    // Comment this out before we merge
-    this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
-
-    this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
-    console.log("prev term finished: " + this.generalInfo.prevTermFinished);
-    console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
-
-    console.log("First thing to check is " + (this.currTermGrouping.needGrouping && !this.currTermGrouping.termFinishedAnswering && this.prevTermGrouping.termFinishedAnswering));
-
-    if( this.prevTermGrouping.needGrouping ){
-      this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[box1Index],'prev' );
-      this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[box2Index],'prev');
-      if (box3Index < this.prevTermGrouping.numImages) {
-        this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[box3Index],'prev');
-      }
-      this.prevTermGrouping.imageIndex = box3Index;
-    }
-    else{
-      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[box1Index],'curr');
-      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[box2Index],'curr');
-      if (box3Index < this.currTermGrouping.numImages) {
-        this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[box3Index],'curr');
-      }
-      this.currTermGrouping.imageIndex = box3Index;
-    }
+    // let data: termData = this.authService.getStorage("session", "termData");
+    // this.generalInfo.prevTerm = data.prevTermInfo;
+    // this.generalInfo.currTerm = data.currTermInfo;
+    //
+    // let lock: groupLock = this.authService.getStorage("session", "groupLock");
+    //
+    // let box1Index = data.imageIndex;
+    // let box2Index = data.imageIndex + 1;
+    // let box3Index = data.imageIndex + 2;
+    //
+    // if (lock.boxLocked) {
+    //   box1Index = lock.savedIndex;
+    //   box2Index = data.imageIndex - 1;
+    //   box3Index = data.imageIndex;
+    // }
+    //
+    // if (!lock.boxLocked && data.imageIndex === 2) {
+    //   box1Index -= 2;
+    //   box2Index -= 2;
+    //   box3Index -= 2;
+    // }
+    //
+    // //this.setResetTermFinishVariables('curr');
+    //
+    // console.log(this.generalInfo.prevTermIndividualImages);
+    // console.log(this.generalInfo.currTermIndividualImages);
+    // // Initialize the "relation" for all three boxes
+    // this.boxOneRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    // this.boxOne = this.createBoxObj(box1Index);
+    //
+    // if (lock.boxLocked) {
+    //   this.boxOne.disabledRadioButton = true;
+    //   this.boxOneRelation.disabledRadioButton = true;
+    //
+    //   this.boxOne.boxVal.controls.option.value = lock.savedChoice;
+    //   this.boxOneRelation.boxVal.controls.option.value = "New Question";
+    //
+    //   this.boxOne.radioClicked = true;
+    //   this.boxOneRelation.radioClicked = true;
+    //
+    //   this.boxLocked = true;
+    //   this.savedIndex = this.boxOne.imgIndex;
+    //   this.savedChoice = lock.savedChoice;
+    // }
+    // this.boxTwoRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    // this.boxTwo = this.createBoxObj(box2Index);
+    // this.boxThreeRelation = this.createBoxObj(this.doesNotNeedImageIndex);
+    // this.boxThree = this.createBoxObj(box3Index);
+    //
+    // this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
+    // this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
+    //
+    // this.prevTermGrouping.needGrouping = !data.usePrev && !this.generalInfo.prevTermFinished;
+    //
+    // // Comment this out before we merge
+    // this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
+    //
+    // this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
+    // console.log("prev term finished: " + this.generalInfo.prevTermFinished);
+    // console.log("prev term needGrouping: " + this.prevTermGrouping.needGrouping);
+    //
+    // console.log("First thing to check is " + (this.currTermGrouping.needGrouping && !this.currTermGrouping.termFinishedAnswering && this.prevTermGrouping.termFinishedAnswering));
+    //
+    // if( this.prevTermGrouping.needGrouping ){
+    //   this.getImageURLsetInHTML(0,this.prevTermGrouping.imageKeysSorted[box1Index],'prev' );
+    //   this.getImageURLsetInHTML(1,this.prevTermGrouping.imageKeysSorted[box2Index],'prev');
+    //   if (box3Index < this.prevTermGrouping.numImages) {
+    //     this.getImageURLsetInHTML(2,this.prevTermGrouping.imageKeysSorted[box3Index],'prev');
+    //   }
+    //   this.prevTermGrouping.imageIndex = box3Index;
+    // }
+    // else{
+    //   this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[box1Index],'curr');
+    //   this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[box2Index],'curr');
+    //   if (box3Index < this.currTermGrouping.numImages) {
+    //     this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[box3Index],'curr');
+    //   }
+    //   this.currTermGrouping.imageIndex = box3Index;
+    // }
   }
 
   createBoxObj(imageIndex: number) {
@@ -693,4 +703,23 @@ export class ChooseGroupsComponent implements OnInit {
     return false;
   }
 
+
+
+  getAllImagesFromTerm( term: string) {
+    this.db.collection("terms").doc(term).ref.get().then( (doc) =>{
+      console.log(doc.data().all_images);
+      this.allImageIds = doc.data().all_images;
+      this.populateImageURLMatches();
+      this.lenVal = this.allImages.length;
+      this.ref.detectChanges();
+      console.log("finished ref");
+    });
+  }
+
+  populateImageURLMatches(){
+    for (var id of Object.values(this.allImageIds) ){
+      this.allImages.push(this.db.collection('images').doc(id).ref.get());
+    }
+    console.log(this.allImages);
+  }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {AuthService} from './auth.service';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {ScrollDispatchModule} from '@angular/cdk/scrolling';
 import {forkJoin} from 'rxjs';
 import {catchError, timeout} from 'rxjs/internal/operators';
 
