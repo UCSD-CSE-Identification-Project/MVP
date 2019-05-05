@@ -312,6 +312,35 @@ export class UploadComponent implements OnInit {
     });
   } // end of method
 
+  // Getting all lectures and their images
+  pairLectureImage() {
+    this.prevXmlFiles.sort();
+    this.currXmlFiles.sort();
+
+    let prevTermLectureImages = {};
+    let currTermLectureImages = {};
+
+    this.prevXmlFiles.forEach((element: string) => prevTermLectureImages[element.slice(0, element.lastIndexOf('.'))] = []);
+    this.currXmlFiles.forEach((element: string) => currTermLectureImages[element.slice(0, element.lastIndexOf('.'))] = []);
+
+    let allPrevKeys = Object.keys(this.generalInfo.prevTermAllImages).sort();
+    let allCurrKeys = Object.keys(this.generalInfo.currTermAllImages).sort();
+
+    allPrevKeys.forEach((element: string) => {
+      let lectureName = element.slice(0, element.lastIndexOf('_'));
+      prevTermLectureImages[lectureName].push(element);
+    });
+
+    allCurrKeys.forEach((element: string) => {
+      let lectureName = element.slice(0, element.lastIndexOf('_'));
+      currTermLectureImages[lectureName].push(element);
+    });
+
+    this.generalInfo.prevTermLectureImage = prevTermLectureImages;
+    this.generalInfo.currTermLectureImage = currTermLectureImages;
+
+  }
+
   // Use this to fill sessionStorage from UPLOAD page
   async onUpload() {
     var self = this;
@@ -354,6 +383,12 @@ export class UploadComponent implements OnInit {
   }
 
   generateCsv() {
+    this.pairLectureImage();
+
+    // Set generalinfo term names
+    this.generalInfo.prevTermName = this.prevTerm;
+    this.generalInfo.currTermName = this.currTerm;
+
     let headers = new HttpHeaders();
     headers.append('Content-Type', 'application/json');
 

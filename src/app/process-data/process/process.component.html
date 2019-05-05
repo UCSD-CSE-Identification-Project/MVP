@@ -15,7 +15,7 @@
   <mat-spinner style="margin:0 auto;"></mat-spinner>
 </div>
   <!--<button style="position: absolute; top: 0; right: 0; margin: 10px;" (click)="logout()">Logout</button>-->
-  <div *ngIf=!csvSpinner style="margin-top: 100px;">
+  <div *ngIf=!csvSpinner&&enableWeeks style="margin-top: 100px;">
     <h3>Before processing, you can also select how many weeks of data to include:
       <h4 style="display: inline-block;">
         <form>
@@ -37,7 +37,7 @@
     </h3>
 
     <div>
-      <button *ngIf=!showSpinner mat-raised-button class="processButton" (click)="openDialog()">Process</button>
+      <button *ngIf=!showSpinner&&!finished mat-raised-button class="processButton" (click)="openDialog()">Process</button>
       <mat-spinner *ngIf=showSpinner style="margin:0 auto;"></mat-spinner>
     </div>
     <!--
@@ -74,11 +74,8 @@
 
 
 
-<div>
+<div *ngIf=finished style="margin-top: 100px;">
+  <h2>Finished processing</h2>
 </div>
 
-<button mat-raised-button class="nextButton" *ngIf="startProcess && !showSpinner" routerLink="/navigator/process">Next</button>
-
-<!--<div>
-  <button type="button" (click)="downloadcsv()">Download</button>
-</div>-->
+<button mat-raised-button class="nextButton" *ngIf="startProcess && !showSpinner" routerLink="/navigator/process">See results</button>

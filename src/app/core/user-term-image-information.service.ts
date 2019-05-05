@@ -22,6 +22,7 @@ export class UserTermImageInformationService {
   }
   constructTermObj() {
     return {
+      name: '',
       termId: '',
       allTermImages: {},
       individualImages: {},
@@ -29,6 +30,7 @@ export class UserTermImageInformationService {
       isoImages:{},
       loadedFromDatabase: false,
       keyImages: {},
+      lectureImages: {},
       finished: false
     };
     // return {
@@ -230,6 +232,30 @@ export class UserTermImageInformationService {
   }
   set currTerm(obj) {
     this.currTermGeneralInfo = obj;
+  }
+  get prevTermName() {
+    return this.prevTermGeneralInfo.name;
+  }
+  set prevTermName(name: string) {
+    this.prevTermGeneralInfo.name = name;
+  }
+  get currTermName() {
+    return this.currTermGeneralInfo.name;
+  }
+  set currTermName(name: string) {
+    this.currTermGeneralInfo.name = name;
+  }
+  get prevTermLectureImage() {
+    return this.prevTermGeneralInfo.lectureImages;
+  }
+  set prevTermLectureImage(obj) {
+    this.prevTermGeneralInfo.lectureImages = obj
+  }
+  get currTermLectureImage() {
+    return this.currTermGeneralInfo.lectureImages;
+  }
+  set currTermLectureImage(obj) {
+    this.currTermGeneralInfo.lectureImages = obj
   }
   get prevTermKeyImages(){
     return this.prevTermGeneralInfo.keyImages;

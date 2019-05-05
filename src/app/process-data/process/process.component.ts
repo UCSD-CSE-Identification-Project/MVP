@@ -19,6 +19,8 @@ export class ProcessComponent implements OnInit {
   startProcess: boolean = false;
   showSpinner: boolean = false
   csvSpinner: boolean = true;
+  enableWeeks: boolean = false;
+  finished: boolean = false;
 
   toggleChecked() {
     this.checked = !this.checked;
@@ -55,6 +57,7 @@ export class ProcessComponent implements OnInit {
       result => {
         console.log(result);
         this.showSpinner = false;
+        this.finished = true;
       }
     );
   }
@@ -67,7 +70,6 @@ export class ProcessComponent implements OnInit {
   }
 
   ngOnInit() {
-    //TODO
     // Get match column, change lecture name format from L9_Q05 to lec09_Q5
     this.showSpinner = false;
     var obj = {
