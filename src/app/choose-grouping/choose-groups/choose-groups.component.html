@@ -13,7 +13,7 @@
         <div><h4>Classification of this Question</h4></div>
         <div *ngFor="let data of boxValues">
           <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
-                 (click)="updateChecked(10)" [checked]="boxOne.setDefault(i, data.opt)"> {{data.opt}}<br>
+                 (click)="updateChecked(i)" [checked]="boxOne.setDefault(i, data.opt)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
