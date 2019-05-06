@@ -1,23 +1,40 @@
 
-
+<div>
+  <h2>Term: {{termName}}</h2>
+  <h2>Lecture {{lectureNum + 1}}: {{lectureName}}</h2>
+</div>
 
 <div *ngIf="lenVal > 0" class="cdk-virtual-scroll-data-source-example">
   <cdk-virtual-scroll-viewport orientation="horizontal" itemSize="100" minBufferPx="20000" maxBufferPx="40000" class="example-viewport">
     <div *cdkVirtualFor="let url of allImages; let i = index;" class="example-item">
-      <h5>Question {{i}}</h5>
+      <h5>Question {{i+1}}</h5>
       <img src="{{( url | async )?.data().downloadURL}}" width="500px"/>
       <form [formGroup]="boxOne.boxVal">
         <div><h4>Classification of this Question</h4></div>
         <div *ngFor="let data of boxValues">
           <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
-                 (click)="updateChecked(10)"> {{data.opt}}<br>
+                 (click)="updateChecked(10)" [checked]="boxOne.setDefault(i, data.opt)"> {{data.opt}}<br>
         </div>
       </form>
     </div>
   </cdk-virtual-scroll-viewport>
 </div>
 
-<p> {{allImages}}</p>
+  <div *ngIf="!finishedCurrentTerm" style="float: right;">
+    <nav>
+      <button mat-raised-button (click)="continue()">Next Lecture</button>
+    </nav>
+  </div>
+  <div *ngIf="finishedCurrentTerm" style="float: right;">
+    <nav>
+      <button mat-raised-button class="nextButton" routerLink="/navigator/classify">Next</button>
+    </nav>
+  </div>
+<div>
+  boxOne: {{boxOne.radioClicked }} <br>
+  boxOne: {{boxOne.boxVal.controls.option.value }}
+</div>
+<!--<p> {{allImages}}</p>-->
 
 <!--<div>
   boxOne: {{this.boxOne.radioClicked }} <br>

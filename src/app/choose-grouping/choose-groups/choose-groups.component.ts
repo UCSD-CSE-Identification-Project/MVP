@@ -1,4 +1,4 @@
-import {Component, OnInit, HostListener, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef} from '@angular/core';
+import { Component, OnInit, HostListener, ChangeDetectionStrategy, ViewEncapsulation, ChangeDetectorRef, ViewChild} from '@angular/core';
 import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
@@ -7,6 +7,8 @@ import { getCurrentDebugContext } from '@angular/core/src/view/services';
 import {isLowerCase} from 'tslint/lib/utils';
 import {group} from '@angular/animations';
 import {forkJoin} from 'rxjs';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+
 // import 'rxjs/add/operator/toPromise';
 //  import {ChangeDetectionStrategy, Component, ViewEncapsulation} from '@angular/core';
 
@@ -20,7 +22,7 @@ import {forkJoin} from 'rxjs';
 export class ChooseGroupsComponent implements OnInit {
   // Added the property "Relation with previous image"
   relationToPreImg = [{opt: 'Related Question'}, {opt: 'New Question'}];
-  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
+  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, /*{opt: 'Isomorphic'}, */{opt: 'Ignore'}];
   imagesFinished; // if we finish reading all the images
   prevTermGrouping;
   currTermGrouping;
@@ -40,9 +42,23 @@ export class ChooseGroupsComponent implements OnInit {
   savedIndex: number = 0;
   savedChoice: string = "";
 
+  lectureOnScreenBoxList = [];
   allImages = [];
   allImageIds = [];
   lenVal = 0;
+
+  currentPair = [];
+  lectureName: string  = "";
+  previousValue: number = 1;
+  finishedCurrentTerm: boolean = false;
+
+  // Default to first lecture of previous term
+  lectureNum: number = 0;
+  whichTerm: string = "prev";
+  termName: string = "";
+
+  @ViewChild(CdkVirtualScrollViewport)
+  viewport: CdkVirtualScrollViewport;
 
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
@@ -55,7 +71,10 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
+    //this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
+    this.termName = "prev"; //this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
+    this.lectureName = Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum];
+    // this.fetchLectureImages(this.lectureNum, this.whichTerm);
     this.boxOne = this.createBoxObj(this.doesNotNeedImageIndex);
     // Everytime we get data from sessionStorage
     // let data: termData = this.authService.getStorage("session", "termData");
@@ -148,6 +167,14 @@ export class ChooseGroupsComponent implements OnInit {
       disabledRadioButton: false,
       imageSourceURL: null,
       imgIndex: imageIndex,
+      setDefault: function(index: number, choice: string) {
+        if (index % 2 === 0 && choice === "Individual" || index % 2 === 1 && choice === "Group") {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
     };
   }
 
@@ -721,5 +748,52 @@ export class ChooseGroupsComponent implements OnInit {
       this.allImages.push(this.db.collection('images').doc(id).ref.get());
     }
     console.log(this.allImages);
+  }
+
+  fetchLectureImages(lectureIndex: number, prevOrCurrentTerm: string) {
+    if (prevOrCurrentTerm === "prev") {
+      this.currentPair = Object.entries(this.generalInfo.prevTermLectureImage)[lectureIndex];
+    }
+    else {
+      this.currentPair = Object.entries(this.generalInfo.currTermLectureImage)[lectureIndex];
+    }
+    this.lectureName = this.currentPair[0];
+    let imageIds: string[] = this.currentPair[1];
+
+    this.allImages = [];
+    for (let id of imageIds) {
+      this.allImages.push(this.db.collection('images').doc(id).ref.get());
+    }
+    this.lenVal = this.allImages.length;
+    this.ref.detectChanges();
+    console.log("finished ref");
+  }
+
+  toggleState() {
+    this.previousValue = this.previousValue === 0 ? 1 : 0;
+  }
+
+  continue() {
+    if (this.whichTerm === "prev") {
+      if (this.lectureNum + 1 === Object.keys(this.generalInfo.prevTermLectureImage).length) {
+        this.lectureNum = 0;
+        this.whichTerm = "curr";
+      }
+      else {
+        this.lectureNum += 1;
+      }
+    }
+    else {
+      if (this.lectureNum + 1 === Object.keys(this.generalInfo.currTermLectureImage).length) {
+        this.finishedCurrentTerm = true;
+        return;
+      }
+      else {
+        this.lectureNum += 1;
+      }
+    }
+    this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
+    this.fetchLectureImages(this.lectureNum, this.whichTerm);
+    this.viewport.scrollToIndex(0);
   }
 }

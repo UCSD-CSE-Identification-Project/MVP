@@ -328,12 +328,12 @@ export class UploadComponent implements OnInit {
 
     allPrevKeys.forEach((element: string) => {
       let lectureName = element.slice(0, element.lastIndexOf('_'));
-      prevTermLectureImages[lectureName].push(element);
+      prevTermLectureImages[lectureName].push(this.generalInfo.prevTermAllImages[element]);
     });
 
     allCurrKeys.forEach((element: string) => {
       let lectureName = element.slice(0, element.lastIndexOf('_'));
-      currTermLectureImages[lectureName].push(element);
+      currTermLectureImages[lectureName].push(this.generalInfo.currTermAllImages[element]);
     });
 
     this.generalInfo.prevTermLectureImage = prevTermLectureImages;
