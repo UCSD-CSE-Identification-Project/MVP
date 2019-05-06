@@ -1,25 +1,38 @@
-
 <div>
-  <h2>Term: {{termName}}</h2>
-  <h2>Lecture {{lectureNum + 1}}: {{lectureName}}</h2>
-</div>
+  <div class="title">
+    <h2 style="color: white">Classify Questions</h2>
+    <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
+  </div>
 
-<div *ngIf="lenVal > 0" class="cdk-virtual-scroll-data-source-example">
-  <cdk-virtual-scroll-viewport orientation="horizontal" itemSize="100" minBufferPx="20000" maxBufferPx="40000" class="example-viewport">
-    <div *cdkVirtualFor="let url of allImages; let i = index;" class="example-item">
-      <h5>Question {{i+1}}</h5>
-      <img src="{{( url | async )?.data().downloadURL}}" width="500px"/>
-      <form [formGroup]="boxOne.boxVal">
-        <div><h4>Classification of this Question</h4></div>
-        <div *ngFor="let data of boxValues">
-          <input type="radio" formControlName="option" value="{{data.opt}}" [attr.disabled]="this.boxOne.disabledRadioButton || null"
-                 (click)="updateChecked(i)" [checked]="boxOne.setDefault(i, data.opt)"> {{data.opt}}<br>
-        </div>
-      </form>
+  <div style="margin-top: 10vw"><!--???????-->
+    <h2>Term: {{termName}}</h2>
+    <h2>Lecture {{lectureNum + 1}}: {{lectureName}}</h2>
+  </div>
+  <br>
+  <br>
+
+  <h2 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
+    You have finished previous term grouping.
+  </h2>
+  <div *ngIf="prevTermGrouping.needGrouping">
+    <div class="row">
+      <!-- put virtual scroll here -->
+      <div *ngIf="lenOfVirtualScroll > 0" class="cdk-virtual-scroll-data-source-example">
+        <cdk-virtual-scroll-viewport orientation="horizontal" itemSize="100" minBufferPx="20000" maxBufferPx="40000" class="example-viewport">
+          <div *cdkVirtualFor="let box of lectureOnScreenBoxList; let i = index;" class="example-item">
+            <h5>Question {{i + 1}}</h5>
+            <img src="{{( box.imageSourceURL | async )?.data().downloadURL}}" width="500px"/>
+            <form [formGroup]="box.boxVal">
+              <div><h4>Classification of this Question</h4></div>
+              <div *ngFor="let data of boxValues">
+                <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(10)"> {{data.opt}}<br>
+              </div>
+            </form>
+          </div>
+        </cdk-virtual-scroll-viewport>
+      </div>
     </div>
-  </cdk-virtual-scroll-viewport>
-</div>
-
+  </div>
   <div *ngIf="!finishedCurrentTerm" style="float: right;">
     <nav>
       <button mat-raised-button (click)="continue()">Next Lecture</button>
@@ -30,29 +43,25 @@
       <button mat-raised-button class="nextButton" routerLink="/navigator/classify">Next</button>
     </nav>
   </div>
-<div>
-  boxOne: {{boxOne.radioClicked }} <br>
-  boxOne: {{boxOne.boxVal.controls.option.value }}
+  <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+    You have finished current term grouping.
+  </h2>
+  <div *ngIf="currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+    <div class="row">
+      <h2>Current Term</h2>
+    </div>
+  </div>
 </div>
-<!--<p> {{allImages}}</p>-->
 
-<!--<div>
-  boxOne: {{this.boxOne.radioClicked }} <br>
-  boxOneRelation: {{this.boxOneRelation.radioClicked}} <br>
-  boxTwo: {{this.boxTwo.radioClicked }}  <br>
-  boxTwoRelation: {{ this.boxTwoRelation.radioClicked}}  <br>
-  boxThree: {{this.boxThree.radioClicked }} <br>
-  boxThreeRelation: {{ this.boxThreeRelation.radioClicked}} <br>
-  TwoHidden: {{this.boxTwo.imgIndex >= prevTermGrouping.numImages}} <br>
-  ThreeHidden: {{this.boxThree.imgIndex >= prevTermGrouping.numImages}}  <br>
-  imagesFinished: {{imagesFinished}} <br/>
-  previmageIndex: {{prevTermGrouping.imageIndex}} <br>
-  prevnumImages: {{ prevTermGrouping.numImages }}<br>
-  currimageIndex: {{currTermGrouping.imageIndex}} <br>
-  currnumImages: {{ currTermGrouping.numImages }}<br>
-  boxOneValue: {{boxOne.imgIndex}} <br />
-  boxTwoValue: {{boxTwo.imgIndex}} <br />
-  boxThreeValue: {{ boxThree.imgIndex}} <br />
-</div>-->
+<div style="text-align: right">
+  <div style="display:inline-block">
+    <button mat-raised-button class="activeButton" *ngIf="!prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
+    <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
+  </div>
+  &nbsp;
+  <div style="display:inline-block">
+    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
+  </div>
 
+</div>
 
