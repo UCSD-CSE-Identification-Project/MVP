@@ -83,7 +83,7 @@
 </div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">
-  <h3>Previous Term Images:</h3>
+  <h3>{this.generalInfo.prevTermName} Images:</h3>
   <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
   <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px"> <br />
@@ -103,7 +103,7 @@
 
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">
   <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
-  <h3>Display: Term 2 Matches</h3>
+  <h3>Possible matches from {this.generalInfo.currTermName}</h3>
     <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
     <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
       <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">

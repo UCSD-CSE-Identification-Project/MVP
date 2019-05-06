@@ -1,8 +1,9 @@
-import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import {ChangeDetectorRef, ViewChild, Component, OnInit,ChangeDetectionStrategy, ViewEncapsulation} from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
+import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
 import {ScrollDispatchModule} from '@angular/cdk/scrolling';
 
 
@@ -26,7 +27,9 @@ interface chooseGroupingTermObj{
 @Component({
   selector: 'app-choose-groups',
   templateUrl: './choose-groups.component.html',
-  styleUrls: ['./choose-groups.component.css']
+  styleUrls: ['./choose-groups.component.css'],
+  encapsulation: ViewEncapsulation.None,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ChooseGroupsComponent implements OnInit {
   boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Ignore'}];
@@ -39,6 +42,23 @@ export class ChooseGroupsComponent implements OnInit {
   lectureOnScreenBoxList = [];
   // startingIndex:number = 0;
   partOfTheSameSubPair;
+  lectureOnScreenBoxList = [];
+  allImages = [];
+  allImageIds = [];
+  lenVal = 0;
+
+  currentPair = [];
+  lectureName: string  = "";
+  previousValue: number = 1;
+  finishedCurrentTerm: boolean = false;
+
+  // Default to first lecture of previous term
+  lectureNum: number = 0;
+  whichTerm: string = "prev";
+  termName: string = "";
+
+  @ViewChild(CdkVirtualScrollViewport)
+  viewport: CdkVirtualScrollViewport;
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
@@ -51,6 +71,10 @@ export class ChooseGroupsComponent implements OnInit {
 
   ngOnInit() {
 
+    //this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
+    this.termName = "prev"; //this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
+    this.lectureName = Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum];
+    // this.fetchLectureImages(this.lectureNum, this.whichTerm);
     //this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
     //this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
     this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
@@ -75,13 +99,15 @@ export class ChooseGroupsComponent implements OnInit {
       disabledRadioButton: false,
       imageSourceURL: null,
       imgIndex: imageIndex,
+      setDefault: function(index: number, choice: string) {
+        if (index % 2 === 0 && choice === "Individual" || index % 2 === 1 && choice === "Group") {
+          return true;
+        }
+        else {
+          return false;
+        }
+      }
     };
-    if ( defaultTypeVal === 0 ) {
-      retObj.boxVal = this.fb.group({option:['Individual']});
-    } else {
-      retObj.boxVal = this.fb.group({option:['Group']});
-    }
-    return retObj;
   }
 
   // imgNames type object

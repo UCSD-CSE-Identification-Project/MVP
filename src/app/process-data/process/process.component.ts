@@ -19,6 +19,8 @@ export class ProcessComponent implements OnInit {
   startProcess: boolean = false;
   showSpinner: boolean = false
   csvSpinner: boolean = true;
+  enableWeeks: boolean = false;
+  finished: boolean = false;
 
   toggleChecked() {
     this.checked = !this.checked;
@@ -55,6 +57,7 @@ export class ProcessComponent implements OnInit {
       result => {
         console.log(result);
         this.showSpinner = false;
+        this.finished = true;
       }
     );
   }
@@ -67,7 +70,6 @@ export class ProcessComponent implements OnInit {
   }
 
   ngOnInit() {
-    //TODO
     // Get match column, change lecture name format from L9_Q05 to lec09_Q5
     this.showSpinner = false;
     var obj = {
@@ -250,16 +252,15 @@ export class ProcessComponent implements OnInit {
     hiddenElement.click();
   }
 */
+
   changeName(name: string) {
     let newName = name.split("_");
-    let newName1 = newName[0].replace(/\D/g, '');
     let newName2 = newName[1].replace(/\D/g, '');
-    if (newName1.length === 1) {
-      newName1 = "0" + newName1;
-    }
+
     newName2 = parseInt(newName2, 10).toString();
-    return "lec" + newName1 + "_Q" + newName2;
+    return newName[0] + "_Q" + newName2;
   }
+  
 }
 
 @Component({
