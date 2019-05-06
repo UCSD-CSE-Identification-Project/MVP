@@ -1,13 +1,10 @@
-import { Component, OnInit, HostListener } from '@angular/core';
-import { FormGroup, FormBuilder, FormArray, FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {ChangeDetectorRef, Component, OnInit} from '@angular/core';
+import { FormBuilder } from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
 import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
-import { getCurrentDebugContext } from '@angular/core/src/view/services';
-import {isLowerCase} from 'tslint/lib/utils';
-import {group} from '@angular/animations';
-import {forkJoin} from 'rxjs';
-// import 'rxjs/add/operator/toPromise';
+import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+
 
 interface chooseGroupingBoxObj {
   boxVal: any;
@@ -32,91 +29,45 @@ interface chooseGroupingTermObj{
   styleUrls: ['./choose-groups.component.css']
 })
 export class ChooseGroupsComponent implements OnInit {
-  // Added the property "Relation with previous image"
-  relationToPreImg = [{opt: 'Related Question'}, {opt: 'New Question'}];
-  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Isomorphic'}, {opt: 'Ignore'}];
+  boxValues = [{opt: 'Individual'}, {opt: 'Group'}, {opt: 'Ignore'}];
+  boxValueList = ['Individual', 'Group'];
   imagesFinished; // if we finish reading all the images
   prevTermGrouping;
   currTermGrouping;
+  lenOfVirtualScroll;
   // Added addition box for each boxes to indicate relation
   lectureOnScreenBoxList = [];
-  boxOne;
-  boxTwo;
-  boxThree;
   // startingIndex:number = 0;
   partOfTheSameSubPair;
-
-  startingIndex: number = 0;
-  boxLocked: boolean = false;
-  savedIndex: number = 0;
-  savedChoice: string = "";
-
   constructor(private fb: FormBuilder,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
-              private db: AngularFirestore
+              private db: AngularFirestore,
+              private ref: ChangeDetectorRef
               ) {
     this.imagesFinished = false;
     this.partOfTheSameSubPair  = {};
   }
 
   ngOnInit() {
-    // Everytime we get data from sessionStorage
-    let data: termData = this.authService.getStorage("session", "termData");
-    this.generalInfo.prevTerm = data.prevTermInfo;
-    this.generalInfo.currTerm = data.currTermInfo;
 
-    let lock: groupLock = this.authService.getStorage("session", "groupLock");
-
-    let box1Index = data.imageIndex;
-    let box2Index = data.imageIndex + 1;
-    let box3Index = data.imageIndex + 2;
-
-    if (lock.boxLocked) {
-      box1Index = lock.savedIndex;
-      box2Index = data.imageIndex - 1;
-      box3Index = data.imageIndex;
-    }
-
-    if (!lock.boxLocked && data.imageIndex === 2) {
-      box1Index -= 2;
-      box2Index -= 2;
-      box3Index -= 2;
-    }
-
-    this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
-    this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
-
-    // Initialize the "relation" for all three boxes
-    this.boxOne = this.createBoxObj(box1Index);
-
-    if (lock.boxLocked) {
-      this.boxOne.disabledRadioButton = true;
-
-      this.boxOne.boxVal.controls.option.value = lock.savedChoice;
-
-      this.boxOne.radioClicked = true;
-
-      this.boxLocked = true;
-      this.savedIndex = this.boxOne.imgIndex;
-      this.savedChoice = lock.savedChoice;
-    }
-    this.boxTwo = this.createBoxObj(box2Index);
-    this.boxThree = this.createBoxObj(box3Index);
-    this.prevTermGrouping.needGrouping = !data.usePrev && !this.generalInfo.prevTermFinished;
-
+    //this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase);
+    //this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase);
+    this.getAllImagesFromTerm("mpy4ZFMAFqlO2XQncaHg");
     // Comment this out before we merge
-    this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
-    this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
-
-    if( this.prevTermGrouping.needGrouping ){
-    }
-    else{
-    }
+    // this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
+    // this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
+    //
+    // if( this.prevTermGrouping.needGrouping ){
+    // }
+    // else{
+    // }
+    this.prevTermGrouping = this.createChooseGroupingTermObject({}, false );
+    this.currTermGrouping = this.createChooseGroupingTermObject({}, false );
   }
 
-  createBoxObj(imageIndex: number) {
-    return {
+  createBoxObj(imageIndex: number, defaultTypeVal: number) {
+    let retObj = {
       boxVal: this.fb.group({
         option: [''],
       }),
@@ -125,6 +76,12 @@ export class ChooseGroupsComponent implements OnInit {
       imageSourceURL: null,
       imgIndex: imageIndex,
     };
+    if ( defaultTypeVal === 0 ) {
+      retObj.boxVal = this.fb.group({option:['Individual']});
+    } else {
+      retObj.boxVal = this.fb.group({option:['Group']});
+    }
+    return retObj;
   }
 
   // imgNames type object
@@ -132,7 +89,7 @@ export class ChooseGroupsComponent implements OnInit {
     let obj =  {
       imageNames: {},
       lectureIndex: 0,
-      lectureList: {},
+      lectureList: [],
       imageKeysSorted: [],
       termFinishedAnswering: false,
       needGrouping: true,
@@ -155,7 +112,7 @@ export class ChooseGroupsComponent implements OnInit {
     let lectureList = prevOrCurr === 'prev' ? this.prevTermGrouping.lectureList[lecInd] : this.currTermGrouping.lectureList[lecInd];
     let i;
     for( i = 0; i < lectureList.length; i++){
-      this.lectureOnScreenBoxList.push(this.createBoxObj(i)); // todo come back here and put the correct image index
+      this.lectureOnScreenBoxList.push(this.createBoxObj(i,i%2)); // todo come back here and put the correct image index
     }
     i = 0;
     //populate the image URL's
@@ -163,6 +120,23 @@ export class ChooseGroupsComponent implements OnInit {
       this.lectureOnScreenBoxList[i].imageSourceURL = this.db.collection('images').doc(allImgNameToKey[imgName]).ref.get();
       i++;
     }
+  }
+
+
+  // helper method: remove after code functional without
+  getAllImagesFromTerm( term: string) {
+    this.db.collection("terms").doc(term).ref.get().then( (doc) =>{
+      console.log(doc.data().all_images);
+      this.prevTermGrouping = this.createChooseGroupingTermObject(doc.data().all_images, false);
+      this.currTermGrouping = this.createChooseGroupingTermObject(doc.data().all_images, false);
+
+      this.populateLectureBoxList(0,'prev');
+      this.lenOfVirtualScroll = this.prevTermGrouping.imageKeysSorted.length;
+      console.log(this.prevTermGrouping);
+      console.log(this.lenOfVirtualScroll);
+      this.ref.detectChanges();
+      console.log("finished ref");
+    });
   }
   // TODO
   // reset variables when second term is done
@@ -174,17 +148,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.prevTermGrouping.needGrouping = false;
       this.generalInfo.prevTermFinished = true;
       this.prevTermGrouping.termFinishedAnswering = true;
-      // Initialize the "relation" for all three boxes
-      this.boxOne = this.createBoxObj(0);
-      this.boxTwo = this.createBoxObj(1);
-      this.boxThree = this.createBoxObj(2);
 
-      this.getImageURLsetInHTML(0,this.currTermGrouping.imageKeysSorted[0],'curr');
-      this.getImageURLsetInHTML(1,this.currTermGrouping.imageKeysSorted[1],'curr');
-      this.getImageURLsetInHTML(2,this.currTermGrouping.imageKeysSorted[2],'curr');
-      this.partOfTheSameSubPair = {};
-      this.currTermGrouping.imageIndex = 2;
-      this.boxLocked = false;
       let termObj = {};
       termObj[`all_images`] = this.generalInfo.prevTermAllImages;
       termObj[`ind_images`] = this.generalInfo.prevTermIndividualImages;
@@ -202,7 +166,6 @@ export class ChooseGroupsComponent implements OnInit {
       this.generalInfo.currTermFinished = true;
 
       this.currTermGrouping.termFinishedAnswering = true;
-      this.imagesFinished = true;
       console.log(this.generalInfo.currTermIndividualImages);
       let termObj = {};
       termObj[`all_images`] = this.generalInfo.currTermAllImages;
@@ -216,21 +179,12 @@ export class ChooseGroupsComponent implements OnInit {
       });
       this.generalInfo.makeSingleRequest();
       this.imagesFinished = true;
-      console.log(this.generalInfo.prevTerm);
-      console.log(this.generalInfo.currTerm);
     }
   }
   getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){
     let url = prevOrCurr === "prev" ?
       this.db.collection('images').doc(this.prevTermGrouping.imageNames[imageKey]).ref.get() :
       this.db.collection('images').doc(this.currTermGrouping.imageNames[imageKey]).ref.get();
-   if(indexImageSource === 0){
-     this.boxOne.imageSourceURL = url;
-   } else if( indexImageSource === 1){
-     this.boxTwo.imageSourceURL = url;
-   } else{
-     this.boxThree.imageSourceURL = url;
-   }
   }
 
 
@@ -311,83 +265,19 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   updateChecked(boxNum: number){
-    // if(this.boxOne.controls.option)
-    if( boxNum === 10 ){
-      this.boxOne.radioClicked = true;
-    }
-    else if (boxNum === 11){
-      this.boxOneRelation.radioClicked = true;
-    }
-    else if( boxNum === 20 ){
-      this.boxTwo.radioClicked = true;
-    }
-    else if( boxNum === 21 ){
-      this.boxTwoRelation.radioClicked = true;
-    }
-    else if( boxNum === 30 ){
-      this.boxThree.radioClicked = true;
-    }
-    else if( boxNum === 31 ){
-      this.boxThreeRelation.radioClicked = true;
-    }
+
   }
 
   // checkes if all the images are checked or if the unchecked ones are hidden
   allChecked(prevOrCurrent: string){
-    let termObjGrouping = prevOrCurrent === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    const boxTwoHidden = this.boxTwo.imgIndex >= termObjGrouping.numImages;
-    const boxThreeHidden = this.boxThree.imgIndex >= termObjGrouping.numImages;
-
-    return this.boxOne.radioClicked &&
-          (this.boxTwo.radioClicked|| boxTwoHidden) &&
-          (this.boxThree.radioClicked || boxThreeHidden) &&
-          this.boxOneRelation.radioClicked &&
-          (this.boxTwoRelation.radioClicked|| boxTwoHidden) &&
-          (this.boxThreeRelation.radioClicked|| boxThreeHidden);
+    // let termObjGrouping = prevOrCurrent === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+    // const boxTwoHidden = this.boxTwo.imgIndex >= termObjGrouping.numImages;
+    // const boxThreeHidden = this.boxThree.imgIndex >= termObjGrouping.numImages;
+    //
+    // return this.boxOne.radioClicked &&
+    //       (this.boxTwo.radioClicked|| boxTwoHidden) &&
+    //       (this.boxThree.radioClicked || boxThreeHidden);
+    return true;
 
   }
-
-  logout() {
-    let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex;
-    let object: termData = {
-      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
-      logoutUrl: "/choose-grouping",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: index
-    };
-    let lock: groupLock = {
-      boxLocked: this.boxLocked,
-      savedIndex: this.savedIndex,
-      savedChoice: this.savedChoice
-    }
-    this.authService.setStorage("local", object, "termData");
-    this.authService.setStorage("local", lock, "groupLock");
-
-    console.log(this.generalInfo.prevTerm);
-    console.log(this.generalInfo.currTerm);
-    console.log("is the box locked " + this.boxLocked);
-
-    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index, this.boxLocked, this.savedIndex, this.savedChoice);
-  }
-
-  @HostListener('window:beforeunload', ['$event'])
-  unloadNotification() {
-    let lock: groupLock = {
-      boxLocked: this.boxLocked,
-      savedIndex: this.savedIndex,
-      savedChoice: this.savedChoice
-    }
-    let object: termData = {
-      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
-      logoutUrl: "/choose-grouping",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.imageIndex : this.currTermGrouping.imageIndex
-    };
-    this.authService.setStorage("session", lock, "groupLock");
-    this.authService.setStorage("session", object, "termData");
-    return false;
-  }
-
 }

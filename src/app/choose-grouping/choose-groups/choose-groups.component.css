@@ -43,3 +43,18 @@ button {
 .disabledButton {
   background-color: #dddddd;
 }
+.cdk-virtual-scroll-data-source-example .example-viewport {
+  height: 500px;
+  width: 100%;
+  border: 1px solid black;
+}
+
+.cdk-virtual-scroll-data-source-example .example-viewport .cdk-virtual-scroll-content-wrapper {
+  display: flex;
+  flex-direction: row;
+}
+
+.cdk-virtual-scroll-data-source-example .example-item {
+  width: 500px;
+  height: 100%;
+}
