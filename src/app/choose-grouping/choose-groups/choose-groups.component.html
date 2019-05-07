@@ -27,6 +27,9 @@
               <div *ngFor="let data of boxValues;">
                 <input type="radio" formControlName="option" value="{{data.opt}}" (click)="toggleRestBoxes(i + 1)"> {{data.opt}}<br>
               </div>
+              <div *ngIf="box.boxVal.controls.option.value === 'Group'">
+                <input type="checkbox" formControlName="box"> This is a Group vote question unrelated to previous questions
+              </div>
             </form>
           </div>
         </cdk-virtual-scroll-viewport>

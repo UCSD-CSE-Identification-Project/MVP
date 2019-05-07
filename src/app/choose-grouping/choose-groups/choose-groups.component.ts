@@ -92,6 +92,7 @@ export class ChooseGroupsComponent implements OnInit {
     let retObj = {
       boxVal: this.fb.group({
         option: [''],
+        box: [false]
       }),
       radioClicked: false,
       disabledRadioButton: false,
@@ -133,7 +134,7 @@ export class ChooseGroupsComponent implements OnInit {
     let i;
     for( i = 0; i < this.lenOfVirtualScroll; i++){
       this.lectureOnScreenBoxList.push(this.createBoxObj(i,i%2)); // todo come back here and put the correct image index
-      this.lectureOnScreenBoxList[i].oldVal = this.lectureOnScreenBoxList[i].boxVal.controls.option.value;
+      //this.lectureOnScreenBoxList[i].oldVal = this.lectureOnScreenBoxList[i].boxVal.controls.option.value;
     }
     i = 0;
     //populate the image URL's
