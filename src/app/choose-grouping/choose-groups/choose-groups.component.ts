@@ -133,12 +133,28 @@ export class ChooseGroupsComponent implements OnInit {
     let i;
     for( i = 0; i < this.lenOfVirtualScroll; i++){
       this.lectureOnScreenBoxList.push(this.createBoxObj(i,i%2)); // todo come back here and put the correct image index
+      this.lectureOnScreenBoxList[i].oldVal = this.lectureOnScreenBoxList[i].boxVal.controls.option.value;
     }
     i = 0;
     //populate the image URL's
     for ( let imgID of lectureList ){
       this.lectureOnScreenBoxList[i].imageSourceURL = this.db.collection('images').doc(imgID).ref.get();
       i++;
+    }
+  }
+
+  toggleRestBoxes(newValue: string, index: number) {
+    //console.log(this.lectureOnScreenBoxList[index - 1].boxVal.controls.option.value);
+    //this.lectureOnScreenBoxList[index - 1].boxVal.controls['option'].setValue(newValue);
+
+    let i: number;
+    for (i = index; i < this.lectureOnScreenBoxList.length; i++) {
+      if (this.lectureOnScreenBoxList[i].boxVal.controls.option.value === "Individual") {
+        this.lectureOnScreenBoxList[i].boxVal.controls['option'].setValue("Group");
+      }
+      else {
+        this.lectureOnScreenBoxList[i].boxVal.controls['option'].setValue("Individual");
+      }
     }
   }
 
@@ -325,6 +341,7 @@ export class ChooseGroupsComponent implements OnInit {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.prevTermLectureImage).length) {
         this.lectureNum = 0;
         this.whichTerm = "curr";
+        this.setResetTermFinishVariables("prev");
       }
       else {
         this.lectureNum += 1;
@@ -333,6 +350,7 @@ export class ChooseGroupsComponent implements OnInit {
     else {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.currTermLectureImage).length) {
         this.finishedCurrentTerm = true;
+        this.setResetTermFinishVariables("curr");
         return;
       }
       else {
