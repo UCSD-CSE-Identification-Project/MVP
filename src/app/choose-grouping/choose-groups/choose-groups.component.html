@@ -24,8 +24,8 @@
             <img src="{{( box.imageSourceURL | async )?.data().downloadURL}}" width="500px"/>
             <form [formGroup]="box.boxVal">
               <div><h4>Classification of this Question</h4></div>
-              <div *ngFor="let data of boxValues">
-                <input type="radio" formControlName="option" value="{{data.opt}}" (click)="updateChecked(10)"> {{data.opt}}<br>
+              <div *ngFor="let data of boxValues;">
+                <input type="radio" formControlName="option" value="{{data.opt}}" (click)="toggleRestBoxes(i + 1)"> {{data.opt}}<br>
               </div>
             </form>
           </div>
