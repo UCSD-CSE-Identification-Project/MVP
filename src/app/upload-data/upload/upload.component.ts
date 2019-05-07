@@ -328,6 +328,7 @@ export class UploadComponent implements OnInit {
 
     allPrevKeys.forEach((element: string) => {
       let lectureName = element.slice(0, element.lastIndexOf('_'));
+      console.log(lectureName);
       prevTermLectureImages[lectureName].push(this.generalInfo.prevTermAllImages[element]);
     });
 

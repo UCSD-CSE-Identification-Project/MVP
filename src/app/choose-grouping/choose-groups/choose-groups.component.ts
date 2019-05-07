@@ -140,31 +140,17 @@ export class ChooseGroupsComponent implements OnInit {
       this.lectureOnScreenBoxList[i].imageSourceURL = this.db.collection('images').doc(imgID).ref.get();
       i++;
     }
+    console.log("previous Term");
+    console.log(this.generalInfo.prevTermLectureImage);
   }
 
-
-  // helper method: remove after code functional without
-  /*getAllImagesFromTerm( term: string) {
-    this.db.collection("terms").doc(term).ref.get().then( (doc) =>{
-      console.log(doc.data().all_images);
-      this.prevTermGrouping = this.createChooseGroupingTermObject(doc.data().all_images, false);
-      this.currTermGrouping = this.createChooseGroupingTermObject(doc.data().all_images, false);
-
-      this.populateLectureBoxList(0,'prev');
-      this.lenOfVirtualScroll = this.prevTermGrouping.imageKeysSorted.length;
-      console.log(this.prevTermGrouping);
-      console.log(this.lenOfVirtualScroll);
-      this.ref.detectChanges();
-      console.log("finished ref");
-    });
-  }*/
   // TODO
   // reset variables when second term is done
-  setResetTermFinishVariables(prevOrCurrentTerm: string){
-    console.log("inside set and reset");
-
-    if ( prevOrCurrentTerm === 'prev'){
+  setResetTermFinishVariables(){
+    if ( this.whichTerm === 'prev'){
       // this.prevTermGrouping.imageFinishedGrouping = true;
+      this.lectureNum = 0;
+      this.whichTerm = "curr";
       this.prevTermGrouping.needGrouping = false;
       this.generalInfo.prevTermFinished = true;
       this.prevTermGrouping.termFinishedAnswering = true;
@@ -199,14 +185,10 @@ export class ChooseGroupsComponent implements OnInit {
       });
       this.generalInfo.makeSingleRequest();
       this.imagesFinished = true;
+      this.finishedCurrentTerm = true;
+      return;
     }
   }
-  getImageURLsetInHTML(indexImageSource: number, imageKey: string, prevOrCurr: string){
-    let url = prevOrCurr === "prev" ?
-      this.db.collection('images').doc(this.prevTermGrouping.imageNames[imageKey]).ref.get() :
-      this.db.collection('images').doc(this.currTermGrouping.imageNames[imageKey]).ref.get();
-  }
-
 
 
   // Remove picture at index "picIndex"
@@ -215,66 +197,71 @@ export class ChooseGroupsComponent implements OnInit {
   // 2: boxThree
 
 
-  async pushSubGroupToFirestore ( prevOrCurrentTerm: string, imgIndexToPush: number) {
-    console.log("inside pushsubgroupfirestore with value " + imgIndexToPush);
-    console.log(this.partOfTheSameSubPair);
-    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+  // async pushSubGroupToFirestore ( ) {
+  //
+  //   console.log("inside pushsubgroupfirestore with value " + imgIndexToPush);
+  //   console.log(this.partOfTheSameSubPair);
+  //   let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+  //
+  //   const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
+  //   // also saving object locally
+  //   if( prevOrCurrentTerm === 'prev'){
+  //     this.generalInfo.saveKeyImageToPrevTerm(imgToPush, this.partOfTheSameSubPair);
+  //   } else {
+  //     this.generalInfo.saveKeyImageToCurrTerm(imgToPush, this.partOfTheSameSubPair);
+  //   }
+  //   // different scenarios
+  //   await this.db.collection('images')
+  //     .doc(imgToPush)
+  //     .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
+  //
+  //   this.partOfTheSameSubPair = {};
+  // }
 
-    const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
-    // also saving object locally
-    if( prevOrCurrentTerm === 'prev'){
-      this.generalInfo.saveKeyImageToPrevTerm(imgToPush, this.partOfTheSameSubPair);
-    } else {
-      this.generalInfo.saveKeyImageToCurrTerm(imgToPush, this.partOfTheSameSubPair);
-    }
-    // different scenarios
-    await this.db.collection('images')
-      .doc(imgToPush)
-      .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
-
-    this.partOfTheSameSubPair = {};
-  }
-
-  async pushImageObjectToFirestore( prevOrCurrentTerm: string, boxVal: string, imageIndex: number ){
-    let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
+  async pushImageObjectToFirestore( boxVal: string, imageKey: string ){
     const imageObj = {};
     imageObj["grouping"] = boxVal;
-    await this.db.collection('images')
-      .doc(termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imageIndex]]).update(imageObj);
+    await this.db.collection('images').doc(imageKey).update(imageObj);
   }
 
-  addGroupingToGenInfo( prevOrCurrentTerm: string,  grouping: string, imageIndex: number ){
-    const termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    const imgName = termObjGrouping.imageKeysSorted[imageIndex];
-    const imgId = termObjGrouping.imageNames[imgName];
+  addGroupingOfImageToGenInfo( termObjectKeysToNames: Object, lectureImageIds: Array<string>  ){
+    var imgName;
+    var imgId;
+    let i = 0;
+    for ( let box of this.lectureOnScreenBoxList ){
+      imgId = lectureImageIds[i];
+      imgName = termObjectKeysToNames[imgId];
+      i++;
+      if( this.whichTerm === 'prev'){
+        switch (box.boxVal.controls.option.value){
 
-    if( prevOrCurrentTerm === 'prev'){
-      switch (grouping){
+          case 'Individual':
+            this.generalInfo.saveImageToPrevIndImages(imgName,imgId);
+            break;
+          case 'Group':
+            this.generalInfo.saveImageToPrevGroupImages(imgName,imgId);
+            break;
+          case 'Isomorphic':
+            this.generalInfo.saveImageToPrevIsoImages(imgName, imgId);
+            break;
+        }
+      } else {
+        switch (box.boxVal.controls.option.value){
 
-        case 'Individual':
-          this.generalInfo.saveImageToPrevIndImages(imgName,imgId);
-          break;
-        case 'Group':
-          this.generalInfo.saveImageToPrevGroupImages(imgName,imgId);
-          break;
-        case 'Isomorphic':
-          this.generalInfo.saveImageToPrevIsoImages(imgName, imgId);
-          break;
-      }
-    } else {
-      switch (grouping){
+          case 'Individual':
+            this.generalInfo.saveImageToCurrIndImages(imgName,imgId);
+            break;
+          case 'Group':
+            this.generalInfo.saveImageToCurrGroupImages(imgName,imgId);
+            break;
+          case 'Isomorphic':
+            this.generalInfo.saveImageToCurrIsoImages(imgName, imgId);
+            break;
+        }
+      } // end of if else
 
-        case 'Individual':
-          this.generalInfo.saveImageToCurrIndImages(imgName,imgId);
-          break;
-        case 'Group':
-          this.generalInfo.saveImageToCurrGroupImages(imgName,imgId);
-          break;
-        case 'Isomorphic':
-          this.generalInfo.saveImageToCurrIsoImages(imgName, imgId);
-          break;
-      }
-    }
+    } // end of for loop
+
   }
 
 
@@ -290,41 +277,31 @@ export class ChooseGroupsComponent implements OnInit {
 
   // checkes if all the images are checked or if the unchecked ones are hidden
   allChecked(prevOrCurrent: string){
-    // let termObjGrouping = prevOrCurrent === 'prev' ? this.prevTermGrouping: this.currTermGrouping;
-    // const boxTwoHidden = this.boxTwo.imgIndex >= termObjGrouping.numImages;
-    // const boxThreeHidden = this.boxThree.imgIndex >= termObjGrouping.numImages;
-    //
-    // return this.boxOne.radioClicked &&
-    //       (this.boxTwo.radioClicked|| boxTwoHidden) &&
-    //       (this.boxThree.radioClicked || boxThreeHidden);
     return true;
-
   }
-/*
-  fetchLectureImages(lectureIndex: number, prevOrCurrentTerm: string) {
-    if (prevOrCurrentTerm === "prev") {
-      this.currentPair = Object.entries(this.generalInfo.prevTermLectureImage)[lectureIndex];
-    }
-    else {
-      this.currentPair = Object.entries(this.generalInfo.currTermLectureImage)[lectureIndex];
-    }
-    this.lectureName = this.currentPair[0];
-    let imageIds: string[] = this.currentPair[1];
 
-    this.allImages = [];
-    for (let id of imageIds) {
-      this.allImages.push(this.db.collection('images').doc(id).ref.get());
-    }
-    this.lenVal = this.allImages.length;
-    this.ref.detectChanges();
-    console.log("finished ref");
-  }*/
+  nextLecture() {
+    const termObj = this.whichTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
+    const lectureKeys =  this.whichTerm === 'prev' ?
+                    this.generalInfo.prevTermLectureImage[termObj.lectureList[termObj.lectureIndex]] :
+                    this.generalInfo.currTermLectureImage[termObj.lectureList[termObj.lectureIndex]];
+    let keyToName = {};
 
-  continue() {
+    console.log("inside next lecture");
+    console.log(lectureKeys);
+
+    termObj.imageKeysSorted.forEach((name) => keyToName[termObj.imageNames[name]] = name);
+
+    this.addGroupingOfImageToGenInfo( keyToName, lectureKeys );
+    let i = 0;
+    for ( let box of this.lectureOnScreenBoxList ){
+      this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
+      i++;
+    }
+
     if (this.whichTerm === "prev") {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.prevTermLectureImage).length) {
-        this.lectureNum = 0;
-        this.whichTerm = "curr";
+        this.setResetTermFinishVariables();
       }
       else {
         this.lectureNum += 1;
@@ -332,7 +309,7 @@ export class ChooseGroupsComponent implements OnInit {
     }
     else {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.currTermLectureImage).length) {
-        this.finishedCurrentTerm = true;
+        this.setResetTermFinishVariables();
         return;
       }
       else {

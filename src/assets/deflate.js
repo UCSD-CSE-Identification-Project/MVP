@@ -707,7 +707,7 @@
         // Exchange v with the smallest son
         heap[k] = heap[j];
         k = j;
-        // And continue down the tree, setting j to the left son of k
+        // And nextLecture down the tree, setting j to the left son of k
         j <<= 1;
       }
       heap[k] = v;
@@ -1818,7 +1818,7 @@
         return Z_BUF_ERROR;
       }
 
-      // Start a new block or continue the current one.
+      // Start a new block or nextLecture the current one.
       if (strm.avail_in !== 0 || lookahead !== 0 || (flush != Z_NO_FLUSH && status != FINISH_STATE)) {
         bstate = -1;
         switch (config_table[level].func) {
