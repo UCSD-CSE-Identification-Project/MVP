@@ -145,7 +145,7 @@ export class ChooseGroupsComponent implements OnInit {
     console.log(this.generalInfo.prevTermLectureImage);
   }
 
-  toggleRestBoxes(newValue: string, index: number) {
+  toggleRestBoxes(index: number) {
     //console.log(this.lectureOnScreenBoxList[index - 1].boxVal.controls.option.value);
     //this.lectureOnScreenBoxList[index - 1].boxVal.controls['option'].setValue(newValue);
 
