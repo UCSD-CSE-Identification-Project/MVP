@@ -41,11 +41,6 @@
       <button mat-raised-button (click)="nextLecture()">Next Lecture</button>
     </nav>
   </div>
-  <div *ngIf="finishedCurrentTerm" style="float: right;">
-    <nav>
-      <button mat-raised-button class="nextButton" routerLink="/navigator/classify">Next</button>
-    </nav>
-  </div>
   <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
     You have finished current term grouping.
   </h2>

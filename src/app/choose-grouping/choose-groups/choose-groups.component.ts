@@ -322,6 +322,7 @@ export class ChooseGroupsComponent implements OnInit {
       }
       else {
         this.lectureNum += 1;
+        this.prevTermGrouping.lectureIndex += 1;
       }
     }
     else {
@@ -331,6 +332,7 @@ export class ChooseGroupsComponent implements OnInit {
       }
       else {
         this.lectureNum += 1;
+        this.currTermGrouping.lectureIndex += 1;
       }
     }
     this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
