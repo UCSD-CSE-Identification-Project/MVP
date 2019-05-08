@@ -41,3 +41,4 @@ Thumbs.db
 # Hosting related
 firebase.json
 .firebase*
+*.cache
