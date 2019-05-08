@@ -130,6 +130,7 @@ export class ChooseGroupsComponent implements OnInit {
     let allImgNameToKey = prevOrCurr === 'prev' ? this.prevTermGrouping.imageNames : this.currTermGrouping.imageNames;
     // The list will contain all image ids from that lecture (sorted by imageName)
     let lectureList: string[] = prevOrCurr === 'prev' ? this.generalInfo.prevTermLectureImage[this.prevTermGrouping.lectureList[lecInd]] : this.generalInfo.currTermLectureImage[this.currTermGrouping.lectureList[lecInd]];
+    console.log("All images from this lecture is: ", lectureList);
     this.lenOfVirtualScroll = lectureList.length;
     let i;
     for( i = 0; i < this.lenOfVirtualScroll; i++){
@@ -142,8 +143,9 @@ export class ChooseGroupsComponent implements OnInit {
       this.lectureOnScreenBoxList[i].imageSourceURL = this.db.collection('images').doc(imgID).ref.get();
       i++;
     }
-    console.log("previous Term");
+    console.log("Inside populate");
     console.log(this.generalInfo.prevTermLectureImage);
+    console.log(this.generalInfo.currTermLectureImage);
   }
 
   toggleRestBoxes(index: number) {
@@ -181,8 +183,6 @@ export class ChooseGroupsComponent implements OnInit {
       this.db.collection('terms').doc(this.generalInfo.prevTermIdVal).ref.set(termObj).then((val)=>{
         console.log("prevTerm: " + val);
       });
-      console.log("in prev ");
-      console.log(this.generalInfo.currTermIndividualImages);
     } else{
       // this.currTermGrouping.imageFinishedGrouping = true;
       this.currTermGrouping.needGrouping = false;
