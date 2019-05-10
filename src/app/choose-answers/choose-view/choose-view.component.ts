@@ -120,11 +120,12 @@ export class ChooseViewComponent implements OnInit {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.startingIndex = data.imageIndex;
+    this.startingIndex = data.lectureOrImageIndex;
 
     let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev');
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal, 0);
+    console.log(this.prevTermAnswerObj);
 
     let currTermIndIsoImages = this.getKeyAndIsoImages('curr');
     this.currTermAnswerObj = this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal, 0);
@@ -249,7 +250,7 @@ export class ChooseViewComponent implements OnInit {
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: index
+      lectureOrImageIndex: index
     };
     this.authService.setStorage("local", object, "termData");
 
@@ -266,7 +267,7 @@ export class ChooseViewComponent implements OnInit {
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex
+      lectureOrImageIndex: this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex
     };
     console.log(this.prevTermAnswerObj.needGrouping);
     console.log(this.prevTermAnswerObj.imageIndex)

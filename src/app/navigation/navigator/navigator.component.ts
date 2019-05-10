@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 import { UserTermImageInformationService } from 'src/app/core/user-term-image-information.service';
 
 @Component({
@@ -39,18 +39,12 @@ export class NavigatorComponent implements OnInit {
       logoutUrl: "/",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+      lectureOrImageIndex: 0
     };
     this.authService.setStorage("session", object, "termData");
 
     switch (this.router.url) {
       case '/navigator/upload':
-        let lock: groupLock = {
-          boxLocked: false,
-          savedIndex: 0,
-          savedChoice: ""
-        }
-        this.authService.setStorage("session", lock, "groupLock");
         this.nextStage = 1;
         for (let i = 0; i < this.nextStage; i += 1) {
           this.show[i] = true;

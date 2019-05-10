@@ -36,9 +36,6 @@ export class ShowResultsComponent implements OnInit {
 
   getFile() {
     const self = this;
-    // This is what we should have
-    //let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
-    // This is default
     let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
 
     this.storage.ref(filePath).getDownloadURL().subscribe(async url => {
@@ -173,7 +170,7 @@ export class ShowResultsComponent implements OnInit {
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+      lectureOrImageIndex: 0
     };
     this.authService.setStorage("local", object, "termData");
     this.db.collection('users').doc(this.generalInfo.userIdVal).ref.update({
@@ -188,7 +185,7 @@ export class ShowResultsComponent implements OnInit {
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+      lectureOrImageIndex: 0
     };
     this.authService.setStorage("session", object, "termData");
     return false;

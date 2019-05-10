@@ -10,14 +10,15 @@ export interface termData {
   logoutUrl: string,
   prevTermInfo: any,
   currTermInfo: any,
-  imageIndex: number
+  lectureOrImageIndex: number
 }
 
+/*
 export interface groupLock {
   boxLocked: boolean,
   savedIndex: number,
   savedChoice: string
-}
+}*/
 
 @Injectable({
   providedIn: 'root'
@@ -82,7 +83,7 @@ export class AuthService {
     sessionStorage.clear();
   }
 
-  logout(usePrev: boolean, lastUrl: string, terms: any[], imageNum: number, boxLocked: boolean = false, savedIndex: number = 0, savedChoice: string = "") {
+  logout(usePrev: boolean, lastUrl: string, terms: any[], lectureOrImageIndex: number) {
     // When logout, get that user info
     let self = this;
     let docRef = this.db.collection('users').doc(this.uid).ref;
@@ -90,10 +91,7 @@ export class AuthService {
       useExistingPrev: usePrev,
       lastUrl: lastUrl,
       current_terms_generalInfo: terms,
-      imageNum: imageNum,
-      boxLocked: boxLocked,
-      savedIndex: savedIndex,
-      savedChoice: savedChoice
+      lectureOrImageIndex: lectureOrImageIndex
     }).then(function () {
       self.firebaseAuth.auth.signOut();
       self.router.navigate(['/']);

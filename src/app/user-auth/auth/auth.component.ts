@@ -5,7 +5,7 @@ import { Router } from "@angular/router";
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import * as firebase from 'firebase';
-import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 
 @Component({
   selector: 'app-auth',
@@ -84,16 +84,13 @@ export class AuthComponent implements OnInit {
             useExistingPrev: false,
             lastUrl: '',
             current_terms_generalInfo: [],
-            imageNum: 0,
-            boxLocked: false,
-            savedIndex: 0,
-            savedChoice: ""
+            lectureOrImageIndex: 0
           }).catch((error) => {
-            console.log("Error in creating a user auth.componenet.ts line 74", error);
+            console.log("Error setting metadata for a new user: ", error);
           });
         }
       }).catch(function (error) {
-        console.log("Error in creating sign up user auth.component.ts line 78:", error);
+        console.log("Error getting a ref for a new user: ", error);
       });
       this.router.navigate(["/upload"]);
     })
@@ -118,17 +115,11 @@ export class AuthComponent implements OnInit {
           useExistingPrev: false,
           lastUrl: '',
           current_terms_generalInfo: [],
-          imageNum: 0,
-          boxLocked: false,
-          savedIndex: 0,
-          savedChoice: ""
+          lectureOrImageIndex: 0
         }).then(() => this.router.navigate(["/upload"]));
 
         this.generalInfo.prevTerm = this.generalInfo.constructTermObj();
         this.generalInfo.currTerm = this.generalInfo.constructTermObj();
-
-        console.log(this.generalInfo.prevTerm);
-        console.log(this.generalInfo.currTerm);
       }
     });
   }
@@ -143,10 +134,7 @@ export class AuthComponent implements OnInit {
       let terms = doc.data()["current_terms_generalInfo"];
       this.generalInfo.prevTerm = terms[0];
       this.generalInfo.currTerm = terms[1];
-      let imageNum: number = doc.data()["imageNum"];
-      let boxLocked: boolean = doc.data()["boxLocked"];
-      let savedIndex: number = doc.data()["savedIndex"];
-      let savedChoice: string = doc.data()["savedChoice"];
+      let lectureOrImageIndex: number = doc.data()["lectureOrImageIndex"];
 
       // Store in localstorage
       let object: termData = {
@@ -154,25 +142,15 @@ export class AuthComponent implements OnInit {
         logoutUrl: url,
         prevTermInfo: this.generalInfo.prevTerm,
         currTermInfo: this.generalInfo.currTerm,
-        imageIndex: imageNum
+        lectureOrImageIndex: lectureOrImageIndex
       };
 
-      let lock: groupLock = {
-        boxLocked: boxLocked,
-        savedIndex: savedIndex,
-        savedChoice: savedChoice
-      }
-      this.authService.setStorage("session", lock, "groupLock");
       this.authService.setStorage("session", object, "termData");
     }
     // Simply read from localStorage and set sessionStorage
     else {
       url = this.authService.getStorage("local", "termData").logoutUrl;
       this.authService.setStorage("session", this.authService.getStorage("local", "termData"), "termData");
-      console.log(localStorage.getItem("groupLock"));
-      if (localStorage.getItem("groupLock") !== null) {
-        this.authService.setStorage("session", this.authService.getStorage("local", "groupLock"), "groupLock");
-      }
     }
     this.router.navigate([url]);
   }

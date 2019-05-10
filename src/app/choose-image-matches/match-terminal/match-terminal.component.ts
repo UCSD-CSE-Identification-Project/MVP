@@ -32,7 +32,7 @@ export class MatchTerminalComponent implements OnInit {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInd = data.imageIndex;
+    this.imageInd = data.lectureOrImageIndex;
     console.log(this.generalInfo.prevTermAllImages);
     this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
 
@@ -208,7 +208,7 @@ export class MatchTerminalComponent implements OnInit {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.termMatching.imageIndex
+      lectureOrImageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("local", object, "termData");
 
@@ -222,7 +222,7 @@ export class MatchTerminalComponent implements OnInit {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.termMatching.imageIndex
+      lectureOrImageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("session", object, "termData");
     return false;

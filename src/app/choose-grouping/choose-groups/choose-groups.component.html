@@ -4,20 +4,21 @@
     <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
   </div>
 
-  <div style="margin-top: 10vw"><!--???????-->
-    <h2>Term: {{termName}}</h2>
-    <h2>Lecture {{lectureNum + 1}}: {{lectureName}}</h2>
+  <div style="margin-top: 10vw"><!--change this-->
+    <h2 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
+      You have finished previous term grouping.
+    </h2>
+    <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+      You have finished current term grouping.
+    </h2>
   </div>
-  <br>
-  <br>
-
-  <h2 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
-    You have finished previous term grouping.
-  </h2>
-  <h2 style="padding: 1%" *ngIf="!currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
-    You have finished current term grouping.
-  </h2>
   <div *ngIf="prevTermGrouping.needGrouping || currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
+    <div style="margin-top: 5vw"><!--???????-->
+      <h3>Term: {{termName}}</h3>
+      <h3>Lecture {{lectureNum + 1}}: {{lectureName}}</h3>
+    </div>
+    <br>
+    <br>
     <div class="row">
       <!-- put virtual scroll here -->
       <div *ngIf="lenOfVirtualScroll > 0" class="cdk-virtual-scroll-data-source-example">
