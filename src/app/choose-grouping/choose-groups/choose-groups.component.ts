@@ -313,7 +313,27 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
-  updateImageWithGrouping()
+  updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
+
+    let curSubGrouping = [];
+    var curkeyImage = lectureImageIds[0];
+
+    let i = 1;
+    for ( let box of this.lectureOnScreenBoxList ){
+
+      if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
+        const imgObj = {};
+        imgObj["imagesInGroup"] = curSubGrouping;
+        this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+        curkeyImage = lectureImageIds[i];
+      } else {
+        curSubGrouping.push(lectureImageIds[i]);
+      }
+      i++;
+    }
+
+
+  }
 
   nextLecture() {
     const termObj = this.whichTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
@@ -333,6 +353,9 @@ export class ChooseGroupsComponent implements OnInit {
       this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
       i++;
     }
+
+    this.populateKeyValuesInService( keyToName, lectureKeys );
+    this.updateImageWithGrouping(keyToName, lectureKeys ); // will update teh subgrouping of every image in the lecture
 
     if (this.whichTerm === "prev") {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.prevTermLectureImage).length) {
