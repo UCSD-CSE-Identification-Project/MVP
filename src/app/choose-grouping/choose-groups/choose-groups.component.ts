@@ -76,7 +76,7 @@ export class ChooseGroupsComponent implements OnInit {
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase, "prev");
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase, "curr");
-    
+
     this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
     this.currTermGrouping.needGrouping = !this.generalInfo.currTermLoadedFromDatabase && !this.generalInfo.currTermFinished;
     this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
@@ -286,24 +286,34 @@ export class ChooseGroupsComponent implements OnInit {
       } // end of if else
 
     } // end of for loop
-
   }
 
+  populateKeyValuesInService( termObjectKeysToNames: Object, lectureImageIds: Array<string>  ){
+    let indImgVal = this.whichTerm === 'prev' ? this.generalInfo.prevTermKeyImages : this.generalInfo.currTermKeyImages;
+    for ( let indImg of Object.keys(indImgVal) ){
+      if ( this.whichTerm === 'prev') {
+        this.generalInfo.prevTermKeyImages[indImg] = indImgVal[indImg];
+      } else {
+        this.generalInfo.currTermKeyImages[indImg] = indImgVal[indImg];
+      }
+    }
 
-  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
-  // this code was written under the assumption that you only shift by two images
-  async nextImage(prevOrCurrentTerm: string) {
+    let i = 0;
+    for ( let box of this.lectureOnScreenBoxList ){
 
+      if( box.boxVal.controls.box.value === true ) {
+        if( this.whichTerm === 'prev' ){
+          this.generalInfo.prevTermKeyImages[termObjectKeysToNames[lectureImageIds[i]]] = lectureImageIds[i];
+        }
+        else {
+          this.generalInfo.currTermKeyImages[termObjectKeysToNames[lectureImageIds[i]]] = lectureImageIds[i];
+        }
+      }
+      i++;
+    }
   }
 
-  updateChecked(boxNum: number){
-
-  }
-
-  // checkes if all the images are checked or if the unchecked ones are hidden
-  allChecked(prevOrCurrent: string){
-    return true;
-  }
+  updateImageWithGrouping()
 
   nextLecture() {
     const termObj = this.whichTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
