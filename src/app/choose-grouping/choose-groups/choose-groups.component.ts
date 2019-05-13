@@ -188,6 +188,7 @@ export class ChooseGroupsComponent implements OnInit {
       termObj[`group_images`] = this.generalInfo.prevTermGroupImages;
       termObj[`iso_images`] = this.generalInfo.prevTermIsoImages;
       termObj[`key_images`] = this.generalInfo.prevTermKeyImages;
+      console.log(termObj);
       this.db.collection('terms').doc(this.generalInfo.prevTermIdVal).ref.set(termObj).then((val)=>{
         console.log("prevTerm: " + val);
       });
@@ -215,34 +216,6 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
-
-  // Remove picture at index "picIndex"
-  // 0: boxOne
-  // 1: boxTwo
-  // 2: boxThree
-
-
-  // async pushSubGroupToFirestore ( ) {
-  //
-  //   console.log("inside pushsubgroupfirestore with value " + imgIndexToPush);
-  //   console.log(this.partOfTheSameSubPair);
-  //   let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
-  //
-  //   const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
-  //   // also saving object locally
-  //   if( prevOrCurrentTerm === 'prev'){
-  //     this.generalInfo.saveKeyImageToPrevTerm(imgToPush, this.partOfTheSameSubPair);
-  //   } else {
-  //     this.generalInfo.saveKeyImageToCurrTerm(imgToPush, this.partOfTheSameSubPair);
-  //   }
-  //   // different scenarios
-  //   await this.db.collection('images')
-  //     .doc(imgToPush)
-  //     .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
-  //
-  //   this.partOfTheSameSubPair = {};
-  // }
-
   async pushImageObjectToFirestore( boxVal: string, imageKey: string ){
     const imageObj = {};
     imageObj["grouping"] = boxVal;
@@ -250,10 +223,13 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   addGroupingOfImageToGenInfo( termObjectKeysToNames: Object, lectureImageIds: Array<string>  ){
+    console.log(termObjectKeysToNames);
+    console.log(lectureImageIds);
     var imgName;
     var imgId;
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
+      console.log(box.boxVal.controls.option.value);
       imgId = lectureImageIds[i];
       imgName = termObjectKeysToNames[imgId];
       i++;
@@ -292,21 +268,21 @@ export class ChooseGroupsComponent implements OnInit {
     let indImgVal = this.whichTerm === 'prev' ? this.generalInfo.prevTermKeyImages : this.generalInfo.currTermKeyImages;
     for ( let indImg of Object.keys(indImgVal) ){
       if ( this.whichTerm === 'prev') {
-        this.generalInfo.prevTermKeyImages[indImg] = indImgVal[indImg];
+        this.generalInfo.saveKeyImageToPrevTerm(indImg , indImgVal[indImg]);
       } else {
-        this.generalInfo.currTermKeyImages[indImg] = indImgVal[indImg];
+        this.generalInfo.saveKeyImageToCurrTerm(indImg , indImgVal[indImg]);
       }
     }
 
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
 
-      if( box.boxVal.controls.box.value === true ) {
+      if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === 'Individual') {
         if( this.whichTerm === 'prev' ){
-          this.generalInfo.prevTermKeyImages[termObjectKeysToNames[lectureImageIds[i]]] = lectureImageIds[i];
+          this.generalInfo.saveKeyImageToPrevTerm(termObjectKeysToNames[lectureImageIds[i]] , lectureImageIds[i]);
         }
         else {
-          this.generalInfo.currTermKeyImages[termObjectKeysToNames[lectureImageIds[i]]] = lectureImageIds[i];
+          this.generalInfo.saveKeyImageToCurrTerm(termObjectKeysToNames[lectureImageIds[i]] , lectureImageIds[i]);
         }
       }
       i++;
@@ -318,14 +294,23 @@ export class ChooseGroupsComponent implements OnInit {
     let curSubGrouping = [];
     var curkeyImage = lectureImageIds[0];
 
-    let i = 1;
-    for ( let box of this.lectureOnScreenBoxList ){
+    let i = 1; // skip the first element and start looking after teh second element
+    for ( let box of this.lectureOnScreenBoxList.slice(0, ) ){
 
       if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
         const imgObj = {};
         imgObj["imagesInGroup"] = curSubGrouping;
         this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+
+        // populate the variables in the service object
+        if ( this.whichTerm === 'prev'){
+          this.generalInfo.saveKeyImageToPrevTerm(curkeyImage , curSubGrouping);
+        } else {
+          this.generalInfo.saveKeyImageToCurrTerm(curkeyImage , curSubGrouping);
+        }
+
         curkeyImage = lectureImageIds[i];
+        curSubGrouping = [];
       } else {
         curSubGrouping.push(lectureImageIds[i]);
       }
@@ -350,11 +335,11 @@ export class ChooseGroupsComponent implements OnInit {
     this.addGroupingOfImageToGenInfo( keyToName, lectureKeys );
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
-      this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
+      // this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
       i++;
     }
 
-    this.populateKeyValuesInService( keyToName, lectureKeys );
+    // this.populateKeyValuesInService( keyToName, lectureKeys );
     this.updateImageWithGrouping(keyToName, lectureKeys ); // will update teh subgrouping of every image in the lecture
 
     if (this.whichTerm === "prev") {

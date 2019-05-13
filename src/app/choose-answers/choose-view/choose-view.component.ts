@@ -67,7 +67,6 @@ export class ChooseViewComponent implements OnInit {
     tempArr = {};
     switch (prevOrCurrentTerm){
       case 'prev':
-        retVal = Object.assign({}, this.generalInfo.prevTermIsoImages );
         for( let key of Object.keys(this.generalInfo.prevTermKeyImages)){
           // retVal = Object.assign(retVal, key);//this.generalInfo.prevTermKeyImages[key]);
           tempArr[reversed[key]] = key;
@@ -113,21 +112,23 @@ export class ChooseViewComponent implements OnInit {
     return retVal;
   }
   ngOnInit() {
-
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
-
+    console.log("here");
     let data: termData = this.authService.getStorage("session", "termData");
+    console.log(data);
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.lectureOrImageIndex;
 
     let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev');
+    console.log(prevTermIndIsoImages);
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal, 0);
     console.log(this.prevTermAnswerObj);
 
     let currTermIndIsoImages = this.getKeyAndIsoImages('curr');
+    console.log(currTermIndIsoImages);
     this.currTermAnswerObj = this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal, 0);
 
     this.prevTermAnswerObj.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
