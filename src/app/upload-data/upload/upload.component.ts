@@ -383,12 +383,24 @@ export class UploadComponent implements OnInit {
 
   }
 
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/upload",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
   generateCsv() {
     this.pairLectureImage();
 
     // Set generalinfo term names
     this.generalInfo.prevTermName = this.prevTerm;
     this.generalInfo.currTermName = this.currTerm;
+    this.storeSession();
 
     let headers = new HttpHeaders();
     headers.append('Content-Type', 'application/json');

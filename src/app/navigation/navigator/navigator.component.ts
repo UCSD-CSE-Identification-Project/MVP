@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, termData } from 'src/app/core/auth.service';
 import { UserTermImageInformationService } from 'src/app/core/user-term-image-information.service';
@@ -31,6 +31,11 @@ export class NavigatorComponent implements OnInit {
 
   ngOnInit() {
     // Store generalInfo into sessionStorage, and set both terms to not finished
+    // First need to populate generalinfo again
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+
     this.generalInfo.prevTermFinished = false;
     this.generalInfo.currTermFinished = false;
     
@@ -42,6 +47,7 @@ export class NavigatorComponent implements OnInit {
       lectureOrImageIndex: 0
     };
     this.authService.setStorage("session", object, "termData");
+    this.url = this.router.url;
 
     switch (this.router.url) {
       case '/navigator/upload':
@@ -84,6 +90,19 @@ export class NavigatorComponent implements OnInit {
       default:
         break;
     }
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: this.url,
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+    return false;
   }
 
 }

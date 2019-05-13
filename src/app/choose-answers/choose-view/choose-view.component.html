@@ -53,7 +53,7 @@
     </div>
 
     <div style="text-align: center;">
-      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
+      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans" (click)="storeSession()"> Finish </button>
     </div>
 
     <!--<div>

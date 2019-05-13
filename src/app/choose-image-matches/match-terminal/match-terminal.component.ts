@@ -202,6 +202,17 @@ export class MatchTerminalComponent implements OnInit {
     this.ref.detectChanges();
   }
 
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/match",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
   logout() {
     let object: termData = {
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
