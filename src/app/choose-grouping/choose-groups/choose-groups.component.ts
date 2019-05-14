@@ -68,6 +68,11 @@ export class ChooseGroupsComponent implements OnInit {
     this.partOfTheSameSubPair  = {};
   }
 
+  // Returns the number of lectures for previous and current terms
+  prevNumLectures = Object.keys(this.generalInfo.prevTermLectureImage).length;
+  currNumLectures = Object.keys(this.generalInfo.currTermLectureImage).length;
+
+
   ngOnInit() {
     this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
     this.lectureName = Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum];

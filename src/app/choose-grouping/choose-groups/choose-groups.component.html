@@ -6,7 +6,8 @@
 
   <div style="margin-top: 10vw"><!--???????-->
     <h2>Term: {{termName}}</h2>
-    <h2>Lecture {{lectureNum + 1}}: {{lectureName}}</h2>
+    <h2 *ngIf="prevTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{prevNumLectures}}: {{lectureName}}</h2>
+    <h2 *ngIf="!prevTermGrouping.needGrouping && currTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{currNumLectures}}: {{lectureName}}</h2>
   </div>
   <br>
   <br>

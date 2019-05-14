@@ -4,6 +4,7 @@ import { ChooseViewComponent } from './choose-view/choose-view.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {ChooseAnswersRoutingModule} from 'src/app/choose-answers/choose-answers-routing.module';
 import {MatButtonModule} from '@angular/material/button';
+import {ProgressBarModule} from 'angular-progress-bar';
 
 @NgModule({
   imports: [
@@ -11,7 +12,8 @@ import {MatButtonModule} from '@angular/material/button';
     FormsModule,
     ChooseAnswersRoutingModule,
     ReactiveFormsModule,
-    MatButtonModule
+    MatButtonModule,
+    ProgressBarModule
   ],
   declarations: [ChooseViewComponent],
   exports: []

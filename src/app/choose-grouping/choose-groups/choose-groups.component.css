@@ -7,6 +7,13 @@
   padding-bottom: 10px;
 }
 
+.term {
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  padding-bottom: 30px;
+}
+
 .row {
   padding-left: 1.5%;
 }

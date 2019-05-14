@@ -6,6 +6,7 @@ import { MatchTerminalComponent } from './match-terminal/match-terminal.componen
 import {HttpModule} from '@angular/http';
 import {FormsModule} from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { ProgressBarModule} from 'angular-progress-bar';
 
 import {
   MatButtonModule,
@@ -33,7 +34,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
     MatMenuModule,
     MatProgressSpinnerModule,
     // MatProgressBarModule,
-    ScrollingModule
+    ScrollingModule,
+    ProgressBarModule
     // MatSelectModulee
   ]
 })
