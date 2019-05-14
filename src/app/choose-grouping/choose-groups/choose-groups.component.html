@@ -54,7 +54,7 @@
   </div>
   &nbsp;-->
   <div style="display:inline-block">
-    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify">Finish</button>
+    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify" (click)="storeSession()">Finish</button>
   </div>
 
 </div>

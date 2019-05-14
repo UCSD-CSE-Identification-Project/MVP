@@ -367,6 +367,17 @@ export class ChooseGroupsComponent implements OnInit {
     this.viewport.scrollToIndex(0);
   }
 
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/classify",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
   logout() {
     let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.lectureIndex : this.currTermGrouping.lectureIndex;
     if (!this.prevTermGrouping.needGrouping) {
