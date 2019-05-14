@@ -83,7 +83,7 @@
 </div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">
-  <h3>{this.generalInfo.prevTermName} Images:</h3>
+  <h3> {this.generalInfo.prevTermName} Images:</h3>
   <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
   <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px"> <br />
@@ -113,6 +113,4 @@
         </div>
       </cdk-virtual-scroll-viewport>
     </ng-container>
-
 </div>
-
