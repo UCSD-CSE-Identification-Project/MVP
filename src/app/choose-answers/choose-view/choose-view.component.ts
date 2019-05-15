@@ -11,7 +11,7 @@ import { AuthService, termData } from 'src/app/core/auth.service';
   styleUrls: ['./choose-view.component.css']
 })
 export class ChooseViewComponent implements OnInit {
-  boxValues = [{ opt: 'A' }, { opt: 'B' }, { opt: 'C' }, { opt: 'D' }, { opt: 'E' }, { opt: 'None of the above' }];
+  boxValues = [{ opt: 'A' }, { opt: 'B' }, { opt: 'C' }, { opt: 'D' }, { opt: 'E' }, { opt: 'None of A, B, C, D, E is correct' }];
   imagesFinished; // if we finish reading all the images
   boxOnScreen;
   prevTermAnswerObj;
@@ -238,6 +238,7 @@ export class ChooseViewComponent implements OnInit {
   }
 
   boxChecked(isChecked: boolean) {
+    console.log(isChecked);
     if (isChecked) {
       this.boxOnScreen.numBoxesChecked++;
     } else {
