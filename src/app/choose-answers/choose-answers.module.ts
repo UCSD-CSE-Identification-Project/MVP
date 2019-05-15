@@ -5,7 +5,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {ChooseAnswersRoutingModule} from 'src/app/choose-answers/choose-answers-routing.module';
 import {ProgressBarModule} from 'angular-progress-bar';
 import {MatCardModule} from '@angular/material/card';
-import { ChooseAnswersRoutingModule } from 'src/app/choose-answers/choose-answers-routing.module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 
