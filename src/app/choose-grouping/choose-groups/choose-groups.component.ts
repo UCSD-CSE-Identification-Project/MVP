@@ -294,13 +294,19 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
+  // updates images who are teh keys with the images that are part of it's group
   updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
 
     let curSubGrouping = [];
-    var curkeyImage = lectureImageIds[0];
-
     let i = 1; // skip the first element and start looking after teh second element
-    for ( let box of this.lectureOnScreenBoxList.slice(0, ) ){
+
+    while( this.lectureOnScreenBoxList[i].boxVal.controls.option.value === 'Ignore'){
+      i++;
+    }
+
+    var curkeyImage = lectureImageIds[i];
+    i++; // start looking at the image after the first key image
+    for ( let box of this.lectureOnScreenBoxList.slice(i, ) ){
 
       if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
         const imgObj = {};
@@ -318,9 +324,9 @@ export class ChooseGroupsComponent implements OnInit {
         curSubGrouping = [];
       } else {
         curSubGrouping.push(lectureImageIds[i]);
-      }
+      } // end of if else statement
       i++;
-    }
+    } // end of for loop
 
 
   }
