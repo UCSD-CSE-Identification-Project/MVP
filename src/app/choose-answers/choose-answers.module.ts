@@ -16,7 +16,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     ReactiveFormsModule,
     MatButtonModule,
     ProgressBarModule,
-    MatCardModule
+    MatCardModule,
     MatCheckboxModule
   ],
   declarations: [ChooseViewComponent],
