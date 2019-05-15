@@ -77,10 +77,13 @@
 <div style="padding: 2%" *ngIf="!matchesFinished">
   <h2>Generating Current Term Matches for Previous Term</h2>
   <mat-spinner></mat-spinner>
+  <p> If you would like to continue without having found match for current image: please click Continue </p>
+  <br />
+  <button mat-raised-button type="submit" (click)="chooseToShowAll=true;populateImagesWithoutMatch();">Continue</button>
 </div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">
-  <h3>Previous Term Images:</h3>
+  <h3>{{prevTermName}} Term Images:</h3>
   <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
   <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px"> <br />
@@ -99,13 +102,17 @@
 
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">
   <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
-  <h3>Display: Term 2 Matches</h3>
+  <h3>Possible matches from term {{currTermName}}</h3>
   <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
   <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
       <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
-        <h2>{{i}}</h2>
-        <img src="{{( url | async )?.data().downloadURL}}" *ngStyle="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i)"/>
+        <div *ngIf="( url | async ) as potentialMatch; else loading">
+          <img src="{{potentialMatch.data().downloadURL}}" [ngStyle]="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i)"/>
+        </div>
+        <ng-template #loading>
+          Loading stuff...
+        </ng-template>
       </div>
     </cdk-virtual-scroll-viewport>
   </ng-container>
