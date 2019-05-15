@@ -15,26 +15,28 @@
   <mat-spinner style="margin:0 auto;"></mat-spinner>
 </div>
   <!--<button style="position: absolute; top: 0; right: 0; margin: 10px;" (click)="logout()">Logout</button>-->
-  <div *ngIf=!csvSpinner&&enableWeeks style="margin-top: 100px;">
-    <h3>Before processing, you can also select how many weeks of data to include:
-      <h4 style="display: inline-block;">
-        <form>
-          <select name="weeks">
-            <option value="0"></option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-          </select>
-        </form>
-      </h4>
-    </h3>
+  <div *ngIf=!csvSpinner style="margin-top: 100px;">
+    <div *ngIf="enableWeeks">
+      <h3>Before processing, you can also select how many weeks of data to include:
+        <h4 style="display: inline-block;">
+          <form>
+            <select name="weeks">
+              <option value="0"></option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            </select>
+          </form>
+        </h4>
+      </h3>
+    </div>
 
     <div>
       <button *ngIf=!showSpinner&&!finished mat-raised-button class="processButton" (click)="openDialog()">Process</button>

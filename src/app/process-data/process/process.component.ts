@@ -27,13 +27,13 @@ export class ProcessComponent implements OnInit {
   }
 
   openDialog() {
-    this.startProcess = true;
     const dialogRef = this.dialog.open(Notice, {
       width: '500px'
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
+      this.startProcess = true;
       this.process();
     });
   }

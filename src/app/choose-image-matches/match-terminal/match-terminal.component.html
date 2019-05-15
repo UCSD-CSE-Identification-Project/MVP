@@ -86,14 +86,14 @@
   <h3>{{prevTermName}} Term Images:</h3>
   <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
-  <img src= "{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px"> <br />
+  <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
   <br />
   <!-- The image the user chooses that matches the term 1 picture -->
   <h4>Image You Chose:</h4>
   <!-- (imageInput[imageInputIndex]| async)?.data().downloadURL
   (matchBar.selectedURL | async)
   The default is the first image in the highMatches-->
-  <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="600px" id="selectedImg"><br />
+  <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="600px" id="selectedImg" style="border:5px solid greenyellow"><br />
   <br />
   <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col activeButton"> Next</button>
   <button mat-raised-button type="submit" *ngIf="imagesFinished" class="col finishButton" routerLink="../navigator/match">Finish</button>

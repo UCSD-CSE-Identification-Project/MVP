@@ -51,7 +51,7 @@
         <h3>Correct Answer</h3>
         <form [formGroup]="boxOnScreen.boxAnswer">
           <div *ngFor="let data of boxValues">
-            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+            <mat-checkbox name="multipleChoice" color="warn" (change)="boxChecked($event.checked)" formControlName="{{data.opt[0]}}" required>{{data.opt}}</mat-checkbox><br>
           </div>
         </form>
         <button mat-raised-button class="activeButton" *ngIf="prevTermAnswerObj.termFinishedAnswering" [disabled]="imagesFinished || boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('curr')"> Next</button>

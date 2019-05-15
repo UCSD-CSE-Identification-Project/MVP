@@ -18,8 +18,8 @@ export class ChooseViewComponent implements OnInit {
   currTermAnswerObj;
   startingIndex;
 
-  totalPrevImages = Object.keys(this.generalInfo.prevTermKeyImages).length;
-  totalCurrImages = Object.keys(this.generalInfo.currTermKeyImages).length;
+  totalPrevImages: number = 0;
+  totalCurrImages: number = 0;
 
     constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
     this.imagesFinished = false;
@@ -117,12 +117,12 @@ export class ChooseViewComponent implements OnInit {
   ngOnInit() {
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
-    console.log("here");
     let data: termData = this.authService.getStorage("session", "termData");
-    console.log(data);
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.startingIndex = data.lectureOrImageIndex;
+    this.totalPrevImages = Object.keys(this.generalInfo.prevTermKeyImages).length;
+    this.totalCurrImages = Object.keys(this.generalInfo.currTermKeyImages).length;
 
     let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev');
     console.log(prevTermIndIsoImages);
