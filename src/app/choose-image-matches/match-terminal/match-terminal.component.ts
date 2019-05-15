@@ -141,11 +141,12 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-color'] = 'black';
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-width'] = '1px';
 
-    // console.log(index);
+    console.log(index);
+    console.log(this.matchBar.matchUrl[index]);
     this.matchBar.selectedURL = this.matchBar.matchUrl[index];
     this.matchBar.indexSelected = index;
     this.matchBar.matchBorderStyle[index]['border-color'] = 'green';
-    this.matchBar.matchBorderStyle[index]['border-width'] = '10px';
+    this.matchBar.matchBorderStyle[index]['border-width'] = '5px';
   }
 
   async updateImageWithMatch(imageId: string, matchId: string, matchTermId: string) {

@@ -105,7 +105,7 @@
   <h3>Possible matches from term {{currTermName}}</h3>
   <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
   <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
-    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200" maxBufferPx="400" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
+    <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200000" maxBufferPx="400000" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
       <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
         <div *ngIf="( url | async ) as potentialMatch; else loading">
           <img src="{{potentialMatch.data().downloadURL}}" [ngStyle]="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i)"/>
