@@ -10,11 +10,14 @@
 
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!prevTermAnswerObj.needGrouping">
-      Finished Choosing for {{this.generalInfo.prevTermName}}
+      <mat-card class="info">
+        Finished Choosing for {{this.generalInfo.prevTermName}}
+      </mat-card>
     </h2>
     <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2> Choose Answer for {{this.generalInfo.prevTermName}}</h2>
+        <h2>Choose Answer for {{this.generalInfo.prevTermName}}</h2>
+        <h3>Question {{this.prevTermAnswerObj.imageIndex + 1}} out of {{totalPrevImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">
@@ -34,11 +37,14 @@
 
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
-      Finished Choosing for {{this.generalInfo.currTermName}}
+      <mat-card class="info">
+        Finished Choosing for {{this.generalInfo.currTermName}}
+      </mat-card>
     </h2>
     <div *ngIf="currTermAnswerObj.needGrouping  && !prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
         <h2>Choose Answer for {{this.generalInfo.currTermName}}</h2>
+        <h3>Question {{this.currTermAnswerObj.imageIndex + 1}} out of {{totalCurrImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">

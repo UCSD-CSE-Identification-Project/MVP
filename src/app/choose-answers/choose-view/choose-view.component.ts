@@ -18,7 +18,10 @@ export class ChooseViewComponent implements OnInit {
   currTermAnswerObj;
   startingIndex;
 
-  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
+  totalPrevImages = Object.keys(this.generalInfo.prevTermKeyImages).length;
+  totalCurrImages = Object.keys(this.generalInfo.currTermKeyImages).length;
+
+    constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
     this.imagesFinished = false;
   }
 
@@ -143,6 +146,7 @@ export class ChooseViewComponent implements OnInit {
       this.currTermAnswerObj.imageIndex = this.startingIndex;
       this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[this.currTermAnswerObj.imageIndex]);
     }
+
     console.log(this.prevTermAnswerObj);
     console.log(this.currTermAnswerObj);
   }
