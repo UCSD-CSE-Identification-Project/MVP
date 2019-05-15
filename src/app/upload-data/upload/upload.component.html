@@ -32,7 +32,7 @@
 
       <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
         <br>
-        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
+        <div class="chooseFile"><h4>Select folder: </h4><input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
       </div>
     </mat-card>
   </div>
@@ -46,7 +46,7 @@
 
       <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
         <br>
-        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
+        <div class="chooseFile"><h4>Select folder: </h4><input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
       </div>
     </mat-card>
   </div>
@@ -72,7 +72,7 @@
   <br>
   Current Term
   <progress-bar class='progress' [progress]='allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
-  <h5>Percentage of Progress Uploading Images to Online Storage</h5>
+  <h4>Percentage of Progress Uploading Images to Online Storage</h4>
 
   <br />
   <br />

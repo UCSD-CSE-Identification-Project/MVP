@@ -2,8 +2,9 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChooseViewComponent } from './choose-view/choose-view.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {ChooseAnswersRoutingModule} from 'src/app/choose-answers/choose-answers-routing.module';
-import {MatButtonModule} from '@angular/material/button';
+import { ChooseAnswersRoutingModule } from 'src/app/choose-answers/choose-answers-routing.module';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @NgModule({
   imports: [
@@ -11,7 +12,8 @@ import {MatButtonModule} from '@angular/material/button';
     FormsModule,
     ChooseAnswersRoutingModule,
     ReactiveFormsModule,
-    MatButtonModule
+    MatButtonModule,
+    MatCheckboxModule
   ],
   declarations: [ChooseViewComponent],
   exports: []
