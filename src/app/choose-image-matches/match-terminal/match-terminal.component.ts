@@ -126,7 +126,6 @@ export class MatchTerminalComponent implements OnInit {
     });
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
-      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
     console.log(this.matchBar.matchIds);
   }
@@ -142,11 +141,12 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-color'] = 'black';
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-width'] = '1px';
 
-    // console.log(index);
+    console.log(index);
+    console.log(this.matchBar.matchUrl[index]);
     this.matchBar.selectedURL = this.matchBar.matchUrl[index];
     this.matchBar.indexSelected = index;
     this.matchBar.matchBorderStyle[index]['border-color'] = 'green';
-    this.matchBar.matchBorderStyle[index]['border-width'] = '10px';
+    this.matchBar.matchBorderStyle[index]['border-width'] = '5px';
   }
 
   async updateImageWithMatch(imageId: string, matchId: string, matchTermId: string) {
@@ -210,6 +210,10 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
+    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'})
+    for ( let i = 0; i < this.matchBar.matchIds.length-1; i++ ){
+      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'})
+    }
     this.populateImageURLMatches();
     this.matchBar.selectedURL = this.matchBar.matchUrl[0];
     this.matchBar.indexSelected = 0;
