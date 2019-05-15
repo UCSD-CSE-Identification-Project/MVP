@@ -6,7 +6,7 @@ import { ChooseGroupingRoutingModule } from './choose-grouping-routing.module';
 import { ChooseGroupsComponent } from './choose-groups/choose-groups.component';
 import {MatButtonModule} from '@angular/material/button';
 import {ScrollingModule} from '@angular/cdk/scrolling';
-import { ProgressBarModule } from 'angular-progress-bar';
+import {MatCardModule} from '@angular/material/card';
 
 @NgModule({
   declarations: [ChooseGroupsComponent],
@@ -17,7 +17,7 @@ import { ProgressBarModule } from 'angular-progress-bar';
     ReactiveFormsModule,
     MatButtonModule,
     ScrollingModule,
-    ProgressBarModule
+    MatCardModule
   ],
   exports:[]
 })

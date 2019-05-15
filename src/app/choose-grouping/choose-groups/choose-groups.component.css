@@ -7,6 +7,11 @@
   padding-bottom: 10px;
 }
 
+mat-card.info {
+  background-color: mediumseagreen;
+  color: white;
+}
+
 .term {
   text-align: center;
   width: 100%;

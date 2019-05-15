@@ -1,7 +1,7 @@
-import {ChangeDetectorRef, ViewChild, Component, OnInit,ChangeDetectionStrategy, ViewEncapsulation} from '@angular/core';
+import { ChangeDetectorRef, ViewChild, Component, OnInit, ChangeDetectionStrategy, ViewEncapsulation, HostListener } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import {UserTermImageInformationService} from '../../core/user-term-image-information.service';
-import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
+import { AuthService, termData } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
 import {ScrollDispatchModule} from '@angular/cdk/scrolling';
@@ -74,18 +74,26 @@ export class ChooseGroupsComponent implements OnInit {
 
 
   ngOnInit() {
-    this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
-    this.lectureName = Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum];
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+    this.lectureNum = data.lectureOrImageIndex;
+
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase, "prev");
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase, "curr");
-    //this.fetchLectureImages(this.lectureNum, this.whichTerm);
 
-    this.populateLectureBoxList(this.lectureNum, "prev");
-    console.log("Prev term grouping", this.prevTermGrouping.needGrouping);
+    this.prevTermGrouping.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
+    this.currTermGrouping.needGrouping = !this.generalInfo.currTermLoadedFromDatabase && !this.generalInfo.currTermFinished;
+    this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
+    this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
+
+    // Term is decided here
+    this.whichTerm = this.prevTermGrouping.needGrouping ? "prev" : "curr";
+    this.lectureName = this.whichTerm === "prev" ? Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum] : Object.keys(this.generalInfo.currTermLectureImage)[this.lectureNum];
+    this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
+    this.whichTerm === "prev" ? this.prevTermGrouping.lectureIndex = this.lectureNum : this.currTermGrouping.lectureIndex = this.lectureNum;
+    this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     // Comment this out before we merge
-    // this.prevTermGrouping.termFinishedAnswering = !this.prevTermGrouping.needGrouping;
-    // this.prevTermGrouping.imageFinishedGrouping = this.generalInfo.prevTermFinished;
-    //
     // if( this.prevTermGrouping.needGrouping ){
     // }
     // else{
@@ -185,6 +193,7 @@ export class ChooseGroupsComponent implements OnInit {
       termObj[`group_images`] = this.generalInfo.prevTermGroupImages;
       termObj[`iso_images`] = this.generalInfo.prevTermIsoImages;
       termObj[`key_images`] = this.generalInfo.prevTermKeyImages;
+      console.log(termObj);
       this.db.collection('terms').doc(this.generalInfo.prevTermIdVal).ref.set(termObj).then((val)=>{
         console.log("prevTerm: " + val);
       });
@@ -212,34 +221,6 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
-
-  // Remove picture at index "picIndex"
-  // 0: boxOne
-  // 1: boxTwo
-  // 2: boxThree
-
-
-  // async pushSubGroupToFirestore ( ) {
-  //
-  //   console.log("inside pushsubgroupfirestore with value " + imgIndexToPush);
-  //   console.log(this.partOfTheSameSubPair);
-  //   let termObjGrouping = prevOrCurrentTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
-  //
-  //   const imgToPush = termObjGrouping.imageNames[termObjGrouping.imageKeysSorted[imgIndexToPush]];
-  //   // also saving object locally
-  //   if( prevOrCurrentTerm === 'prev'){
-  //     this.generalInfo.saveKeyImageToPrevTerm(imgToPush, this.partOfTheSameSubPair);
-  //   } else {
-  //     this.generalInfo.saveKeyImageToCurrTerm(imgToPush, this.partOfTheSameSubPair);
-  //   }
-  //   // different scenarios
-  //   await this.db.collection('images')
-  //     .doc(imgToPush)
-  //     .set({imagesInGroup: this.partOfTheSameSubPair },{merge: true});
-  //
-  //   this.partOfTheSameSubPair = {};
-  // }
-
   async pushImageObjectToFirestore( boxVal: string, imageKey: string ){
     const imageObj = {};
     imageObj["grouping"] = boxVal;
@@ -247,10 +228,13 @@ export class ChooseGroupsComponent implements OnInit {
   }
 
   addGroupingOfImageToGenInfo( termObjectKeysToNames: Object, lectureImageIds: Array<string>  ){
+    console.log(termObjectKeysToNames);
+    console.log(lectureImageIds);
     var imgName;
     var imgId;
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
+      console.log(box.boxVal.controls.option.value);
       imgId = lectureImageIds[i];
       imgName = termObjectKeysToNames[imgId];
       i++;
@@ -283,23 +267,62 @@ export class ChooseGroupsComponent implements OnInit {
       } // end of if else
 
     } // end of for loop
-
   }
 
+  populateKeyValuesInService( termObjectKeysToNames: Object, lectureImageIds: Array<string>  ){
+    let indImgVal = this.whichTerm === 'prev' ? this.generalInfo.prevTermKeyImages : this.generalInfo.currTermKeyImages;
+    for ( let indImg of Object.keys(indImgVal) ){
+      if ( this.whichTerm === 'prev') {
+        this.generalInfo.saveKeyImageToPrevTerm(indImg , indImgVal[indImg]);
+      } else {
+        this.generalInfo.saveKeyImageToCurrTerm(indImg , indImgVal[indImg]);
+      }
+    }
 
-  // TODO DO THESE CASES ALSO WORK IF THE FIRST QUESTION IS IGNORE
-  // this code was written under the assumption that you only shift by two images
-  async nextImage(prevOrCurrentTerm: string) {
+    let i = 0;
+    for ( let box of this.lectureOnScreenBoxList ){
 
+      if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === 'Individual') {
+        if( this.whichTerm === 'prev' ){
+          this.generalInfo.saveKeyImageToPrevTerm(termObjectKeysToNames[lectureImageIds[i]] , lectureImageIds[i]);
+        }
+        else {
+          this.generalInfo.saveKeyImageToCurrTerm(termObjectKeysToNames[lectureImageIds[i]] , lectureImageIds[i]);
+        }
+      }
+      i++;
+    }
   }
 
-  updateChecked(boxNum: number){
+  updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
 
-  }
+    let curSubGrouping = [];
+    var curkeyImage = lectureImageIds[0];
 
-  // checkes if all the images are checked or if the unchecked ones are hidden
-  allChecked(prevOrCurrent: string){
-    return true;
+    let i = 1; // skip the first element and start looking after teh second element
+    for ( let box of this.lectureOnScreenBoxList.slice(0, ) ){
+
+      if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
+        const imgObj = {};
+        imgObj["imagesInGroup"] = curSubGrouping;
+        this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+
+        // populate the variables in the service object
+        if ( this.whichTerm === 'prev'){
+          this.generalInfo.saveKeyImageToPrevTerm(curkeyImage , curSubGrouping);
+        } else {
+          this.generalInfo.saveKeyImageToCurrTerm(curkeyImage , curSubGrouping);
+        }
+
+        curkeyImage = lectureImageIds[i];
+        curSubGrouping = [];
+      } else {
+        curSubGrouping.push(lectureImageIds[i]);
+      }
+      i++;
+    }
+
+
   }
 
   nextLecture() {
@@ -317,9 +340,12 @@ export class ChooseGroupsComponent implements OnInit {
     this.addGroupingOfImageToGenInfo( keyToName, lectureKeys );
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
-      this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
+      // this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
       i++;
     }
+
+    // this.populateKeyValuesInService( keyToName, lectureKeys );
+    this.updateImageWithGrouping(keyToName, lectureKeys ); // will update teh subgrouping of every image in the lecture
 
     if (this.whichTerm === "prev") {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.prevTermLectureImage).length) {
@@ -345,4 +371,49 @@ export class ChooseGroupsComponent implements OnInit {
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     this.viewport.scrollToIndex(0);
   }
+
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/classify",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
+  logout() {
+    let index = this.prevTermGrouping.needGrouping ? this.prevTermGrouping.lectureIndex : this.currTermGrouping.lectureIndex;
+    if (!this.prevTermGrouping.needGrouping) {
+      this.generalInfo.prevTermFinished = true;
+    }
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/choose-grouping",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: index
+    };
+    this.authService.setStorage("local", object, "termData");
+
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/choose-grouping', [this.generalInfo.prevTerm, this.generalInfo.currTerm], index);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification() {
+    if (!this.prevTermGrouping.needGrouping) {
+      this.generalInfo.prevTermFinished = true;
+    }
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/choose-grouping",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.lectureIndex : this.currTermGrouping.lectureIndex
+    };
+    this.authService.setStorage("session", object, "termData");
+    return false;
+  }
+
 }

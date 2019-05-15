@@ -22,17 +22,20 @@ export class MatchTerminalComponent implements OnInit {
   logoutEnabled: boolean = false;
   curPic;
   chooseToShowAll: boolean = false;
-
+  border;
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
 
   // Execute right after constructor
   ngOnInit() {
+
+    this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
+
     this.matchesFinished = false;
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInd = data.imageIndex;
+    this.imageInd = data.lectureOrImageIndex;
     console.log(this.generalInfo.prevTermAllImages);
     this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
 
@@ -61,6 +64,7 @@ export class MatchTerminalComponent implements OnInit {
     let obj = {
       matchIds: [],
       matchUrl: [],
+      matchBorderStyle: [],
       keyImgIndex: imageIndex,
       keyImgUrl: null,
       selectedURL: '',
@@ -75,6 +79,9 @@ export class MatchTerminalComponent implements OnInit {
       self.populateImageURLMatches();
       self.matchBar.selectedURL = self.matchBar.matchUrl[0];
       self.matchBar.indexSelected = 0;
+      for ( var i = 0; i < self.matchBar.matchIds.length; i++ ) self.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
+      self.matchBar.matchBorderStyle[0]['border-color'] = 'green';
+      self.matchBar.matchBorderStyle[0]['border-width'] = '5px';
       self.ref.detectChanges();
     });
   }
@@ -128,10 +135,14 @@ export class MatchTerminalComponent implements OnInit {
     }
   }
   imgClick( index: number) {
+    this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-color'] = 'black';
+    this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-width'] = '1px';
+
     // console.log(index);
     this.matchBar.selectedURL = this.matchBar.matchUrl[index];
     this.matchBar.indexSelected = index;
-    // TODO USE ID TO UPDATE THE MATCH OF THE CURRENT IMAGE AND OF THE SELECTED IMAGE
+    this.matchBar.matchBorderStyle[index]['border-color'] = 'green';
+    this.matchBar.matchBorderStyle[index]['border-width'] = '5px';
   }
 
   async updateImageWithMatch(imageId: string, matchId: string, matchTermId: string) {
@@ -202,13 +213,24 @@ export class MatchTerminalComponent implements OnInit {
     this.ref.detectChanges();
   }
 
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/match",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
   logout() {
     let object: termData = {
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.termMatching.imageIndex
+      lectureOrImageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("local", object, "termData");
 
@@ -222,7 +244,7 @@ export class MatchTerminalComponent implements OnInit {
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.termMatching.imageIndex
+      lectureOrImageIndex: this.termMatching.imageIndex
     };
     this.authService.setStorage("session", object, "termData");
     return false;

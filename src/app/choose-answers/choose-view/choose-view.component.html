@@ -10,11 +10,14 @@
 
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!prevTermAnswerObj.needGrouping">
-      Finished Choosing for Previous Term
+      <mat-card class="info">
+        Finished Choosing for Previous Term
+      </mat-card>
     </h2>
     <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2> Choose Answer for Previous Term</h2>
+        <h2>Choose Answer for Previous Term</h2>
+        <h3>Question {{startingIndex + 1}} out of {{totalPrevImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">
@@ -34,11 +37,14 @@
 
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
-      Finished Choosing for Current Term
+      <mat-card class="info">
+        Finished Choosing for Current Term
+      </mat-card>
     </h2>
     <div *ngIf="currTermAnswerObj.needGrouping  && !prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
         <h2>Choose Answer for Current Term</h2>
+        <h3>Question {{startingIndex + 1}} out of {{totalCurrImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
       <div class="col-lg-6">
@@ -53,7 +59,7 @@
     </div>
 
     <div style="text-align: center;">
-      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans"> Finish </button>
+      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans" (click)="storeSession()"> Finish </button>
     </div>
 
     <!--<div>
