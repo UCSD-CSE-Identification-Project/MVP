@@ -335,11 +335,10 @@ export class ChooseGroupsComponent implements OnInit {
     this.addGroupingOfImageToGenInfo( keyToName, lectureKeys );
     let i = 0;
     for ( let box of this.lectureOnScreenBoxList ){
-      // this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
+      this.pushImageObjectToFirestore(box.boxVal.controls.option.value, lectureKeys[i]);
       i++;
     }
 
-    // this.populateKeyValuesInService( keyToName, lectureKeys );
     this.updateImageWithGrouping(keyToName, lectureKeys ); // will update teh subgrouping of every image in the lecture
 
     if (this.whichTerm === "prev") {
