@@ -126,7 +126,6 @@ export class MatchTerminalComponent implements OnInit {
     });
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
-      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
     console.log(this.matchBar.matchIds);
   }
@@ -210,6 +209,10 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
+    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'})
+    for ( let i = 0; i < this.matchBar.matchIds.length-1; i++ ){
+      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'})
+    }
     this.populateImageURLMatches();
     this.matchBar.selectedURL = this.matchBar.matchUrl[0];
     this.matchBar.indexSelected = 0;
