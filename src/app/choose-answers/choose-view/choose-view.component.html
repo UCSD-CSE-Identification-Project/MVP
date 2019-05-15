@@ -11,12 +11,12 @@
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!prevTermAnswerObj.needGrouping">
       <mat-card class="info">
-        Finished Choosing for Previous Term
+        Finished Choosing for {{this.generalInfo.prevTermName}}
       </mat-card>
     </h2>
     <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2>Choose Answer for Previous Term</h2>
+        <h2> Choose Answer for {{this.generalInfo.prevTermName}}</h2>
         <h3>Question {{this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex + 1 : this.currTermAnswerObj.imageIndex + 1}} out of {{totalPrevImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
@@ -24,7 +24,7 @@
         <h3>Correct Answer</h3>
         <form [formGroup]="boxOnScreen.boxAnswer">
           <div *ngFor="let data of boxValues">
-            <input type="checkbox" name="multipleChoice" (click)="boxChecked($event.target.checked)" formControlName="{{data.opt[0]}}" required> {{data.opt}}<br>
+            <mat-checkbox name="multipleChoice" color="warn" (change)="boxChecked($event.checked)" formControlName="{{data.opt[0]}}" required>{{data.opt}}</mat-checkbox><br>
           </div>
         </form>
         <button mat-raised-button class="activeButton" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
@@ -37,13 +37,14 @@
 
   <div class="row">
     <h2 style="padding: 1%" *ngIf="!currTermAnswerObj.needGrouping && !prevTermAnswerObj.needGrouping">
+<<<<<<< HEAD
       <mat-card class="info">
-        Finished Choosing for Current Term
+        Finished Choosing for {{this.generalInfo.currTermName}}
       </mat-card>
     </h2>
     <div *ngIf="currTermAnswerObj.needGrouping  && !prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2>Choose Answer for Current Term</h2>
+        <h2>Choose Answer for {{this.generalInfo.currTermName}}</h2>
         <h3>Question {{this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex + 1 : this.currTermAnswerObj.imageIndex + 1}} out of {{totalCurrImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>

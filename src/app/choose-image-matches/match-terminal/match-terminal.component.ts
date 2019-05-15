@@ -23,6 +23,8 @@ export class MatchTerminalComponent implements OnInit {
   curPic;
   chooseToShowAll: boolean = false;
   border;
+  prevTermName;
+  currTermName;
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
 
@@ -30,7 +32,8 @@ export class MatchTerminalComponent implements OnInit {
   ngOnInit() {
 
     this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
-
+    this.prevTermName = this.generalInfo.prevTermName;
+    this.currTermName = this.generalInfo.currTermName;
     this.matchesFinished = false;
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
@@ -123,6 +126,7 @@ export class MatchTerminalComponent implements OnInit {
     });
     for (var i of sortable){
       this.matchBar.matchIds.push(i[0]);
+      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
     console.log(this.matchBar.matchIds);
   }
@@ -142,7 +146,7 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar.selectedURL = this.matchBar.matchUrl[index];
     this.matchBar.indexSelected = index;
     this.matchBar.matchBorderStyle[index]['border-color'] = 'green';
-    this.matchBar.matchBorderStyle[index]['border-width'] = '5px';
+    this.matchBar.matchBorderStyle[index]['border-width'] = '10px';
   }
 
   async updateImageWithMatch(imageId: string, matchId: string, matchTermId: string) {
