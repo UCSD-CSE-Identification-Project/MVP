@@ -39,6 +39,7 @@
     </div>
 
     <div>
+      <h2>All necessary files generated, click on the process button to start training and get prediction for {{this.generalInfo.currTermName}}</h2>
       <button *ngIf=!showSpinner&&!finished mat-raised-button class="processButton" (click)="openDialog()">Process</button>
       <mat-spinner *ngIf=showSpinner style="margin:0 auto;"></mat-spinner>
     </div>
