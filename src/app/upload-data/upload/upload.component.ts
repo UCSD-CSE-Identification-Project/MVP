@@ -55,7 +55,6 @@ export class UploadComponent implements OnInit {
   totalFilesPrevC;
   totalFilesCurr;
   numFilePrev = 0;
-  numFilePrevClicker = 0;
   numFileCurr = 0;
   allPercentagePrevious = [];
   allPercentageCurrent = [];
