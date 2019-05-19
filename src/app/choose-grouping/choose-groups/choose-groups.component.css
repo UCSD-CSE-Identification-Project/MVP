@@ -46,10 +46,16 @@ button {
 .finishButton {
   background-color: mediumseagreen;
   right: 10px;
+  color: white;
 }
 
 .activeButton {
   background-color: mediumseagreen;
+}
+
+.nextLectureButton {
+  background-color: mediumseagreen;
+  color: white;
 }
 
 .disabledButton {
