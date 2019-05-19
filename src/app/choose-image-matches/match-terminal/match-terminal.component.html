@@ -83,7 +83,7 @@
 </div>
 
 <div class="col-sm-6" *ngIf="matchesFinished">
-  <h3>{{prevTermName}} Term Images:</h3>
+  <h3>{{prevTermName}} Term Images: Question {{this.termMatching.imageIndex + 1}} out of {{this.termMatching.imageKeysSorted.length}}</h3>
   <h4>Image to Match:</h4>
   <!-- The Term 1 Images-->
   <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
