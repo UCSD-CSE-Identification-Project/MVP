@@ -16,7 +16,7 @@
     </h2>
     <div *ngIf="prevTermAnswerObj.needGrouping">
       <div class="col-lg-6">
-        <h2>Choose Answer for {{this.generalInfo.prevTermName}}</h2>
+        <h2> Choose Answer for {{this.generalInfo.prevTermName}}</h2>
         <h3>Question {{this.prevTermAnswerObj.imageIndex + 1}} out of {{totalPrevImages}}</h3>
         <img src="{{(boxOnScreen.imageSourceURL | async)?.data().downloadURL}}" width="100%"/>
       </div>
