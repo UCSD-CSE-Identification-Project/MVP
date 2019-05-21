@@ -42,19 +42,15 @@ export class ChooseGroupsComponent implements OnInit {
   lectureOnScreenBoxList = [];
   // startingIndex:number = 0;
   partOfTheSameSubPair;
-  allImages = [];
-  allImageIds = [];
-  lenVal = 0;
-
-  currentPair = [];
-  lectureName: string  = "";
-  previousValue: number = 1;
+  lectureName  = '';
   finishedCurrentTerm: boolean = false;
 
   // Default to first lecture of previous term
   lectureNum: number = 0;
   whichTerm: string = "prev";
   termName: string = "";
+
+  finishedUpdatingTermObjInFirestore;
 
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
@@ -213,9 +209,10 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
+        this.imagesFinished = true;
+        this.ref.detectChanges();
       });
       this.generalInfo.makeSingleRequest();
-      this.imagesFinished = true;
       this.finishedCurrentTerm = true;
       return;
     }

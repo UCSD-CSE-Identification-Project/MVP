@@ -58,6 +58,7 @@
     <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
   </div>
   &nbsp;-->
+  <div *ngIf="!imagesFinished && finishedCurrentTerm"> Updating grouping data of each image in the database </div>
   <div style="display:inline-block">
     <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify" (click)="storeSession()">Finish</button>
   </div>
