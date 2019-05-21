@@ -259,10 +259,12 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
-    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'})
+    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'});
     for ( let i = 0; i < this.matchBar.matchIds.length-1; i++ ){
-      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'})
+      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
+    // will add the not found iamge to the end of the scroll bar
+    this.matchBar.matchIds.push('notFound');
     this.populateImageURLMatches();
     this.matchBar.selectedURL = this.matchBar.matchUrl[0];
     this.matchBar.indexSelected = 0;
