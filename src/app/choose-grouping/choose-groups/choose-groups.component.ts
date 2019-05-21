@@ -379,6 +379,7 @@ export class ChooseGroupsComponent implements OnInit {
 
   storeSession() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/classify",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -394,6 +395,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -411,6 +413,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
