@@ -185,17 +185,9 @@ export class ChooseViewComponent implements OnInit {
   }
   async nextImage() {
     const termAnswerObj = this.prevTermAnswerObj;
-    if ((termAnswerObj.numImages - termAnswerObj.imageIndex) <= 1) {
-      await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
-        correct_answers: this.boxOnScreen.boxAnswer.value,
-      });
-      this.updateSubGrouping(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]], this.boxOnScreen.boxAnswer.value);
-      this.setResetTermFinishVariables();
-      return;
-    } // case for the last image
 
-
-    this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
+    console.log(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]);
+    await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
       correct_answers: this.boxOnScreen.boxAnswer.value,
     }).then(function () {
       console.log("Document successfully updated!");
@@ -206,14 +198,27 @@ export class ChooseViewComponent implements OnInit {
 
     this.updateSubGrouping(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]], this.boxOnScreen.boxAnswer.value);
 
+    // if the last image is on the screen
+    if ((termAnswerObj.numImages - termAnswerObj.imageIndex) <= 1) {
+      this.setResetTermFinishVariables();
+      return;
+    } // case for the last image
+
     this.boxOnScreen = this.createBoxObj();
-    this.findNextImageToAnswerInPrevTerm().then(()=>{
-      if ( termAnswerObj.imageIndex >= termAnswerObj.imageKeysSorted.length) {
-        this.setResetTermFinishVariables();
-        return;
-      }
+    // if loaded from database find next unanswered image and answer it otherwise just go to teh next image
+    if ( this.generalInfo.prevTermLoadedFromDatabase ) {
+      this.findNextImageToAnswerInPrevTerm().then(()=>{
+        if ( termAnswerObj.imageIndex >= termAnswerObj.imageKeysSorted.length) {
+          this.setResetTermFinishVariables();
+          return;
+        }
+        this.getImageURLsetInHTML(termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]);
+      });
+    } else {
+      this.prevTermAnswerObj.imageIndex += 1;
       this.getImageURLsetInHTML(termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]);
-    });
+    }
+
   }
 
   boxChecked(isChecked: boolean) {

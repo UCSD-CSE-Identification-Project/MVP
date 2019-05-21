@@ -298,7 +298,7 @@ export class ChooseGroupsComponent implements OnInit {
   updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
 
     let curSubGrouping = [];
-    let i = 1; // skip the first element and start looking after teh second element
+    let i = 0; // skip the first element and start looking after teh second element
 
     while( this.lectureOnScreenBoxList[i].boxVal.controls.option.value === 'Ignore'){
       i++;
@@ -328,6 +328,20 @@ export class ChooseGroupsComponent implements OnInit {
       i++;
     } // end of for loop
 
+    // add teh last key value manually because above for loop will not handle the case
+    // where the last sequence is ind group group group or just ind it wont add teh last group
+    const imgObj = {};
+    imgObj["imagesInGroup"] = curSubGrouping;
+    this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+
+    // populate the variables in the service object
+    if ( this.whichTerm === 'prev'){
+      this.generalInfo.saveKeyImageToPrevTerm(curkeyImage , curSubGrouping);
+    } else {
+      this.generalInfo.saveKeyImageToCurrTerm(curkeyImage , curSubGrouping);
+    }
+
+    // end of method
 
   }
 

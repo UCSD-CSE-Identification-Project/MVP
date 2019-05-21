@@ -25,6 +25,7 @@ export class MatchTerminalComponent implements OnInit {
   border;
   prevTermName;
   currTermName;
+  prevTermImageAnswer: any;
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
   }
 
@@ -157,10 +158,19 @@ export class MatchTerminalComponent implements OnInit {
 
     var imageObj = {};
     imageObj[`actual_matches.${matchTermId}`] = matchId;
-    this.db.collection('images').doc(imageId).update(imageObj);
+    this.db.collection('images').doc(imageId).update(imageObj).catch(()=>console.log("updateImageMatch"));
+  }
+
+  updateCurrentTermImageWithAnswer( imageIdInDatabase: string, correctAnswer: any) {
+    console.log(imageIdInDatabase);
+    console.log(correctAnswer);
+    const imageObj = {};
+    imageObj[`correct_answers`] = correctAnswer;
+    this.db.collection('images').doc(imageIdInDatabase).update(imageObj).catch(()=> console.error("did not udpate image answer"));
   }
   // Go to the next image
   nextImage(){
+    console.log(this.termMatching.imageIndex);
     this.matchesFinished = false;
     this.curPic.unsubscribe();
     // update database with last index value
@@ -168,11 +178,7 @@ export class MatchTerminalComponent implements OnInit {
     const currTermImageId = this.matchBar.matchIds[this.matchBar.indexSelected];
     this.updateImageWithMatch (prevTermImageId, currTermImageId, this.generalInfo.currTermIdVal);
     this.updateImageWithMatch (currTermImageId, prevTermImageId, this.generalInfo.prevTermIdVal);
-
-    console.log("numImages" + this.termMatching.numImages);
-    console.log("imageIndex" + this.termMatching.imageIndex);
-    console.log("matchBar Image index" + this.matchBar.keyImgIndex);
-    console.log("difference:" + (this.termMatching.numImages - this.matchBar.keyImgIndex));
+    this.updateCurrentTermImageWithAnswer(currTermImageId, this.prevTermImageAnswer);
     if ( (this.termMatching.numImages - this.matchBar.keyImgIndex) <= 1 ) {
       this.matchesFinished = true;
       this.imagesFinished = true;
@@ -181,14 +187,46 @@ export class MatchTerminalComponent implements OnInit {
     }
     this.termMatching.imageIndex++;
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
-      console.log(val);
-      console.log(Object.keys(val["matches"]).length);
 
-      var mat = Object.keys(val["matches"]);
-      var lenMatch = mat.length;
-      var containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
+      this.prevTermImageAnswer = val["correct_answers"];
+      const mat = Object.keys(val["matches"]);
+      const lenMatch = mat.length;
+      const containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
+      const lenMatchWithCurrTerm = Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length;
+      console.log(lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll );
+      console.log(lenMatchWithCurrTerm);
+      if( lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll ) {
+        // put 95% or greater match logic here
+        if ( lenMatchWithCurrTerm === 2 ) { // if there is only one match and one default no match image shown
+          const idOfmatches = Object.keys(val["matches"][this.generalInfo.currTermIdVal]);
+          const matchOne = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[0]];
+          const matchTwo = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[1]];
+          // same value as prevTermImageId but need to do again because code inside subscribe
+          const pTermImageId = this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]];
+          console.log(matchOne);
+          console.log(matchTwo);
+          console.log(pTermImageId);
+          // following code also take care of the condition where there is only two matches but both of them are under 0.94
+          if ( matchOne > 0.94 ) {
+            // set match one as teh match
+            this.updateImageWithMatch (pTermImageId, idOfmatches[0], this.generalInfo.currTermIdVal);
+            this.updateImageWithMatch (idOfmatches[0], pTermImageId, this.generalInfo.prevTermIdVal);
+            this.updateCurrentTermImageWithAnswer(idOfmatches[0], this.prevTermImageAnswer);
+            this.nextImage();
+            return;
+          } else if (matchTwo > 0.94) {
+            // set second image as the match
+            this.updateImageWithMatch (pTermImageId, idOfmatches[1], this.generalInfo.currTermIdVal);
+            this.updateImageWithMatch (idOfmatches[1], pTermImageId, this.generalInfo.prevTermIdVal);
+            this.updateCurrentTermImageWithAnswer(idOfmatches[1], this.prevTermImageAnswer);
+            this.nextImage();
+            return;
+          }
 
-      if( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll ){
+        } else if( lenMatchWithCurrTerm === 1 ){ //only the default no match found is in teh match col
+          this.nextImage();
+          return;
+        }
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
         this.chooseToShowAll = false;
