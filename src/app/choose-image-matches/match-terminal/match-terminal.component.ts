@@ -44,6 +44,7 @@ export class MatchTerminalComponent implements OnInit {
     this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
 
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val)=>{
+      this.prevTermImageAnswer = val["correct_answers"]
       console.log(val);
       console.log(Object.keys(val["matches"]).length);
       var mat = Object.keys(val["matches"]);
@@ -171,6 +172,13 @@ export class MatchTerminalComponent implements OnInit {
   // Go to the next image
   nextImage(){
     console.log(this.termMatching.imageIndex);
+    // if statement for the case where
+    // if ( ( this.termMatching.numImages - this.termMatching.imageIndex ) < 0 ){
+    //   this.matchesFinished = true;
+    //   this.imagesFinished = true;
+    //   this.termMatching.termFinishedMatching = true;
+    //   return;
+    // }
     this.matchesFinished = false;
     this.curPic.unsubscribe();
     // update database with last index value
@@ -179,7 +187,9 @@ export class MatchTerminalComponent implements OnInit {
     this.updateImageWithMatch (prevTermImageId, currTermImageId, this.generalInfo.currTermIdVal);
     this.updateImageWithMatch (currTermImageId, prevTermImageId, this.generalInfo.prevTermIdVal);
     this.updateCurrentTermImageWithAnswer(currTermImageId, this.prevTermImageAnswer);
-    if ( (this.termMatching.numImages - this.matchBar.keyImgIndex) <= 1 ) {
+    console.log(this.termMatching.numImages - this.matchBar.keyImgIndex);
+    console.log(this.termMatching.numImages - this.termMatching.imageIndex);
+    if ( (this.termMatching.numImages - this.termMatching.imageIndex) <= 1 ) {
       this.matchesFinished = true;
       this.imagesFinished = true;
       this.termMatching.termFinishedMatching = true;
@@ -187,9 +197,10 @@ export class MatchTerminalComponent implements OnInit {
     }
     this.termMatching.imageIndex++;
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
-
-      this.prevTermImageAnswer = val["correct_answers"];
-      const mat = Object.keys(val["matches"]);
+      console.log("value of val" );
+      console.log(val);
+      this.prevTermImageAnswer = val['correct_answers'];
+      const mat = Object.keys(val['matches']);
       const lenMatch = mat.length;
       const containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
       const lenMatchWithCurrTerm = Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length;
