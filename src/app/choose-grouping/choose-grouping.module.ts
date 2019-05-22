@@ -3,20 +3,30 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ChooseGroupingRoutingModule } from './choose-grouping-routing.module';
-import { ChooseGroupsComponent } from './choose-groups/choose-groups.component';
+import { ChooseGroupsComponent, Guide } from './choose-groups/choose-groups.component';
 import {MatButtonModule} from '@angular/material/button';
 import {ScrollingModule} from '@angular/cdk/scrolling';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog'
+import { OverlayModule } from '@angular/cdk/overlay';
 
 @NgModule({
-  declarations: [ChooseGroupsComponent],
+  declarations: [ChooseGroupsComponent,Guide],
   imports: [
     CommonModule,
     ChooseGroupingRoutingModule,
     FormsModule,
     ReactiveFormsModule,
     MatButtonModule,
-    ScrollingModule
+    ScrollingModule,
+    OverlayModule,
+    MatDialogModule
   ],
-  exports:[]
+  exports:[],
+  providers: [
+		MatDialog
+  ],
+  entryComponents:[
+    Guide
+  ]
 })
 export class ChooseGroupingModule { }

@@ -329,6 +329,4 @@ export class UserTermImageInformationService {
     return str;
 
   }
-
-
 }

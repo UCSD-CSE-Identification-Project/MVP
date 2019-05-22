@@ -5,6 +5,8 @@ import { AuthService, termData, groupLock } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
 import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 
 
 interface chooseGroupingBoxObj {
@@ -62,7 +64,8 @@ export class ChooseGroupsComponent implements OnInit {
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
               private db: AngularFirestore,
-              private ref: ChangeDetectorRef
+              private ref: ChangeDetectorRef,
+              private dialog: MatDialog
               ) {
     this.imagesFinished = false;
     this.partOfTheSameSubPair  = {};
@@ -340,4 +343,27 @@ export class ChooseGroupsComponent implements OnInit {
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     this.viewport.scrollToIndex(0);
   }
+  
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+  
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
+
 }

@@ -18,13 +18,21 @@ export class NavigatorComponent implements OnInit {
 
   summary = [
     'Upload files',
-    'Classify question types',
-    'Select correct answers',
+    'Classify clicker question types: individual or group',
+    'Select correct answers for clicker questions',
     'Match cross-term clicker questions',
     'Start the prediction process',
     'View the results that show struggling students'
   ];
+  description = [
+    'For a past term and the current term, upload one folder for each term that contains the clicker data from iClicker software and final exam scores in a csv file named final.csv',
+    'Select the question type for each clicker question: individual, group or ignore.',
+    'Select the correct answer(s) for each clicker question.',
+    'Match the current term questions to past term questions',
+    'Please wait while the data is processing.',
+    'See and save the results that show each student in the current term and their chance of struggling in this course',
 
+  ]
   constructor(private router: Router,
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService) { }
@@ -93,3 +101,4 @@ export class NavigatorComponent implements OnInit {
   }
 
 }
+
