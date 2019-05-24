@@ -375,6 +375,7 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermGroupImages = prevTermData.group_images;
         self.generalInfo.prevTermIsoImages = prevTermData.iso_images;
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
+        console.log(self.generalInfo.prevTerm);
       });
     } else {
       let fileStore = [];
@@ -406,6 +407,7 @@ export class UploadComponent implements OnInit {
   }
 
   storeSession() {
+    console.log(this.generalInfo.prevTerm);
     let object: termData = {
       uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
