@@ -274,6 +274,7 @@ export class MatchTerminalComponent implements OnInit {
 
   storeSession() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/match",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -285,6 +286,7 @@ export class MatchTerminalComponent implements OnInit {
 
   logout() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -299,6 +301,7 @@ export class MatchTerminalComponent implements OnInit {
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-image-matches",
       prevTermInfo: this.generalInfo.prevTerm,

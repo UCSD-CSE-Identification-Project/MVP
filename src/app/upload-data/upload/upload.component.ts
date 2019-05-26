@@ -409,6 +409,7 @@ export class UploadComponent implements OnInit {
   storeSession() {
     console.log(this.generalInfo.prevTerm);
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/upload",
       prevTermInfo: this.generalInfo.prevTerm,
