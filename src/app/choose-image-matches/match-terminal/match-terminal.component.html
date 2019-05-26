@@ -100,7 +100,8 @@
 </div>
 
 <ng-template  #pgrss>
-  Auto completing matches for {{termMatching.imageIndex}}
+  Auto completing matches for you <br>
+  Finished matches for Images: {{ Array.from(Array(termMatching.imageIndex).keys()) }}
 </ng-template>
 
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">

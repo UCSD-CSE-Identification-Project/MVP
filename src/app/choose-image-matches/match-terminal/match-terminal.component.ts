@@ -18,7 +18,7 @@ export class MatchTerminalComponent implements OnInit {
   matchBar;
   imagesFinished: boolean;
   matchesFinished: boolean = false;
-  imageInd: number = 0;
+  // imageInd: number = 0;
   logoutEnabled: boolean = false;
   curPic;
   chooseToShowAll: boolean = false;
@@ -39,12 +39,14 @@ export class MatchTerminalComponent implements OnInit {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInd = data.lectureOrImageIndex;
+    // this.imageInd = data.lectureOrImageIndex;
     console.log(this.generalInfo.prevTermAllImages);
-    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
+    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages), data.lectureOrImageIndex);
 
+
+    // add code where you will skip the first image if the matching algorithm is really confident
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val)=>{
-      this.prevTermImageAnswer = val["correct_answers"]
+      this.prevTermImageAnswer = val["correct_answers"];
       console.log(val);
       console.log(Object.keys(val["matches"]).length);
       var mat = Object.keys(val["matches"]);
@@ -56,7 +58,7 @@ export class MatchTerminalComponent implements OnInit {
       console.log(val["matches"]);
       if ( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll) {
         this.matchesFinished = true;
-        this.matchBar = this.createMatchBarObject(this.imageInd);
+        this.matchBar = this.createMatchBarObject(data.lectureOrImageIndex);
         this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
@@ -90,10 +92,10 @@ export class MatchTerminalComponent implements OnInit {
       self.ref.detectChanges();
     });
   }
-  createChooseMatchesTermObject(imgNames){
+  createChooseMatchesTermObject(imgNames, imgIndex){
     let obj = {
       imageNames: {},
-      imageIndex: this.imageInd,
+      imageIndex: imgIndex,
       imageKeysSorted: [],
       termFinishedMatching: false,
       numImages: 0,
@@ -196,6 +198,7 @@ export class MatchTerminalComponent implements OnInit {
       return;
     }
     this.termMatching.imageIndex++;
+    // this.imageInd++;
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
       console.log("value of val" );
       console.log(val);
@@ -247,8 +250,11 @@ export class MatchTerminalComponent implements OnInit {
     });
   }
 
+  autoAddImageMatch(){
+
+  }
   populateImagesWithoutMatch(){
-    this.matchBar = this.createMatchBarObject(this.imageInd);
+    this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
     if( Object.values(this.generalInfo.prevTermIndividualImages).includes( this.matchBar.keyImgUrl ) ){
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermIndividualImages);
@@ -259,12 +265,12 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
+    // will add the not found iamge to the end of the scroll bar
+    this.matchBar.matchIds.push('notFound');
     this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'});
     for ( let i = 0; i < this.matchBar.matchIds.length-1; i++ ){
       this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
-    // will add the not found iamge to the end of the scroll bar
-    this.matchBar.matchIds.push('notFound');
     this.populateImageURLMatches();
     this.matchBar.selectedURL = this.matchBar.matchUrl[0];
     this.matchBar.indexSelected = 0;
