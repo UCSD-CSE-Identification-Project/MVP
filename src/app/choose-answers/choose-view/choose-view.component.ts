@@ -249,6 +249,7 @@ export class ChooseViewComponent implements OnInit {
 
   storeSession() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/choose-ans",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -264,6 +265,7 @@ export class ChooseViewComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -281,6 +283,7 @@ export class ChooseViewComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,

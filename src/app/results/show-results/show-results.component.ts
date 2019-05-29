@@ -169,6 +169,7 @@ export class ShowResultsComponent implements OnInit {
 
   logout() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -184,6 +185,7 @@ export class ShowResultsComponent implements OnInit {
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,

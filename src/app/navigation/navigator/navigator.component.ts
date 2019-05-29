@@ -48,6 +48,7 @@ export class NavigatorComponent implements OnInit {
     this.generalInfo.currTermFinished = false;
     
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -103,6 +104,7 @@ export class NavigatorComponent implements OnInit {
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: this.url,
       prevTermInfo: this.generalInfo.prevTerm,
