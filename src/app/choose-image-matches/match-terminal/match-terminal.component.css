@@ -59,10 +59,14 @@ button {
 .finishButton {
   background-color: mediumseagreen;
   right: 10px;
+  float: right;
+  margin-left: 20px;
 }
 
 .activeButton {
   background-color: mediumseagreen;
+  float: right;
+  margin-left: 300px;
 }
 
 .logoutButton {

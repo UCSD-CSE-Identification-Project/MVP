@@ -84,9 +84,17 @@
 
 <div class="col-sm-6" *ngIf="matchesFinished; else pgrss">
   <h3>{{prevTermName}} Term Images: Question {{this.termMatching.imageIndex + 1}} out of {{this.termMatching.imageKeysSorted.length}}</h3>
-  <h4>Image to Match:</h4>
-  <!-- The Term 1 Images-->
-  <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
+  <div style="display: inline-flex">
+    <h4>Image to Match:</h4>
+    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Next</button>
+    <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
+  </div>
+
+  <div>
+    <!-- The Term 1 Images-->
+    <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
+  </div>
+
   <br />
   <!-- The image the user chooses that matches the term 1 picture -->
   <h4>Image You Chose:</h4>

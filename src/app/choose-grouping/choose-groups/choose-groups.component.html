@@ -24,6 +24,15 @@
     </div>
     <br>
     <br>
+    <div *ngIf="!finishedCurrentTerm" style="float: right;">
+      <nav>
+        <button class="nextLectureButton" mat-raised-button (click)="nextLecture()">Next Lecture</button>
+      </nav>
+    </div>
+
+    <br>
+    <br>
+
     <div class="row">
       <!-- put virtual scroll here -->
       <div *ngIf="lenOfVirtualScroll > 0" class="cdk-virtual-scroll-data-source-example">
@@ -44,11 +53,6 @@
         </cdk-virtual-scroll-viewport>
       </div>
     </div>
-  </div>
-  <div *ngIf="!finishedCurrentTerm" style="float: right;">
-    <nav>
-      <button class="nextLectureButton" mat-raised-button (click)="nextLecture()">Next Lecture</button>
-    </nav>
   </div>
 </div>
 
