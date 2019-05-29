@@ -3,6 +3,7 @@
 </div>
 
 <div>
+  <button mat-raised-button (click)="openDialog()">Guide for this Page</button>
   <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
 </div>
 
@@ -12,11 +13,7 @@
       <h2>Previous Term</h2>
       <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexisting term</mat-checkbox>
       <div *ngIf="!usePreexistTerm">
-        <h5>Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
-        <!--Input term name: <input id="prevTermName" name="prevTermName" class="form-control" required minlength="1" #name="ngModel" [(ngModel)]="prevTerm" type="text" (keyup)="checkTermName()" placeholder="E.g. CSE100FA2018">
-        <div *ngIf="prevTermName.invalid && (prevTermName.dirty || prevTermName.touched)"
-             class="alert alert-danger">
-        </div>-->
+        <h5 style="margin-bottom: 3vh">Input term name: <input [(ngModel)]="prevTerm" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
       </div>
 
       <div *ngIf="usePreexistTerm">
@@ -31,8 +28,19 @@
 
 
       <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
-        <br>
-        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event,0)" webkitdirectory directory multiple /></div>
+        <div class="chooseFile">
+          <h4>Select folders: </h4>
+          <input type="file" id="prevFinal" (change)="tempStore($event,0,0)" webkitdirectory directory multiple style="display:none"/>
+          <label for="prevFinal" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select final exam folder</label>
+          <div *ngIf="prevTermZip !== null" style="display: inline-block"><p>Final folder saved ({{totalFilesPrev}} files)</p></div>
+
+          <br>
+          <br>
+
+          <input type="file" id="prevClicker" (change)="tempStore($event,0,1)" webkitdirectory directory multiple style="display:none"/>
+          <label for="prevClicker" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select clicker folder</label>
+          <div *ngIf="prevTermC !== null" style="display: inline-block"><p>Clicker folder saved ({{totalFilesPrevC}} files)</p></div>
+        </div>
       </div>
     </mat-card>
   </div>
@@ -41,16 +49,25 @@
     <mat-card class="termCard">
       <h2>Current Term</h2>
       <div>
-        <h5>Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018"></h5>
+        <h5 style="margin-bottom: 3vh">Input term name: <input [(ngModel)]="currTerm" type="text" (keyup)="checkCurrTermName()" placeholder="E.g. CSE100FA2018"></h5>
       </div>
 
       <div *ngIf="currTerm != '' && prevTerm != currTerm && !sameCurrTermName">
-        <br>
-        <div class="chooseFile">Select folder: <input type="file" (change)="tempStore($event, 1)" webkitdirectory directory multiple/></div>
+        <div class="chooseFile">
+          <h4>Select folder: </h4>
+          <input type="file" id="currClicker" (change)="tempStore($event, 1)" webkitdirectory directory multiple style="display:none"/>
+          <label for="currClicker" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select clicker folder</label>
+          <div *ngIf="currTermZip !== null" style="display: inline-block"><p>Clicker folder saved ({{totalFilesCurr}} files)</p></div>
+        </div>
       </div>
     </mat-card>
   </div>
 
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
   <br />
   <br />
   <br />
@@ -61,7 +78,7 @@
   <div *ngIf="samePrevTermName"><mat-card class="warning">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </mat-card></div>
   <div *ngIf="sameCurrTermName"><mat-card class="warning">Warning: current term name cannot be a preexisting term name </mat-card></div>
 
-  <div *ngIf="( prevTermZip != null  || usePreexistTerm) && currTermZip != null">
+  <div *ngIf="( prevTermZip != null && prevTermC != null || usePreexistTerm) && currTermZip != null">
     <button mat-raised-button [disabled]="submitButtonClicked"  (click)="onUpload(); submitButtonClicked=true;">Submit</button>
   </div>
 
@@ -72,17 +89,17 @@
   <br>
   Current Term
   <progress-bar class='progress' [progress]='allPercentageObservableCurrent | async' [color]="'#488aff'"></progress-bar>
-  <h5>Percentage of Progress Uploading Images to Online Storage</h5>
+  <h4>Percentage of Progress Uploading Images to Online Storage</h4>
 
   <br />
   <br />
   <div>
     <div class="center">
-      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)">
+      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)">
       </mat-spinner>
-      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
+      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
     </div>
-    <div *ngIf="(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
+    <div *ngIf="(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
         <button mat-raised-button class="nextButton" routerLink="/navigator/upload" (click)="generateCsv()">Next</button>
       </nav>

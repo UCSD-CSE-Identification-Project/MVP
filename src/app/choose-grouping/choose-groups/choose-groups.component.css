@@ -7,6 +7,18 @@
   padding-bottom: 10px;
 }
 
+mat-card.info {
+  background-color: mediumseagreen;
+  color: white;
+}
+
+.term {
+  text-align: center;
+  width: 100%;
+  position: absolute;
+  padding-bottom: 30px;
+}
+
 .row {
   padding-left: 1.5%;
 }
@@ -34,10 +46,16 @@ button {
 .finishButton {
   background-color: mediumseagreen;
   right: 10px;
+  color: white;
 }
 
 .activeButton {
   background-color: mediumseagreen;
+}
+
+.nextLectureButton {
+  background-color: mediumseagreen;
+  color: white;
 }
 
 .disabledButton {

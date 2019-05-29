@@ -4,6 +4,7 @@ import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-show-results',
@@ -23,7 +24,9 @@ export class ShowResultsComponent implements OnInit {
   constructor(private storage: AngularFireStorage,
               private db: AngularFirestore,
               private generalInfo: UserTermImageInformationService,
-              private authService: AuthService) { }
+              private authService: AuthService,
+              private dialog: MatDialog
+              ) { }
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
@@ -36,9 +39,6 @@ export class ShowResultsComponent implements OnInit {
 
   getFile() {
     const self = this;
-    // This is what we should have
-    //let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
-    // This is default
     let filePath = this.generalInfo.userIdVal + "/results/" + this.generalInfo.prevTermIdVal + "-" + this.generalInfo.currTermIdVal + "/" + "confidence.csv";
 
     this.storage.ref(filePath).getDownloadURL().subscribe(async url => {
@@ -173,7 +173,7 @@ export class ShowResultsComponent implements OnInit {
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+      lectureOrImageIndex: 0
     };
     this.authService.setStorage("local", object, "termData");
     this.db.collection('users').doc(this.generalInfo.userIdVal).ref.update({
@@ -188,10 +188,20 @@ export class ShowResultsComponent implements OnInit {
       logoutUrl: "/results",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: 0
+      lectureOrImageIndex: 0
     };
     this.authService.setStorage("session", object, "termData");
     return false;
+  }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
   }
 }
 
@@ -202,4 +212,15 @@ export class CSVRecordComponent {
 
   constructor() { }
 
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

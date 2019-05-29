@@ -4,6 +4,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService, termData } from 'src/app/core/auth.service';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-choose-view',
@@ -11,14 +12,17 @@ import { AuthService, termData } from 'src/app/core/auth.service';
   styleUrls: ['./choose-view.component.css']
 })
 export class ChooseViewComponent implements OnInit {
-  boxValues = [{ opt: 'A' }, { opt: 'B' }, { opt: 'C' }, { opt: 'D' }, { opt: 'E' }, { opt: 'None of the above' }];
+  boxValues = [{ opt: 'A' }, { opt: 'B' }, { opt: 'C' }, { opt: 'D' }, { opt: 'E' }, { opt: 'None of A, B, C, D, E is correct' }];
   imagesFinished; // if we finish reading all the images
   boxOnScreen;
   prevTermAnswerObj;
   currTermAnswerObj;
   startingIndex;
 
-  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
+  totalPrevImages: number = 0;
+  totalCurrImages: number = 0;
+
+    constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService,private dialog: MatDialog) {
     this.imagesFinished = false;
   }
 
@@ -67,7 +71,6 @@ export class ChooseViewComponent implements OnInit {
     tempArr = {};
     switch (prevOrCurrentTerm){
       case 'prev':
-        retVal = Object.assign({}, this.generalInfo.prevTermIsoImages );
         for( let key of Object.keys(this.generalInfo.prevTermKeyImages)){
           // retVal = Object.assign(retVal, key);//this.generalInfo.prevTermKeyImages[key]);
           tempArr[reversed[key]] = key;
@@ -113,20 +116,23 @@ export class ChooseViewComponent implements OnInit {
     return retVal;
   }
   ngOnInit() {
-
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
-
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.startingIndex = data.imageIndex;
+    this.startingIndex = data.lectureOrImageIndex;
+    this.totalPrevImages = Object.keys(this.generalInfo.prevTermKeyImages).length;
+    this.totalCurrImages = Object.keys(this.generalInfo.currTermKeyImages).length;
 
     let prevTermIndIsoImages =  this.getKeyAndIsoImages('prev');
+    console.log(prevTermIndIsoImages);
     this.prevTermAnswerObj =
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal, 0);
+    console.log(this.prevTermAnswerObj);
 
     let currTermIndIsoImages = this.getKeyAndIsoImages('curr');
+    console.log(currTermIndIsoImages);
     this.currTermAnswerObj = this.createChooseAnswersTermObj(currTermIndIsoImages, this.generalInfo.currTermLoadedFromDatabase, this.generalInfo.currTermIdVal, 0);
 
     this.prevTermAnswerObj.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
@@ -141,6 +147,7 @@ export class ChooseViewComponent implements OnInit {
       this.currTermAnswerObj.imageIndex = this.startingIndex;
       this.getImageURLsetInHTML('curr', this.currTermAnswerObj.imageKeysSorted[this.currTermAnswerObj.imageIndex]);
     }
+
     console.log(this.prevTermAnswerObj);
     console.log(this.currTermAnswerObj);
   }
@@ -232,11 +239,23 @@ export class ChooseViewComponent implements OnInit {
   }
 
   boxChecked(isChecked: boolean) {
+    console.log(isChecked);
     if (isChecked) {
       this.boxOnScreen.numBoxesChecked++;
     } else {
       this.boxOnScreen.numBoxesChecked--;
     }
+  }
+
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/choose-ans",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
   }
 
   logout() {
@@ -249,7 +268,7 @@ export class ChooseViewComponent implements OnInit {
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: index
+      lectureOrImageIndex: index
     };
     this.authService.setStorage("local", object, "termData");
 
@@ -266,7 +285,7 @@ export class ChooseViewComponent implements OnInit {
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      imageIndex: this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex
+      lectureOrImageIndex: this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex
     };
     console.log(this.prevTermAnswerObj.needGrouping);
     console.log(this.prevTermAnswerObj.imageIndex)
@@ -274,5 +293,24 @@ export class ChooseViewComponent implements OnInit {
     this.authService.setStorage("session", object, "termData");
     return false;
   }
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

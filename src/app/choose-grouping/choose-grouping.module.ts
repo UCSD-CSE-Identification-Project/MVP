@@ -8,7 +8,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog'
 import { OverlayModule } from '@angular/cdk/overlay';
-
+import {MatCardModule} from '@angular/material/card';
 @NgModule({
   declarations: [ChooseGroupsComponent,Guide],
   imports: [
@@ -19,7 +19,8 @@ import { OverlayModule } from '@angular/cdk/overlay';
     MatButtonModule,
     ScrollingModule,
     OverlayModule,
-    MatDialogModule
+    MatDialogModule,
+    MatCardModule
   ],
   exports:[],
   providers: [

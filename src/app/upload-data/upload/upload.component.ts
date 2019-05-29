@@ -9,6 +9,7 @@ import { AuthService, termData } from 'src/app/core/auth.service';
 import { ZipService } from '../../unzipFolder/zip.service';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { finalize, map, tap } from 'rxjs/internal/operators';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-upload',
@@ -46,11 +47,13 @@ export class UploadComponent implements OnInit {
 
   prevTermZip: any = null;
   currTermZip: any = null;
+  prevTermC: any = null;
 
   finishedUpload: boolean = false;
   allPastTermArray: any = null;
 
   totalFilesPrev;
+  totalFilesPrevC;
   totalFilesCurr;
   numFilePrev = 0;
   numFileCurr = 0;
@@ -71,7 +74,8 @@ export class UploadComponent implements OnInit {
     private db: AngularFirestore,
     private authService: AuthService,
     private zipService: ZipService,
-    private generalInfo: UserTermImageInformationService) {
+    private generalInfo: UserTermImageInformationService,
+    private dialog: MatDialog) {
   }
 
   populatePrevTermsList() {
@@ -90,6 +94,7 @@ export class UploadComponent implements OnInit {
     this.totalFiles = 0;
     this.prevTermZip = null;
     this.currTermZip = null;
+    this.prevTermC = null;
     this.allPastTermArray = null;
     this.numTermsPushed = 0;
     this.finishedUpload = false;
@@ -120,24 +125,35 @@ export class UploadComponent implements OnInit {
     }
   }
 
-  tempStore(event, prevOrCurrTerm) {
-    // for ( const files of event.target.files ) {
-    //   console.log(files.name);
-    // }
-    if (event.target.files.length === 0) {
-      console.log(this.prevTermZip);
-      return;
-    }
-
+  tempStore(event, prevOrCurrTerm, finalOrClicker = 0) {
     if (prevOrCurrTerm === 0) {
-      this.prevTermZip = event.target.files;
-      this.totalFilesPrev = this.prevTermZip.length;
+      if (finalOrClicker === 0) {
+        if (event.target.files.length === 0) {
+          console.log("No folder selected");
+          this.prevTermZip = null;
+          return;
+        }
+        this.prevTermZip = event.target.files;
+        this.totalFilesPrev = this.prevTermZip.length;
+      }
+      else {
+        if (event.target.files.length === 0) {
+          console.log("No folder selected");
+          this.prevTermC = null;
+          return;
+        }
+        this.prevTermC = event.target.files;
+        this.totalFilesPrevC = this.prevTermC.length;
+      }
     } else {
+      if (event.target.files.length === 0) {
+        console.log("No folder selected");
+        this.currTermZip = null;
+        return;
+      }
       this.currTermZip = event.target.files;
       this.totalFilesCurr = this.currTermZip.length;
     }
-    // console.log(event.target.files);
-    // console.log(event);
   }
 
   async uploadTermZip(eventZipFile, prevOrCurrTerm) {
@@ -146,6 +162,7 @@ export class UploadComponent implements OnInit {
     const self = this;
     const promiseArr = prevOrCurrTerm === 0 ? this.prevObjectPromise : this.currObjectPromise;
     const allPercentage = prevOrCurrTerm === 0 ? this.allPercentagePrevious : this.allPercentageCurrent;
+
     var termId = 'termId';
     await this.db.collection('terms').add({
       all_images: {},
@@ -346,7 +363,7 @@ export class UploadComponent implements OnInit {
   async onUpload() {
     var self = this;
     // this.finishedUpload = false;
-    if (this.prevTermZip === null) {
+    if (this.prevTermZip === null || this.prevTermC === null) {
       this.generalInfo.prevTermLoadedFromDatabase = true;
       console.log("find me " + this.generalInfo.prevTermLoadedFromDatabase);
       this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc) => {
@@ -362,7 +379,14 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
       });
     } else {
-      this.uploadTermZip(this.prevTermZip, 0).then(() => {
+      let fileStore = [];
+      for (const file of this.prevTermZip) {
+        fileStore.push(file);
+      }
+      for (const file of this.prevTermC) {
+        fileStore.push(file);
+      }
+      this.uploadTermZip(fileStore, 0).then(() => {
         console.log(this.generalInfo.prevTerm);
       });
     }
@@ -383,12 +407,24 @@ export class UploadComponent implements OnInit {
 
   }
 
+  storeSession() {
+    let object: termData = {
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/navigator/upload",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+  }
+
   generateCsv() {
     this.pairLectureImage();
 
     // Set generalinfo term names
     this.generalInfo.prevTermName = this.prevTerm;
     this.generalInfo.currTermName = this.currTerm;
+    this.storeSession();
 
     let headers = new HttpHeaders();
     headers.append('Content-Type', 'application/json');
@@ -429,4 +465,25 @@ export class UploadComponent implements OnInit {
   logout() {
     this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

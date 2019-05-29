@@ -82,8 +82,8 @@ button {
 }
 
 mat-card.termCard {
-  height: 280px;
-  width: 400px;
+  height: 40vh;
+  width: 30vw;
   align-items: center;
   justify-content: center;
   display: inline-block;
