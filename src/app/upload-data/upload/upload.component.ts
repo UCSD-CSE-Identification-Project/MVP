@@ -54,6 +54,11 @@ export class UploadComponent implements OnInit {
   totalFilesPrev;
   totalFilesPrevC;
   totalFilesCurr;
+
+  fileNumPrev;
+  fileNumPrevC;
+  fileNumCurr;
+  
   numFilePrev = 0;
   numFileCurr = 0;
   allPercentagePrevious = [];
@@ -133,6 +138,8 @@ export class UploadComponent implements OnInit {
         }
         this.prevTermZip = event.target.files;
         this.totalFilesPrev = this.prevTermZip.length;
+        // Since the above will change, use this for display purpose only
+        this.fileNumPrev = this.prevTermZip.length;
       }
       else {
         if (event.target.files.length === 0) {
@@ -142,6 +149,8 @@ export class UploadComponent implements OnInit {
         }
         this.prevTermC = event.target.files;
         this.totalFilesPrevC = this.prevTermC.length;
+        // Since the above will change, use this for display purpose only
+        this.fileNumPrevC = this.prevTermC.length;
       }
     } else {
       if (event.target.files.length === 0) {
@@ -151,6 +160,8 @@ export class UploadComponent implements OnInit {
       }
       this.currTermZip = event.target.files;
       this.totalFilesCurr = this.currTermZip.length;
+      // Since the above will change, use this for display purpose only
+      this.fileNumCurr = this.currTermZip.length;
     }
   }
 
@@ -198,6 +209,7 @@ export class UploadComponent implements OnInit {
       filename = this.generalInfo.addZero(filename);
       const fileType = filename.slice(filename.lastIndexOf("."));
       if (fileType === '/' || fileType === '.DS_Store' || fileType === '._' || fileType === '' || filename[0] === '_' || filename[0] === '.') {
+        // Even though prev clicker never --, the sum will still be the same, as they are uploaded together
         if (prevOrCurrTerm === 0) { self.totalFilesPrev--; } else { self.totalFilesCurr--; }
         continue;
       }
@@ -375,6 +387,7 @@ export class UploadComponent implements OnInit {
         self.generalInfo.prevTermGroupImages = prevTermData.group_images;
         self.generalInfo.prevTermIsoImages = prevTermData.iso_images;
         self.generalInfo.prevTermKeyImages = prevTermData.key_images;
+        console.log(self.generalInfo.prevTerm);
       });
     } else {
       let fileStore = [];
@@ -406,7 +419,9 @@ export class UploadComponent implements OnInit {
   }
 
   storeSession() {
+    console.log(this.generalInfo.prevTerm);
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/upload",
       prevTermInfo: this.generalInfo.prevTerm,

@@ -35,20 +35,29 @@ export class AuthComponent implements OnInit {
       console.log("in login");
       console.log(res.user.uid);
       // create user if they do not exist in database
-      var docRef = self.db.collection('users').doc(res.user.uid).ref;
+      let docRef = self.db.collection('users').doc(res.user.uid).ref;
 
       docRef.get().then(function (doc) {
         if (doc.exists) {
           console.log('user exists');
           console.log(doc.data()["finishedLastRun"]);
           if (doc.data()["finishedLastRun"]) {
-            self.db.collection('users').doc(self.generalInfo.userIdVal).ref.update({
-              finishedLastRun: false
+            // Clean up
+            self.authService.clearStorage();
+            docRef.update({
+              finishedLastRun: false,
+              useExistingPrev: false,
+              lastUrl: '',
+              current_terms_generalInfo: [],
+              lectureOrImageIndex: 0
             }).then(() => self.router.navigate(["/upload"]));
+
+            self.generalInfo.prevTerm = self.generalInfo.constructTermObj();
+            self.generalInfo.currTerm = self.generalInfo.constructTermObj();
           }
           else {
             // The user should be prompted to either resume or start a new one
-            self.openDialog(doc, docRef);
+            self.openDialog(doc, docRef, res.user.uid);
           }
         } else {
           // doc.data() will be undefined in this case
@@ -68,14 +77,12 @@ export class AuthComponent implements OnInit {
     let promise = this.authService.signUpRegular(this.email, this.password);
     promise.then(res => {
       // create user if they do not exist in database
-      var docRef = self.db.collection('users').doc(res.user.uid).ref;
+      let docRef = self.db.collection('users').doc(res.user.uid).ref;
 
       docRef.get().then(function (doc) {
         if (doc.exists) {
           console.log('user exists, this should never happen');
         } else {
-          // doc.data() will be undefined in this case
-          // console.log("need to create user");
           self.db.collection('users').doc(res.user.uid).set({
             class_term: {},
             email: self.email,
@@ -93,11 +100,14 @@ export class AuthComponent implements OnInit {
         console.log("Error getting a ref for a new user: ", error);
       });
       this.router.navigate(["/upload"]);
+
+      this.generalInfo.prevTerm = this.generalInfo.constructTermObj();
+      this.generalInfo.currTerm = this.generalInfo.constructTermObj();
     })
       .catch(e => alert(e.message));
   }
 
-  openDialog(doc: firebase.firestore.DocumentSnapshot, docRef: firebase.firestore.DocumentReference) {
+  openDialog(doc: firebase.firestore.DocumentSnapshot, docRef: firebase.firestore.DocumentReference, uid: string) {
     const dialogRef = this.dialog.open(Dialog, {
       width: '500px'
     });
@@ -105,7 +115,7 @@ export class AuthComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       console.log('The dialog was closed');
       if (result) {
-        this.continue(doc);
+        this.continue(doc, uid);
       }
       else {
         // Clean up
@@ -124,11 +134,14 @@ export class AuthComponent implements OnInit {
     });
   }
 
-  continue(doc: firebase.firestore.DocumentSnapshot) {
+  continue(doc: firebase.firestore.DocumentSnapshot, uid: string) {
     let term = localStorage.getItem("termData");
     let url: string;
-    // If localstorage is empty, get data from database instead, then fill sessionStorage
-    if (term == null) {
+    // If localstorage is empty or uid doesn't match, get data from database instead, then fill sessionStorage
+    if (term == null || JSON.parse(term).uid !== uid) {
+      // Clean up
+      this.authService.clearStorage();
+      
       let usePrev = doc.data()["useExistingPrev"];
       url = doc.data()["lastUrl"];
       let terms = doc.data()["current_terms_generalInfo"];
@@ -138,6 +151,7 @@ export class AuthComponent implements OnInit {
 
       // Store in localstorage
       let object: termData = {
+        uid: uid,
         usePrev: usePrev,
         logoutUrl: url,
         prevTermInfo: this.generalInfo.prevTerm,

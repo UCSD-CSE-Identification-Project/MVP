@@ -6,19 +6,13 @@ import { Observable } from 'rxjs';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 export interface termData {
+  uid: string,
   usePrev: boolean,
   logoutUrl: string,
   prevTermInfo: any,
   currTermInfo: any,
   lectureOrImageIndex: number
 }
-
-/*
-export interface groupLock {
-  boxLocked: boolean,
-  savedIndex: number,
-  savedChoice: string
-}*/
 
 @Injectable({
   providedIn: 'root'

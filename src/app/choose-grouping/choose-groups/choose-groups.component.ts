@@ -42,19 +42,15 @@ export class ChooseGroupsComponent implements OnInit {
   lectureOnScreenBoxList = [];
   // startingIndex:number = 0;
   partOfTheSameSubPair;
-  allImages = [];
-  allImageIds = [];
-  lenVal = 0;
-
-  currentPair = [];
-  lectureName: string  = "";
-  previousValue: number = 1;
+  lectureName  = '';
   finishedCurrentTerm: boolean = false;
 
   // Default to first lecture of previous term
   lectureNum: number = 0;
   whichTerm: string = "prev";
   termName: string = "";
+
+  finishedUpdatingTermObjInFirestore;
 
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
@@ -213,9 +209,10 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
+        this.imagesFinished = true;
+        this.ref.detectChanges();
       });
       this.generalInfo.makeSingleRequest();
-      this.imagesFinished = true;
       this.finishedCurrentTerm = true;
       return;
     }
@@ -294,13 +291,19 @@ export class ChooseGroupsComponent implements OnInit {
     }
   }
 
+  // updates images who are teh keys with the images that are part of it's group
   updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
 
     let curSubGrouping = [];
-    var curkeyImage = lectureImageIds[0];
+    let i = 0; // skip the first element and start looking after teh second element
 
-    let i = 1; // skip the first element and start looking after teh second element
-    for ( let box of this.lectureOnScreenBoxList.slice(0, ) ){
+    while( this.lectureOnScreenBoxList[i].boxVal.controls.option.value === 'Ignore'){
+      i++;
+    }
+
+    var curkeyImage = lectureImageIds[i];
+    i++; // start looking at the image after the first key image
+    for ( let box of this.lectureOnScreenBoxList.slice(i, ) ){
 
       if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
         const imgObj = {};
@@ -318,10 +321,24 @@ export class ChooseGroupsComponent implements OnInit {
         curSubGrouping = [];
       } else {
         curSubGrouping.push(lectureImageIds[i]);
-      }
+      } // end of if else statement
       i++;
+    } // end of for loop
+
+    // add teh last key value manually because above for loop will not handle the case
+    // where the last sequence is ind group group group or just ind it wont add teh last group
+    const imgObj = {};
+    imgObj["imagesInGroup"] = curSubGrouping;
+    this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+
+    // populate the variables in the service object
+    if ( this.whichTerm === 'prev'){
+      this.generalInfo.saveKeyImageToPrevTerm(curkeyImage , curSubGrouping);
+    } else {
+      this.generalInfo.saveKeyImageToCurrTerm(curkeyImage , curSubGrouping);
     }
 
+    // end of method
 
   }
 
@@ -373,6 +390,7 @@ export class ChooseGroupsComponent implements OnInit {
 
   storeSession() {
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/navigator/classify",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -388,6 +406,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
@@ -405,6 +424,7 @@ export class ChooseGroupsComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
     }
     let object: termData = {
+      uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-grouping",
       prevTermInfo: this.generalInfo.prevTerm,
