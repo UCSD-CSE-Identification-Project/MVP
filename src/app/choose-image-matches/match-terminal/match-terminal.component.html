@@ -103,8 +103,6 @@
   The default is the first image in the highMatches-->
   <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="600px" id="selectedImg" style="border:5px solid greenyellow"><br />
   <br />
-  <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col activeButton"> Next</button>
-  <button mat-raised-button type="submit" *ngIf="imagesFinished" class="col finishButton" routerLink="../navigator/match">Finish</button>
 </div>
 
 <ng-template  #pgrss>
