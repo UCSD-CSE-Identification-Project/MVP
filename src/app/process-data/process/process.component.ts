@@ -65,6 +65,7 @@ export class ProcessComponent implements OnInit {
 
   constructor(private db: AngularFirestore,
               private http: HttpClient,
+              private authService: AuthService,
               private generalInfo: UserTermImageInformationService,
               private dialog: MatDialog) {
   }
@@ -259,6 +260,34 @@ export class ProcessComponent implements OnInit {
 
     newName2 = parseInt(newName2, 10).toString();
     return newName[0] + "_Q" + newName2;
+  }
+
+  logout() {
+    let object: termData = {
+      uid: this.generalInfo.userIdVal,
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/process-data",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("local", object, "termData");
+
+    this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/process-data', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
+  }
+
+  @HostListener('window:beforeunload', ['$event'])
+  unloadNotification() {
+    let object: termData = {
+      uid: this.generalInfo.userIdVal,
+      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+      logoutUrl: "/results",
+      prevTermInfo: this.generalInfo.prevTerm,
+      currTermInfo: this.generalInfo.currTerm,
+      lectureOrImageIndex: 0
+    };
+    this.authService.setStorage("session", object, "termData");
+    return false;
   }
   
 }
