@@ -32,7 +32,7 @@ export class MatchTerminalComponent implements OnInit {
   // Execute right after constructor
   ngOnInit() {
 
-    this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
+    // this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
     this.prevTermName = this.generalInfo.prevTermName;
     this.currTermName = this.generalInfo.currTermName;
     this.matchesFinished = false;
@@ -174,14 +174,8 @@ export class MatchTerminalComponent implements OnInit {
   // Go to the next image
   nextImage(){
     console.log(this.termMatching.imageIndex);
-    // if statement for the case where
-    // if ( ( this.termMatching.numImages - this.termMatching.imageIndex ) < 0 ){
-    //   this.matchesFinished = true;
-    //   this.imagesFinished = true;
-    //   this.termMatching.termFinishedMatching = true;
-    //   return;
-    // }
     this.matchesFinished = false;
+    this.chooseToShowAll = false;
     this.curPic.unsubscribe();
     // update database with last index value
     const prevTermImageId = this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]];
@@ -192,13 +186,15 @@ export class MatchTerminalComponent implements OnInit {
     console.log(this.termMatching.numImages - this.matchBar.keyImgIndex);
     console.log(this.termMatching.numImages - this.termMatching.imageIndex);
     if ( (this.termMatching.numImages - this.termMatching.imageIndex) <= 1 ) {
+      console.log(this.matchesFinished + " " + this.termMatching.numImages + " " + this.termMatching.imageIndex);
       this.matchesFinished = true;
       this.imagesFinished = true;
       this.termMatching.termFinishedMatching = true;
+      this.ref.detectChanges();
       return;
     }
     this.termMatching.imageIndex++;
-    // this.imageInd++;
+    this.ref.detectChanges();
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
       console.log("value of val" );
       console.log(val);
@@ -207,52 +203,40 @@ export class MatchTerminalComponent implements OnInit {
       const lenMatch = mat.length;
       const containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
       const lenMatchWithCurrTerm = Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length;
-      console.log(lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll );
-      console.log(lenMatchWithCurrTerm);
       if( lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll ) {
         // put 95% or greater match logic here
         if ( lenMatchWithCurrTerm === 2 ) { // if there is only one match and one default no match image shown
           const idOfmatches = Object.keys(val["matches"][this.generalInfo.currTermIdVal]);
           const matchOne = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[0]];
           const matchTwo = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[1]];
-          // same value as prevTermImageId but need to do again because code inside subscribe
-          const pTermImageId = this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]];
-          console.log(matchOne);
-          console.log(matchTwo);
-          console.log(pTermImageId);
-          // following code also take care of the condition where there is only two matches but both of them are under 0.94
+          // following code also take care of the condition where there is only two matches (1 match and 1 noMatch image)
+          // but both of them are under 0.94
           if ( matchOne > 0.94 ) {
             // set match one as teh match
-            this.updateImageWithMatch (pTermImageId, idOfmatches[0], this.generalInfo.currTermIdVal);
-            this.updateImageWithMatch (idOfmatches[0], pTermImageId, this.generalInfo.prevTermIdVal);
-            this.updateCurrentTermImageWithAnswer(idOfmatches[0], this.prevTermImageAnswer);
+            this.matchBar.indexSelected = 0;
             this.nextImage();
             return;
           } else if (matchTwo > 0.94) {
             // set second image as the match
-            this.updateImageWithMatch (pTermImageId, idOfmatches[1], this.generalInfo.currTermIdVal);
-            this.updateImageWithMatch (idOfmatches[1], pTermImageId, this.generalInfo.prevTermIdVal);
-            this.updateCurrentTermImageWithAnswer(idOfmatches[1], this.prevTermImageAnswer);
+            this.matchBar.indexSelected = 1;
             this.nextImage();
             return;
           }
 
+
         } else if( lenMatchWithCurrTerm === 1 ){ //only the default no match found is in teh match col
+          this.matchBar.indexSelected = 0;
           this.nextImage();
           return;
         }
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-        this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
       }
     });
   }
 
-  autoAddImageMatch(){
-
-  }
   populateImagesWithoutMatch(){
     this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
