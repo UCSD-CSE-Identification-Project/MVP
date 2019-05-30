@@ -84,11 +84,6 @@
 
 <div class="col-sm-6" *ngIf="matchesFinished; else pgrss">
   <h3>{{prevTermName}} Term Images: Question {{this.termMatching.imageIndex + 1}} out of {{this.termMatching.imageKeysSorted.length}}</h3>
-  <div style="display: inline-flex">
-    <h4>Image to Match:</h4>
-    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Next</button>
-    <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
-  </div>
 
   <div>
     <!-- The Term 1 Images-->
@@ -113,6 +108,13 @@
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">
   <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
   <h3>Possible matches from term {{currTermName}}</h3>
+
+  <div style="display: inline-flex">
+    <h4>Image to Match:</h4>
+    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Next</button>
+    <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
+  </div>
+
   <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
   <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200000" maxBufferPx="400000" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
