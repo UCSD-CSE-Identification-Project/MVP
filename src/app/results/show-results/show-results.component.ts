@@ -2,6 +2,7 @@ import { Component, OnInit, HostListener } from '@angular/core';
 import { ViewChild } from '@angular/core';
 import { AngularFireStorage } from '@angular/fire/storage';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { MatDialog, MatDialogRef } from '@angular/material';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
 
@@ -23,11 +24,17 @@ export class ShowResultsComponent implements OnInit {
   constructor(private storage: AngularFireStorage,
               private db: AngularFirestore,
               private generalInfo: UserTermImageInformationService,
+              private dialog: MatDialog,
               private authService: AuthService) { }
 
   @ViewChild('fileImportInput') fileImportInput: any;
 
-  ngOnInit() {}
+  ngOnInit() {
+    // In case the user refresh page on this page
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
+  }
 
   outputRows() {
     this.hasCsv = true;
@@ -165,18 +172,27 @@ export class ShowResultsComponent implements OnInit {
   }
 
   logout() {
-    let object: termData = {
-      uid: this.generalInfo.userIdVal,
-      usePrev: this.generalInfo.prevTermLoadedFromDatabase,
-      logoutUrl: "/results",
-      prevTermInfo: this.generalInfo.prevTerm,
-      currTermInfo: this.generalInfo.currTerm,
-      lectureOrImageIndex: 0
-    };
-    this.authService.setStorage("local", object, "termData");
-    this.db.collection('users').doc(this.generalInfo.userIdVal).ref.update({
-      finishedLastRun: true
-    }).then(() => this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/results', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0));
+    const dialogRef = this.dialog.open(CautionDialog, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result) {
+        let object: termData = {
+          uid: this.generalInfo.userIdVal,
+          usePrev: this.generalInfo.prevTermLoadedFromDatabase,
+          logoutUrl: "/results",
+          prevTermInfo: this.generalInfo.prevTerm,
+          currTermInfo: this.generalInfo.currTerm,
+          lectureOrImageIndex: 0
+        };
+        this.authService.setStorage("local", object, "termData");
+        this.db.collection('users').doc(this.generalInfo.userIdVal).ref.update({
+          finishedLastRun: true
+        }).then(() => this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, '/results', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0));
+      }
+    });
   }
 
   @HostListener('window:beforeunload', ['$event'])
@@ -200,5 +216,18 @@ export class CSVRecordComponent {
   public failProbability: any;
 
   constructor() { }
+
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class CautionDialog {
+
+  constructor(
+    public dialogRef: MatDialogRef<CautionDialog>) {
+    dialogRef.disableClose = true;
+  }
 
 }

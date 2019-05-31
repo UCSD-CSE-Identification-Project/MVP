@@ -71,6 +71,9 @@ export class ProcessComponent implements OnInit {
   }
 
   ngOnInit() {
+    let data: termData = this.authService.getStorage("session", "termData");
+    this.generalInfo.prevTerm = data.prevTermInfo;
+    this.generalInfo.currTerm = data.currTermInfo;
     // Get match column, change lecture name format from L9_Q05 to lec09_Q5
     this.showSpinner = false;
     var obj = {
@@ -196,63 +199,7 @@ export class ProcessComponent implements OnInit {
         self.csvSpinner = false;
       });
     });
-    /*
-    let obj =  {
-      imageNames: {},
-      imageKeysSorted: [],
-      indKeysSorted: [],
-      groupKeysSorted: [],
-      isoKeysSorted: [],
-      csvdata: [],
-    };
-
-    obj.imageNames = this.generalInfo.prevTermAllImages;
-    console.log("all prev term images")
-    console.log(obj.imageNames);
-    obj.imageKeysSorted = Object.keys(obj.imageNames).sort((a, b) => a.localeCompare(b));
-    console.log("sorted image keys")
-    console.log(obj.imageKeysSorted);
-    obj.indKeysSorted = Object.keys(this.generalInfo.prevTermIndividualImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.indKeysSorted);
-    obj.groupKeysSorted = Object.keys(this.generalInfo.prevTermGroupImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.groupKeysSorted);
-    obj.isoKeysSorted = Object.keys(this.generalInfo.prevTermIsoImages).sort((a, b) => a.localeCompare(b));
-    console.log(obj.isoKeysSorted);
-
-    //Sorting in lexicographical order, i.e. Q1, Q10, Q11... instead of Q1, Q2, Q3
-
-    for (let i=0; i<obj.imageKeysSorted.length; i++) {
-      if (obj.indKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'ind']);
-      } else if (obj.groupKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'group']);
-      } else if (obj.isoKeysSorted.indexOf(obj.imageKeysSorted[i]) >= 0) {
-        obj.csvdata.push([obj.imageKeysSorted[i], 'iso']);
-      }
-      //works on the assumption that all images are in one of these three categories i.e. not 'ignore'
-    }
-
-    console.log(obj.csvdata);
-
-    var csv = 'PrevTermImage, Grouping\n';
-    obj.csvdata.forEach(function(row) {
-      csv += row.join(',');
-      csv += '\n';
-    });
-
-    console.log(csv);
-    this.csvfile = csv;
-    */
   }
-/*
-  downloadcsv() {
-    var hiddenElement = document.createElement('a');
-    hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(this.csvfile);
-    hiddenElement.target = '_blank';
-    hiddenElement.download = 'results.csv';
-    hiddenElement.click();
-  }
-*/
 
   changeName(name: string) {
     let newName = name.split("_");
@@ -281,7 +228,7 @@ export class ProcessComponent implements OnInit {
     let object: termData = {
       uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
-      logoutUrl: "/results",
+      logoutUrl: "/process-data",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
       lectureOrImageIndex: 0

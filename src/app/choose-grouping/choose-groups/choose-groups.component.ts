@@ -49,6 +49,8 @@ export class ChooseGroupsComponent implements OnInit {
   lectureNum: number = 0;
   whichTerm: string = "prev";
   termName: string = "";
+  prevNumLectures: number = 0;
+  currNumLectures: number = 0;
 
   finishedUpdatingTermObjInFirestore;
 
@@ -64,16 +66,15 @@ export class ChooseGroupsComponent implements OnInit {
     this.partOfTheSameSubPair  = {};
   }
 
-  // Returns the number of lectures for previous and current terms
-  prevNumLectures = Object.keys(this.generalInfo.prevTermLectureImage).length;
-  currNumLectures = Object.keys(this.generalInfo.currTermLectureImage).length;
-
-
   ngOnInit() {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.lectureNum = data.lectureOrImageIndex;
+
+    // Returns the number of lectures for previous and current terms
+    this.prevNumLectures = Object.keys(this.generalInfo.prevTermLectureImage).length;
+    this.currNumLectures = Object.keys(this.generalInfo.currTermLectureImage).length;
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase, "prev");
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase, "curr");
