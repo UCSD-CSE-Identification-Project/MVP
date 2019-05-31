@@ -30,16 +30,16 @@
       <div *ngIf="prevTerm != ''&& prevTerm!=currTerm && !usePreexistTerm && !samePrevTermName">
         <div class="chooseFile">
           <h4>Select folders: </h4>
-          <input type="file" id="prevFinal" (change)="tempStore($event,0,0)" webkitdirectory directory multiple style="display:none"/>
-          <label for="prevFinal" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select final exam folder</label>
-          <div *ngIf="prevTermZip !== null" style="display: inline-block"><p>Final folder saved ({{totalFilesPrev}} files)</p></div>
+          <input type="file" id="prevFinal" (change)="tempStore($event,0,0)" style="display:none"/>
+          <label for="prevFinal" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select final exam csv file</label>
+          <div *ngIf="prevTermZip !== null" style="display: inline-block"><p>Final folder saved ({{fileNumPrev}} files)</p></div>
 
           <br>
           <br>
 
           <input type="file" id="prevClicker" (change)="tempStore($event,0,1)" webkitdirectory directory multiple style="display:none"/>
           <label for="prevClicker" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select clicker folder</label>
-          <div *ngIf="prevTermC !== null" style="display: inline-block"><p>Clicker folder saved ({{totalFilesPrevC}} files)</p></div>
+          <div *ngIf="prevTermC !== null" style="display: inline-block"><p>Clicker folder saved ({{fileNumPrevC}} files)</p></div>
         </div>
       </div>
     </mat-card>
@@ -57,7 +57,7 @@
           <h4>Select folder: </h4>
           <input type="file" id="currClicker" (change)="tempStore($event, 1)" webkitdirectory directory multiple style="display:none"/>
           <label for="currClicker" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select clicker folder</label>
-          <div *ngIf="currTermZip !== null" style="display: inline-block"><p>Clicker folder saved ({{totalFilesCurr}} files)</p></div>
+          <div *ngIf="currTermZip !== null" style="display: inline-block"><p>Clicker folder saved ({{fileNumCurr}} files)</p></div>
         </div>
       </div>
     </mat-card>

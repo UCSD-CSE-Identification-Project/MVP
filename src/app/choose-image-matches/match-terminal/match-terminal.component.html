@@ -86,11 +86,14 @@
   <button mat-raised-button type="submit" (click)="chooseToShowAll=true;populateImagesWithoutMatch();">Continue</button>
 </div>
 
-<div class="col-sm-6" *ngIf="matchesFinished">
+<div class="col-sm-6" *ngIf="matchesFinished; else pgrss">
   <h3>{{prevTermName}} Term Images: Question {{this.termMatching.imageIndex + 1}} out of {{this.termMatching.imageKeysSorted.length}}</h3>
-  <h4>Image to Match:</h4>
-  <!-- The Term 1 Images-->
-  <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
+
+  <div>
+    <!-- The Term 1 Images-->
+    <img src="{{(matchBar.keyImgUrl| async)?.data().downloadURL}}" width="600px" style="border:5px solid red"> <br />
+  </div>
+
   <br />
   <!-- The image the user chooses that matches the term 1 picture -->
   <h4>Image You Chose:</h4>
@@ -99,14 +102,23 @@
   The default is the first image in the highMatches-->
   <img src="{{(matchBar.selectedURL| async)?.data().downloadURL}}" width="600px" id="selectedImg" style="border:5px solid greenyellow"><br />
   <br />
-  <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="col activeButton"> Next</button>
-  <button mat-raised-button type="submit" *ngIf="imagesFinished" class="col finishButton" routerLink="../navigator/match">Finish</button>
-  <!-- <button mat-flat-button (click)="showMatchesFor(1)" color="primary" class="wid">High Matches</button><br/> -->
 </div>
+
+<ng-template  #pgrss>
+  Auto completing matches for you <br>
+  Finished matches for Images: {{ termMatching.imageIndex }}
+</ng-template>
 
 <div class="col-sm-6 fill-height" *ngIf="matchesFinished">
   <button *ngIf="logoutEnabled" mat-raised-button class="logoutButton" (click)="logout()">Save and Logout</button>
   <h3>Possible matches from term {{currTermName}}</h3>
+
+  <div style="display: inline-flex">
+    <h4>Image to Match:</h4>
+    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Next</button>
+    <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
+  </div>
+
   <!-- If showMatchesHigh is true, show all the img in highMatches  lstSearchResults|async as resultList -->
   <ng-container *ngIf="matchesFinished && matchBar.matchUrl.length > 0">
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200000" maxBufferPx="400000" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
@@ -115,7 +127,7 @@
           <img src="{{potentialMatch.data().downloadURL}}" [ngStyle]="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i)"/>
         </div>
         <ng-template #loading>
-          Loading stuff...
+          Loading image...
         </ng-template>
       </div>
     </cdk-virtual-scroll-viewport>

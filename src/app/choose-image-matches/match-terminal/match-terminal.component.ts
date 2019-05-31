@@ -20,31 +20,35 @@ export class MatchTerminalComponent implements OnInit {
   matchBar;
   imagesFinished: boolean;
   matchesFinished: boolean = false;
-  imageInd: number = 0;
+  // imageInd: number = 0;
   logoutEnabled: boolean = false;
   curPic;
   chooseToShowAll: boolean = false;
   border;
   prevTermName;
   currTermName;
-  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService,private dialog: MatDialog) {
+  prevTermImageAnswer: any;
+  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService,private dialog: MatDialog){
   }
 
   // Execute right after constructor
   ngOnInit() {
 
-    this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
+    // this.border = { 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'};
     this.prevTermName = this.generalInfo.prevTermName;
     this.currTermName = this.generalInfo.currTermName;
     this.matchesFinished = false;
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
-    this.imageInd = data.lectureOrImageIndex;
+    // this.imageInd = data.lectureOrImageIndex;
     console.log(this.generalInfo.prevTermAllImages);
-    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages));
+    this.termMatching = this.createChooseMatchesTermObject(Object.assign({}, this.generalInfo.prevTermIndividualImages, this.generalInfo.prevTermGroupImages, this.generalInfo.prevTermIsoImages), data.lectureOrImageIndex);
 
+
+    // add code where you will skip the first image if the matching algorithm is really confident
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val)=>{
+      this.prevTermImageAnswer = val["correct_answers"];
       console.log(val);
       console.log(Object.keys(val["matches"]).length);
       var mat = Object.keys(val["matches"]);
@@ -56,7 +60,7 @@ export class MatchTerminalComponent implements OnInit {
       console.log(val["matches"]);
       if ( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll) {
         this.matchesFinished = true;
-        this.matchBar = this.createMatchBarObject(this.imageInd);
+        this.matchBar = this.createMatchBarObject(data.lectureOrImageIndex);
         this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
@@ -90,10 +94,10 @@ export class MatchTerminalComponent implements OnInit {
       self.ref.detectChanges();
     });
   }
-  createChooseMatchesTermObject(imgNames){
+  createChooseMatchesTermObject(imgNames, imgIndex){
     let obj = {
       imageNames: {},
-      imageIndex: this.imageInd,
+      imageIndex: imgIndex,
       imageKeysSorted: [],
       termFinishedMatching: false,
       numImages: 0,
@@ -159,41 +163,76 @@ export class MatchTerminalComponent implements OnInit {
 
     var imageObj = {};
     imageObj[`actual_matches.${matchTermId}`] = matchId;
-    this.db.collection('images').doc(imageId).update(imageObj);
+    this.db.collection('images').doc(imageId).update(imageObj).catch(()=>console.log("updateImageMatch"));
+  }
+
+  updateCurrentTermImageWithAnswer( imageIdInDatabase: string, correctAnswer: any) {
+    console.log(imageIdInDatabase);
+    console.log(correctAnswer);
+    const imageObj = {};
+    imageObj[`correct_answers`] = correctAnswer;
+    this.db.collection('images').doc(imageIdInDatabase).update(imageObj).catch(()=> console.error("did not udpate image answer"));
   }
   // Go to the next image
   nextImage(){
+    console.log(this.termMatching.imageIndex);
     this.matchesFinished = false;
+    this.chooseToShowAll = false;
     this.curPic.unsubscribe();
     // update database with last index value
     const prevTermImageId = this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]];
     const currTermImageId = this.matchBar.matchIds[this.matchBar.indexSelected];
     this.updateImageWithMatch (prevTermImageId, currTermImageId, this.generalInfo.currTermIdVal);
     this.updateImageWithMatch (currTermImageId, prevTermImageId, this.generalInfo.prevTermIdVal);
-
-    console.log("numImages" + this.termMatching.numImages);
-    console.log("imageIndex" + this.termMatching.imageIndex);
-    console.log("matchBar Image index" + this.matchBar.keyImgIndex);
-    console.log("difference:" + (this.termMatching.numImages - this.matchBar.keyImgIndex));
-    if ( (this.termMatching.numImages - this.matchBar.keyImgIndex) <= 1 ) {
+    this.updateCurrentTermImageWithAnswer(currTermImageId, this.prevTermImageAnswer);
+    console.log(this.termMatching.numImages - this.matchBar.keyImgIndex);
+    console.log(this.termMatching.numImages - this.termMatching.imageIndex);
+    if ( (this.termMatching.numImages - this.termMatching.imageIndex) <= 1 ) {
+      console.log(this.matchesFinished + " " + this.termMatching.numImages + " " + this.termMatching.imageIndex);
       this.matchesFinished = true;
       this.imagesFinished = true;
       this.termMatching.termFinishedMatching = true;
+      this.ref.detectChanges();
       return;
     }
     this.termMatching.imageIndex++;
+    this.ref.detectChanges();
     this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
+      console.log("value of val" );
       console.log(val);
-      console.log(Object.keys(val["matches"]).length);
+      this.prevTermImageAnswer = val['correct_answers'];
+      const mat = Object.keys(val['matches']);
+      const lenMatch = mat.length;
+      const containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
+      const lenMatchWithCurrTerm = Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length;
+      if( lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll ) {
+        // put 95% or greater match logic here
+        if ( lenMatchWithCurrTerm === 2 ) { // if there is only one match and one default no match image shown
+          const idOfmatches = Object.keys(val["matches"][this.generalInfo.currTermIdVal]);
+          const matchOne = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[0]];
+          const matchTwo = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[1]];
+          // following code also take care of the condition where there is only two matches (1 match and 1 noMatch image)
+          // but both of them are under 0.94
+          if ( matchOne > 0.94 ) {
+            // set match one as teh match
+            this.matchBar.indexSelected = 0;
+            this.nextImage();
+            return;
+          } else if (matchTwo > 0.94) {
+            // set second image as the match
+            this.matchBar.indexSelected = 1;
+            this.nextImage();
+            return;
+          }
 
-      var mat = Object.keys(val["matches"]);
-      var lenMatch = mat.length;
-      var containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
 
-      if( lenMatch > 0 && containsCurrTerm && Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length > 0 && !this.chooseToShowAll ){
+        } else if( lenMatchWithCurrTerm === 1 ){ //only the default no match found is in teh match col
+          this.matchBar.indexSelected = 0;
+          this.nextImage();
+          return;
+        }
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-        this.chooseToShowAll = false;
         this.completeMatchBarObject();
         this.ref.detectChanges();
       }
@@ -201,7 +240,7 @@ export class MatchTerminalComponent implements OnInit {
   }
 
   populateImagesWithoutMatch(){
-    this.matchBar = this.createMatchBarObject(this.imageInd);
+    this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
     if( Object.values(this.generalInfo.prevTermIndividualImages).includes( this.matchBar.keyImgUrl ) ){
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermIndividualImages);
@@ -212,9 +251,11 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchIds = Object.values(this.generalInfo.currTermGroupImages); // TODO make this into values corresponding to the grouping type
     }
     console.log(this.matchBar.matchIds);
-    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'})
+    // will add the not found iamge to the end of the scroll bar
+    this.matchBar.matchIds.push('notFound');
+    this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '5px', 'border-color': 'green'});
     for ( let i = 0; i < this.matchBar.matchIds.length-1; i++ ){
-      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'})
+      this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
     }
     this.populateImageURLMatches();
     this.matchBar.selectedURL = this.matchBar.matchUrl[0];

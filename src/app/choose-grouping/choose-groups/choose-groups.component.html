@@ -4,7 +4,8 @@
     <button mat-raised-button (click)="openDialog()">Guide for this Page</button>
     <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
   </div>
-
+  <br>
+  <br>
   <div style="margin-top: 7vw"><!--change this-->
     <h3 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
       <mat-card class="info">
@@ -23,6 +24,14 @@
       <h2 *ngIf="prevTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{prevNumLectures}}: {{lectureName}}</h2>
       <h2 *ngIf="!prevTermGrouping.needGrouping && currTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{currNumLectures}}: {{lectureName}}</h2>
     </div>
+    <br>
+    <br>
+    <div *ngIf="!finishedCurrentTerm" style="float: right;">
+      <nav>
+        <button class="nextLectureButton" mat-raised-button (click)="nextLecture()">Next Lecture</button>
+      </nav>
+    </div>
+
     <br>
     <br>
     <div class="row">
@@ -46,11 +55,6 @@
       </div>
     </div>
   </div>
-  <div *ngIf="!finishedCurrentTerm" style="float: right;">
-    <nav>
-      <button class="nextLectureButton" mat-raised-button (click)="nextLecture()">Next Lecture</button>
-    </nav>
-  </div>
 </div>
 
 <div style="text-align: right">
@@ -59,6 +63,7 @@
     <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
   </div>
   &nbsp;-->
+  <div *ngIf="!imagesFinished && finishedCurrentTerm"> Updating grouping data of each image in the database </div>
   <div style="display:inline-block">
     <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify" (click)="storeSession()">Finish</button>
   </div>

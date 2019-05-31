@@ -44,19 +44,17 @@ export class ChooseGroupsComponent implements OnInit {
   lectureOnScreenBoxList = [];
   // startingIndex:number = 0;
   partOfTheSameSubPair;
-  allImages = [];
-  allImageIds = [];
-  lenVal = 0;
-
-  currentPair = [];
-  lectureName: string  = "";
-  previousValue: number = 1;
+  lectureName  = '';
   finishedCurrentTerm: boolean = false;
 
   // Default to first lecture of previous term
   lectureNum: number = 0;
   whichTerm: string = "prev";
   termName: string = "";
+  prevNumLectures: number = 0;
+  currNumLectures: number = 0;
+
+  finishedUpdatingTermObjInFirestore;
 
   @ViewChild(CdkVirtualScrollViewport)
   viewport: CdkVirtualScrollViewport;
@@ -71,16 +69,15 @@ export class ChooseGroupsComponent implements OnInit {
     this.partOfTheSameSubPair  = {};
   }
 
-  // Returns the number of lectures for previous and current terms
-  prevNumLectures = Object.keys(this.generalInfo.prevTermLectureImage).length;
-  currNumLectures = Object.keys(this.generalInfo.currTermLectureImage).length;
-
-
   ngOnInit() {
     let data: termData = this.authService.getStorage("session", "termData");
     this.generalInfo.prevTerm = data.prevTermInfo;
     this.generalInfo.currTerm = data.currTermInfo;
     this.lectureNum = data.lectureOrImageIndex;
+
+    // Returns the number of lectures for previous and current terms
+    this.prevNumLectures = Object.keys(this.generalInfo.prevTermLectureImage).length;
+    this.currNumLectures = Object.keys(this.generalInfo.currTermLectureImage).length;
 
     this.prevTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.prevTermAllImages, this.generalInfo.prevTermLoadedFromDatabase, "prev");
     this.currTermGrouping = this.createChooseGroupingTermObject(this.generalInfo.currTermAllImages, this.generalInfo.currTermLoadedFromDatabase, "curr");
@@ -216,9 +213,10 @@ export class ChooseGroupsComponent implements OnInit {
 
       this.db.collection('terms').doc(this.generalInfo.currTermIdVal).ref.set(termObj).then((val)=>{
         console.log("currTerm: " + val);
+        this.imagesFinished = true;
+        this.ref.detectChanges();
       });
       this.generalInfo.makeSingleRequest();
-      this.imagesFinished = true;
       this.finishedCurrentTerm = true;
       return;
     }
@@ -301,7 +299,7 @@ export class ChooseGroupsComponent implements OnInit {
   updateImageWithGrouping( termObjectKeysToNames: Object, lectureImageIds: Array<string> ) {
 
     let curSubGrouping = [];
-    let i = 1; // skip the first element and start looking after teh second element
+    let i = 0; // skip the first element and start looking after teh second element
 
     while( this.lectureOnScreenBoxList[i].boxVal.controls.option.value === 'Ignore'){
       i++;
@@ -331,6 +329,20 @@ export class ChooseGroupsComponent implements OnInit {
       i++;
     } // end of for loop
 
+    // add teh last key value manually because above for loop will not handle the case
+    // where the last sequence is ind group group group or just ind it wont add teh last group
+    const imgObj = {};
+    imgObj["imagesInGroup"] = curSubGrouping;
+    this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+
+    // populate the variables in the service object
+    if ( this.whichTerm === 'prev'){
+      this.generalInfo.saveKeyImageToPrevTerm(curkeyImage , curSubGrouping);
+    } else {
+      this.generalInfo.saveKeyImageToCurrTerm(curkeyImage , curSubGrouping);
+    }
+
+    // end of method
 
   }
 
