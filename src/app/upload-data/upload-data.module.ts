@@ -12,7 +12,7 @@ import {MatProgressSpinnerModule} from '@angular/material';
 import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog'
 
 @NgModule({
-  declarations: [UploadComponent],
+  declarations: [UploadComponent,Guide],
   imports: [
     CommonModule,
     FormsModule,
