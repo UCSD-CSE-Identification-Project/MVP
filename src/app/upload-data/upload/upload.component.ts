@@ -17,35 +17,45 @@ import { finalize, map, tap } from 'rxjs/internal/operators';
 })
 
 export class UploadComponent implements OnInit {
+  // percentage = 0;
+  // uploadPercentage: Observable<number>;
+  // snapshot: Observable<any>;
+  // numBytesTransferLocal = 0;
+  // numBytesTransferTotal = 0;
+  // numByteTotal = 0;
+  // fileNames: string[] = [];
   progress: Observable<number>;
 
   // Download URL, removed in the new firebase update, need to find a work-around
   downloadURL: Observable<string>;
 
-  files: File[][] = [[], []];
-  percentage = 0;
-  uploadPercentage: Observable<number>;
-  snapshot: Observable<any>;
-  numBytesTransferLocal = 0;
-  numBytesTransferTotal = 0;
-  numByteTotal = 0;
-  fileNames: string[] = [];
-  counter = 0;
-  totalFiles = 0;
-  path: string = '';
+  // will commenting these variables cause any issues
+  // files: File[][] = [[], []];
+  // counter = 0;
+  // totalFiles = 0;
+  // path: string = '';
+
   alreadyUpload: boolean;
+
+
+  // xml files from the clicker folder -- indicates the responses of students from a particular lecture
   prevXmlFiles: string[] = [];
   currXmlFiles: string[] = [];
 
+  // indicates if the user chooses to use a term that is already uploaded in a prior run
   usePreexistTerm: boolean = false;
-  prevTerm: string = '';
-  currTerm: string = '';
-  prevTermsCreated = [];
+
+
+  prevTermName: string = '';
+  currTermName: string = '';
+  prevTermsCreated = []; // all of the terms that the user has used in past runs
+
+  // booleans for error prevention for user to choose unique term names
   sameCurrTermName: boolean = false;
   samePrevTermName: boolean = false;
 
-  prevTermZip: any = null;
-  currTermZip: any = null;
+  prevTermClickerFiles: any = null;
+  currTermClickerFiles: any = null;
   prevTermC: any = null;
 
   finishedUpload: boolean = false;
@@ -55,10 +65,12 @@ export class UploadComponent implements OnInit {
   totalFilesPrevC;
   totalFilesCurr;
 
-  fileNumPrev;
-  fileNumPrevC;
-  fileNumCurr;
-  
+  // these are variables used to hold the start values of previous and current files
+  // should not change after initial value assigned
+  displayNumPrevFinal;
+  displayNumPrevClicker;
+  displayNumCurrClicker;
+
   numFilePrev = 0;
   numFileCurr = 0;
   allPercentagePrevious = [];
@@ -93,10 +105,10 @@ export class UploadComponent implements OnInit {
 
   ngOnInit() {
     this.alreadyUpload = false;
-    this.counter = 0;
-    this.totalFiles = 0;
-    this.prevTermZip = null;
-    this.currTermZip = null;
+    // this.counter = 0;
+    // this.totalFiles = 0;
+    this.prevTermClickerFiles = null;
+    this.currTermClickerFiles = null;
     this.prevTermC = null;
     this.allPastTermArray = null;
     this.numTermsPushed = 0;
@@ -105,15 +117,13 @@ export class UploadComponent implements OnInit {
     this.stopSpinning = false;
     this.populatePrevTermsList(); //TODO COME BACK HERE AS WELL
     this.authService.clearStorage();
-    //console.log(this.generalInfo.prevTerm);
-    //console.log(this.generalInfo.currTerm);
   }
 
 
   checkPrevTermName() {
     this.samePrevTermName = false;
     for (var i = 0; i < this.prevTermsCreated.length; i++) {
-      if (this.prevTerm === this.prevTermsCreated[i]) {
+      if (this.prevTermName === this.prevTermsCreated[i]) {
         this.samePrevTermName = true;
       }
     }
@@ -122,24 +132,48 @@ export class UploadComponent implements OnInit {
   checkCurrTermName() {
     this.sameCurrTermName = false;
     for (var i = 0; i < this.prevTermsCreated.length; i++) {
-      if (this.currTerm === this.prevTermsCreated[i]) {
+      if (this.currTermName === this.prevTermsCreated[i]) {
         this.sameCurrTermName = true;
       }
     }
   }
 
   tempStore(event, prevOrCurrTerm, finalOrClicker = 0) {
+    // if (prevOrCurrTerm === 0) {
+    //   if (finalOrClicker === 0) {
+    //     if (event.target.files.length === 0) {
+    //       console.log("No folder selected");
+    //       this.prevTermClickerFiles = null;
+    //       return;
+    //     }
+    //     this.prevTermClickerFiles = event.target.files;
+    //     this.totalFilesPrev = this.prevTermClickerFiles.length;
+    //     // Since the above will change, use this for display purpose only
+    //     this.displayNumPrevFinal = this.prevTermClickerFiles.length;
+    //   }
+    //   else {
+    //     if (event.target.files.length === 0) {
+    //       console.log("No folder selected");
+    //       this.prevTermC = null;
+    //       return;
+    //     }
+    //     this.prevTermC = event.target.files;
+    //     this.totalFilesPrevC = this.prevTermC.length;
+    //     // Since the above will change, use this for display purpose only
+    //     this.displayNumPrevClicker = this.prevTermC.length;
+    //   }
+    // }
     if (prevOrCurrTerm === 0) {
       if (finalOrClicker === 0) {
         if (event.target.files.length === 0) {
           console.log("No folder selected");
-          this.prevTermZip = null;
+          this.prevTermClickerFiles = null;
           return;
         }
-        this.prevTermZip = event.target.files;
-        this.totalFilesPrev = this.prevTermZip.length;
+        this.prevTermClickerFiles = event.target.files;
+        this.totalFilesPrev = this.prevTermClickerFiles.length;
         // Since the above will change, use this for display purpose only
-        this.fileNumPrev = this.prevTermZip.length;
+        this.displayNumPrevFinal = this.prevTermClickerFiles.length;
       }
       else {
         if (event.target.files.length === 0) {
@@ -150,18 +184,18 @@ export class UploadComponent implements OnInit {
         this.prevTermC = event.target.files;
         this.totalFilesPrevC = this.prevTermC.length;
         // Since the above will change, use this for display purpose only
-        this.fileNumPrevC = this.prevTermC.length;
+        this.displayNumPrevClicker = this.prevTermC.length;
       }
     } else {
       if (event.target.files.length === 0) {
         console.log("No folder selected");
-        this.currTermZip = null;
+        this.currTermClickerFiles = null;
         return;
       }
-      this.currTermZip = event.target.files;
-      this.totalFilesCurr = this.currTermZip.length;
+      this.currTermClickerFiles = event.target.files;
+      this.totalFilesCurr = this.currTermClickerFiles.length;
       // Since the above will change, use this for display purpose only
-      this.fileNumCurr = this.currTermZip.length;
+      this.displayNumCurrClicker = this.currTermClickerFiles.length;
     }
   }
 
@@ -193,7 +227,7 @@ export class UploadComponent implements OnInit {
 
 
     const userObjUpdate = {};
-    const termUsed = prevOrCurrTerm === 0 ? this.prevTerm : this.currTerm;
+    const termUsed = prevOrCurrTerm === 0 ? this.prevTermName : this.currTermName;
     userObjUpdate[`class_term.${termUsed}`] = termId;
     await this.db.collection('users').doc(this.generalInfo.userIdVal).update(userObjUpdate);
 
@@ -373,10 +407,10 @@ export class UploadComponent implements OnInit {
   async onUpload() {
     var self = this;
     // this.finishedUpload = false;
-    if (this.prevTermZip === null || this.prevTermC === null) {
+    if (this.prevTermClickerFiles === null || this.prevTermC === null) {
       this.generalInfo.prevTermLoadedFromDatabase = true;
       console.log("find me " + this.generalInfo.prevTermLoadedFromDatabase);
-      this.db.collection('terms').doc(this.allPastTermArray[this.prevTerm]).ref.get().then((doc) => {
+      this.db.collection('terms').doc(this.allPastTermArray[this.prevTermName]).ref.get().then((doc) => {
         if (!doc.exists) {
           console.log("document somethign doesnt exist");
         }
@@ -391,7 +425,7 @@ export class UploadComponent implements OnInit {
       });
     } else {
       let fileStore = [];
-      for (const file of this.prevTermZip) {
+      for (const file of this.prevTermClickerFiles) {
         fileStore.push(file);
       }
       for (const file of this.prevTermC) {
@@ -402,10 +436,10 @@ export class UploadComponent implements OnInit {
       });
     }
 
-    if (this.currTermZip === null) {
+    if (this.currTermClickerFiles === null) {
       this.generalInfo.currTermLoadedFromDatabase = true;
     } else {
-      this.uploadTermZip(this.currTermZip, 1).then(() => {
+      this.uploadTermZip(this.currTermClickerFiles, 1).then(() => {
         console.log(this.generalInfo.currTerm);
       });
     }
@@ -435,8 +469,8 @@ export class UploadComponent implements OnInit {
     this.pairLectureImage();
 
     // Set generalinfo term names
-    this.generalInfo.prevTermName = this.prevTerm;
-    this.generalInfo.currTermName = this.currTerm;
+    this.generalInfo.prevTermName = this.prevTermName;
+    this.generalInfo.currTermName = this.currTermName;
     this.storeSession();
 
     let headers = new HttpHeaders();
