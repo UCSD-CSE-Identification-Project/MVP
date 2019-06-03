@@ -56,13 +56,15 @@ export class UploadComponent implements OnInit {
 
   prevTermClickerFiles: any = null;
   currTermClickerFiles: any = null;
-  prevTermC: any = null;
+  prevTermFinalExamFile: any = null;
 
   finishedUpload: boolean = false;
   allPastTermArray: any = null;
 
-  totalFilesPrev;
-  totalFilesPrevC;
+  // correspond to the total files that we want to have uploaded at the end of the upload stage for each of the categories
+  totalFilesPrevClicker;
+  totalFilesPrevFinal;
+  totalFilesPrev; // should always be totalFilesPrevClicker + totalFilesPrevFinal ( 1 )
   totalFilesCurr;
 
   // these are variables used to hold the start values of previous and current files
@@ -109,7 +111,7 @@ export class UploadComponent implements OnInit {
     // this.totalFiles = 0;
     this.prevTermClickerFiles = null;
     this.currTermClickerFiles = null;
-    this.prevTermC = null;
+    this.prevTermFinalExamFile = null;
     this.allPastTermArray = null;
     this.numTermsPushed = 0;
     this.finishedUpload = false;
@@ -147,44 +149,51 @@ export class UploadComponent implements OnInit {
     //       return;
     //     }
     //     this.prevTermClickerFiles = event.target.files;
-    //     this.totalFilesPrev = this.prevTermClickerFiles.length;
+    //     this.totalFilesPrevClicker = this.prevTermClickerFiles.length;
     //     // Since the above will change, use this for display purpose only
     //     this.displayNumPrevFinal = this.prevTermClickerFiles.length;
     //   }
     //   else {
     //     if (event.target.files.length === 0) {
     //       console.log("No folder selected");
-    //       this.prevTermC = null;
+    //       this.prevTermFinalExamFile = null;
     //       return;
     //     }
-    //     this.prevTermC = event.target.files;
-    //     this.totalFilesPrevC = this.prevTermC.length;
+    //     this.prevTermFinalExamFile = event.target.files;
+    //     this.totalFilesPrevFinal = this.prevTermFinalExamFile.length;
     //     // Since the above will change, use this for display purpose only
-    //     this.displayNumPrevClicker = this.prevTermC.length;
+    //     this.displayNumPrevClicker = this.prevTermFinalExamFile.length;
     //   }
     // }
     if (prevOrCurrTerm === 0) {
       if (finalOrClicker === 0) {
         if (event.target.files.length === 0) {
-          console.log("No folder selected");
-          this.prevTermClickerFiles = null;
+          console.log("No final exam file selected selected");
+          // this.prevTermClickerFiles = null;
+          this.prevTermFinalExamFile = null;
           return;
         }
-        this.prevTermClickerFiles = event.target.files;
-        this.totalFilesPrev = this.prevTermClickerFiles.length;
+        // this.prevTermClickerFiles = event.target.files;
+        this.prevTermFinalExamFile = event.target.files;
+        // this.totalFilesPrevClicker = this.prevTermClickerFiles.length;
+        this.totalFilesPrevFinal = this.prevTermFinalExamFile.length; // should always be 1
         // Since the above will change, use this for display purpose only
-        this.displayNumPrevFinal = this.prevTermClickerFiles.length;
+        this.displayNumPrevFinal = this.prevTermFinalExamFile.length; // should always be 1
       }
       else {
         if (event.target.files.length === 0) {
-          console.log("No folder selected");
-          this.prevTermC = null;
+          console.log("No clicker folder selected");
+          // this.prevTermFinalExamFile = null;
+          this.prevTermClickerFiles = null;
           return;
         }
-        this.prevTermC = event.target.files;
-        this.totalFilesPrevC = this.prevTermC.length;
+        // this.prevTermFinalExamFile = event.target.files;
+        this.prevTermClickerFiles = event.target.files;
+        //todo what is this variable used for come back
+        // this.totalFilesPrevFinal = this.prevTermFinalExamFile.length;
+        this.totalFilesPrevClicker = this.prevTermClickerFiles.length;
         // Since the above will change, use this for display purpose only
-        this.displayNumPrevClicker = this.prevTermC.length;
+        this.displayNumPrevClicker = this.prevTermClickerFiles.length;
       }
     } else {
       if (event.target.files.length === 0) {
@@ -407,7 +416,7 @@ export class UploadComponent implements OnInit {
   async onUpload() {
     var self = this;
     // this.finishedUpload = false;
-    if (this.prevTermClickerFiles === null || this.prevTermC === null) {
+    if (this.prevTermClickerFiles === null && this.prevTermFinalExamFile === null) {
       this.generalInfo.prevTermLoadedFromDatabase = true;
       console.log("find me " + this.generalInfo.prevTermLoadedFromDatabase);
       this.db.collection('terms').doc(this.allPastTermArray[this.prevTermName]).ref.get().then((doc) => {
@@ -428,9 +437,13 @@ export class UploadComponent implements OnInit {
       for (const file of this.prevTermClickerFiles) {
         fileStore.push(file);
       }
-      for (const file of this.prevTermC) {
+      for (const file of this.prevTermFinalExamFile) {
         fileStore.push(file);
       }
+
+      //update the totalFiles of totalPrevTermFiles
+      this.totalFilesPrev = this.totalFilesPrevClicker + this.totalFilesPrevFinal; // is this an appropriate place to update this var
+
       this.uploadTermZip(fileStore, 0).then(() => {
         console.log(this.generalInfo.prevTerm);
       });

@@ -31,7 +31,7 @@
           <h4>Select folders: </h4>
           <input type="file" id="prevFinal" (change)="tempStore($event,0,0)" style="display:none"/>
           <label for="prevFinal" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select final exam csv file</label>
-          <div *ngIf="prevTermClickerFiles !== null" style="display: inline-block"><p>Final folder saved
+          <div *ngIf="prevTermFinalExamFile !== null" style="display: inline-block"><p>Final folder saved
             ({{displayNumPrevFinal}} files)</p></div>
 
           <br>
@@ -39,7 +39,7 @@
 
           <input type="file" id="prevClicker" (change)="tempStore($event,0,1)" webkitdirectory directory multiple style="display:none"/>
           <label for="prevClicker" class="btn btn-primary" style="margin-right:5px; display: inline-block">Select clicker folder</label>
-          <div *ngIf="prevTermC !== null" style="display: inline-block"><p>Clicker folder saved
+          <div *ngIf=" prevTermClickerFiles!== null" style="display: inline-block"><p>Clicker folder saved
             ({{displayNumPrevClicker}} files)</p></div>
         </div>
       </div>
@@ -80,7 +80,7 @@
   <div *ngIf="samePrevTermName"><mat-card class="warning">Warning: same name as preexisting term. Please tick checkbox to use the preexisting term. </mat-card></div>
   <div *ngIf="sameCurrTermName"><mat-card class="warning">Warning: current term name cannot be a preexisting term name </mat-card></div>
 
-  <div *ngIf="( prevTermClickerFiles != null && prevTermC != null || usePreexistTerm) && currTermClickerFiles != null">
+  <div *ngIf="( prevTermClickerFiles != null && prevTermFinalExamFile != null || usePreexistTerm) && currTermClickerFiles != null">
     <button mat-raised-button [disabled]="submitButtonClicked"  (click)="onUpload(); submitButtonClicked=true;">Submit</button>
   </div>
 
@@ -97,11 +97,11 @@
   <br />
   <div>
     <div class="center">
-      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)">
+      <mat-spinner *ngIf="startSpinning && !(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)">
       </mat-spinner>
-      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
+      <h4 *ngIf="startSpinning && !(numFilePrev===totalFilesPrev|| usePreexistTerm && numFileCurr===totalFilesCurr)"> Updating image metadata to database </h4>
     </div>
-    <div *ngIf="(numFilePrev===totalFilesPrev+totalFilesPrevC || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
+    <div *ngIf="(numFilePrev===totalFilesPrev || usePreexistTerm && numFileCurr===totalFilesCurr)" style="float: right;">
       <nav>
         <button mat-raised-button class="nextButton" routerLink="/navigator/upload" (click)="generateCsv()">Next</button>
       </nav>
