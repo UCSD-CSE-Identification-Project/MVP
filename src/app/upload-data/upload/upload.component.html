@@ -15,6 +15,7 @@
         <h5 style="margin-bottom: 3vh">Input term name: <input [(ngModel)]="prevTermName" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
       </div>
 
+      <!--
       <div *ngIf="usePreexistTerm">
         <h5 style="display: inline-block;">Select a term you want to use: </h5>
         <br>
@@ -24,7 +25,7 @@
           </select>
         </form>
       </div>
-
+      -->
 
       <div *ngIf="prevTermName != ''&& prevTermName!=currTermName && !usePreexistTerm && !samePrevTermName">
         <div class="chooseFile">
