@@ -26,6 +26,11 @@
     </div>
     <br>
     <br>
+    <div *ngIf="canShowPreviousLecture" style="float: left;">
+      <nav>
+        <button class="nextLectureButton" mat-raised-button (click)="previousLecture()">Previous Lecture</button>
+      </nav>
+    </div>
     <div *ngIf="!finishedCurrentTerm" style="float: right;">
       <nav>
         <button class="nextLectureButton" mat-raised-button (click)="nextLecture()">Next Lecture</button>
@@ -64,8 +69,9 @@
   </div>
   &nbsp;-->
   <div *ngIf="!imagesFinished && finishedCurrentTerm"> Updating grouping data of each image in the database </div>
-  <div style="display:inline-block">
-    <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="/navigator/classify" (click)="storeSession()">Finish</button>
+  <div *ngIf="imagesFinished">
+    <button *ngIf="canShowPreviousLecture" style="float: left; margin-left: 1%;" class="nextLectureButton" mat-raised-button (click)="previousLecture()">Previous Lecture</button>
+    <button mat-raised-button class="finishButton" routerLink="/navigator/classify" (click)="storeSession()">Finish</button>
   </div>
 
 </div>
