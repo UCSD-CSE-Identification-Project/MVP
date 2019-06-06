@@ -20,8 +20,9 @@ export class ChooseViewComponent implements OnInit {
 
   totalPrevImages: number = 0;
   totalCurrImages: number = 0;
+  canShowPreviousImage: boolean = false;
 
-    constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
     this.imagesFinished = false;
   }
 
@@ -131,6 +132,8 @@ export class ChooseViewComponent implements OnInit {
       this.createChooseAnswersTermObj(prevTermIndIsoImages, this.generalInfo.prevTermLoadedFromDatabase, this.generalInfo.prevTermIdVal, 0);
 
     this.prevTermAnswerObj.imageIndex = this.startingIndex;
+    this.canShowPreviousImage = this.startingIndex === 0 ? false : true;
+
     this.findNextImageToAnswerInPrevTerm().then(()=>{
       if ( this.prevTermAnswerObj.imageIndex > this.prevTermAnswerObj.imageKeysSorted.length ){
         this.prevTermAnswerObj.needGrouping = false;
@@ -168,6 +171,15 @@ export class ChooseViewComponent implements OnInit {
       this.generalInfo.prevTermFinished = true;
       this.imagesFinished = true;
   }
+
+  unwindTermFinishVariables() {
+    this.prevTermAnswerObj.termFinishedAnswering = false;
+    this.prevTermAnswerObj.needGrouping = true;
+    // This one must have
+    this.generalInfo.prevTermFinished = false;
+    this.imagesFinished = false;
+  }
+
   getImageURLsetInHTML(imageName: string) {
     this.boxOnScreen.imageSourceURL = this.db.collection('images').doc(this.prevTermAnswerObj.imageNames[imageName]).ref.get();
   }
@@ -183,8 +195,38 @@ export class ChooseViewComponent implements OnInit {
       this.db.collection('images').doc(key).update({correct_answers: correctAnswer}).catch(()=> console.error("did not udpate image correctly"));
     }
   }
+
+  previousImage() {
+    this.boxOnScreen = this.createBoxObj();
+    // After finishing all the images
+    if (this.imagesFinished === true) {
+      this.prevTermAnswerObj.imageIndex = this.prevTermAnswerObj.numImages - 1;
+      this.canShowPreviousImage = this.prevTermAnswerObj.imageIndex === 0 ? false : true;
+      this.unwindTermFinishVariables();
+      this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
+      return;
+    }
+
+    // if loaded from database find next unanswered image and answer it otherwise just go to teh next image
+    // TODO: this is not dealt with or tested
+    if (this.generalInfo.prevTermLoadedFromDatabase) {
+      this.findNextImageToAnswerInPrevTerm().then(() => {
+        if (this.prevTermAnswerObj.imageIndex >= this.prevTermAnswerObj.imageKeysSorted.length) {
+          this.setResetTermFinishVariables();
+          return;
+        }
+        this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
+      });
+    } else {
+      this.prevTermAnswerObj.imageIndex -= 1;
+      this.canShowPreviousImage = this.prevTermAnswerObj.imageIndex === 0 ? false : true;
+      this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
+    }
+  }
+
   async nextImage() {
     const termAnswerObj = this.prevTermAnswerObj;
+    this.canShowPreviousImage = true;
 
     console.log(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]);
     await this.db.collection('images').doc(termAnswerObj.imageNames[termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]]).update({
@@ -218,7 +260,6 @@ export class ChooseViewComponent implements OnInit {
       this.prevTermAnswerObj.imageIndex += 1;
       this.getImageURLsetInHTML(termAnswerObj.imageKeysSorted[termAnswerObj.imageIndex]);
     }
-
   }
 
   boxChecked(isChecked: boolean) {
