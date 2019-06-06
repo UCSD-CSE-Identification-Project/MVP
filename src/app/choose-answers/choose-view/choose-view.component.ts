@@ -135,16 +135,24 @@ export class ChooseViewComponent implements OnInit {
     this.prevTermAnswerObj.imageIndex = this.startingIndex;
     this.canShowPreviousImage = this.startingIndex === 0 ? false : true;
 
-    this.findNextImageToAnswerInPrevTerm().then(()=>{
-      if ( this.prevTermAnswerObj.imageIndex > this.prevTermAnswerObj.imageKeysSorted.length ){
-        this.prevTermAnswerObj.needGrouping = false;
-        this.prevTermAnswerObj.termFinishedAnswering = true;
-      } else {
-        this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
-      }
-    });
-    this.prevTermAnswerObj.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
-    this.prevTermAnswerObj.termFinishedAnswering = false; // !this.prevTermAnswerObj.needGrouping;
+    // If all are finished
+    if (this.generalInfo.prevTermFinished) {
+      this.imagesFinished = true;
+      this.prevTermAnswerObj.needGrouping = false;
+      this.prevTermAnswerObj.termFinishedAnswering = true;
+    }
+    else {
+      this.findNextImageToAnswerInPrevTerm().then(() => {
+        if (this.prevTermAnswerObj.imageIndex > this.prevTermAnswerObj.imageKeysSorted.length) {
+          this.prevTermAnswerObj.needGrouping = false;
+          this.prevTermAnswerObj.termFinishedAnswering = true;
+        } else {
+          this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
+        }
+      });
+      this.prevTermAnswerObj.needGrouping = !this.generalInfo.prevTermLoadedFromDatabase && !this.generalInfo.prevTermFinished;
+      this.prevTermAnswerObj.termFinishedAnswering = false; // !this.prevTermAnswerObj.needGrouping;
+    }
   }
 
   async findNextImageToAnswerInPrevTerm( ){
@@ -284,10 +292,8 @@ export class ChooseViewComponent implements OnInit {
   }
 
   logout() {
-    let index = this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex;
-    if (!this.prevTermAnswerObj.needGrouping) {
-      this.generalInfo.prevTermFinished = true;
-    }
+    let index = this.prevTermAnswerObj.imageIndex;
+
     let object: termData = {
       uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
@@ -303,16 +309,13 @@ export class ChooseViewComponent implements OnInit {
 
   @HostListener('window:beforeunload', ['$event'])
   unloadNotification() {
-    if (!this.prevTermAnswerObj.needGrouping) {
-      this.generalInfo.prevTermFinished = true;
-    }
     let object: termData = {
       uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
       logoutUrl: "/choose-answers",
       prevTermInfo: this.generalInfo.prevTerm,
       currTermInfo: this.generalInfo.currTerm,
-      lectureOrImageIndex: this.prevTermAnswerObj.needGrouping ? this.prevTermAnswerObj.imageIndex : this.currTermAnswerObj.imageIndex
+      lectureOrImageIndex: this.prevTermAnswerObj.imageIndex
     };
     this.authService.setStorage("session", object, "termData");
     return false;

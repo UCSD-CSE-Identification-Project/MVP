@@ -6,7 +6,10 @@
   </div>
   <br>
   <br>
-  <div style="margin-top: 7vw"><!--change this-->
+  <br>
+  <br>
+  <br>
+  <div>
     <h3 style="padding: 1%" *ngIf="!prevTermGrouping.needGrouping">
       <mat-card class="info">
         Finished previous term grouping
@@ -19,7 +22,7 @@
     </h3>
   </div>
   <div *ngIf="prevTermGrouping.needGrouping || currTermGrouping.needGrouping && !prevTermGrouping.needGrouping">
-    <div style="margin-top: 2vw; padding-left: 10px"><!--???????-->
+    <div style="padding-left: 1%">
       <h2>Term: {{termName}}</h2>
       <h2 *ngIf="prevTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{prevNumLectures}}: {{lectureName}}</h2>
       <h2 *ngIf="!prevTermGrouping.needGrouping && currTermGrouping.needGrouping">Lecture {{lectureNum + 1}} out of {{currNumLectures}}: {{lectureName}}</h2>
