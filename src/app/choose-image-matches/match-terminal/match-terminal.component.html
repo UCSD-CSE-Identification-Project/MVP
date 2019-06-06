@@ -67,9 +67,13 @@
 
 <div class="title">
   <h2 style="color: white">Match Images</h2>
+  <button mat-raised-button (click)="openDialog()">Guide for this Page</button>
   <button *ngIf="matchesFinished" mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
 </div>
 
+<br>
+<br>
+<br>
 <br>
 <br>
 <br>
@@ -111,7 +115,7 @@
 
   <div style="display: inline-flex">
     <h4>Image to Match:</h4>
-    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Next</button>
+    <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Confirm and Next</button>
     <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
   </div>
 

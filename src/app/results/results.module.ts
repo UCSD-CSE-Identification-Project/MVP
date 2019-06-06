@@ -3,12 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material';
-import { CautionDialog } from './show-results/show-results.component';
+import { CautionDialog,Guide } from './show-results/show-results.component';
 import { ResultsRoutingModule } from './results-routing.module';
 import { ShowResultsComponent } from './show-results/show-results.component';
 
 @NgModule({
-  declarations: [ShowResultsComponent, CautionDialog],
+  declarations: [ShowResultsComponent, CautionDialog,Guide],
   imports: [
     CommonModule,
     FormsModule,
@@ -17,7 +17,8 @@ import { ShowResultsComponent } from './show-results/show-results.component';
     MatDialogModule
   ],
   entryComponents: [
-    CautionDialog
+    CautionDialog,
+    Guide
   ]
 })
 export class ResultsModule { }

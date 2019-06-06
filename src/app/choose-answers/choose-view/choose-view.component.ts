@@ -4,6 +4,7 @@ import { forEach } from '@angular/router/src/utils/collection';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService, termData } from 'src/app/core/auth.service';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-choose-view',
@@ -22,7 +23,7 @@ export class ChooseViewComponent implements OnInit {
   totalCurrImages: number = 0;
   canShowPreviousImage: boolean = false;
 
-  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private generalInfo: UserTermImageInformationService, private db: AngularFirestore, private authService: AuthService, private dialog: MatDialog) {
     this.imagesFinished = false;
   }
 
@@ -316,5 +317,24 @@ export class ChooseViewComponent implements OnInit {
     this.authService.setStorage("session", object, "termData");
     return false;
   }
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

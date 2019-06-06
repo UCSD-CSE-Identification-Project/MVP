@@ -4,6 +4,8 @@ import {UserTermImageInformationService} from '../../core/user-term-image-inform
 import {forkJoin, Observable} from 'rxjs';
 import { AuthService, termData } from 'src/app/core/auth.service';
 import {analyzeAndValidateNgModules} from '@angular/compiler';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
+
 
 
 @Component({
@@ -26,7 +28,7 @@ export class MatchTerminalComponent implements OnInit {
   prevTermName;
   currTermName;
   prevTermImageAnswer: any;
-  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService) {
+  constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService,private dialog: MatDialog){
   }
 
   // Execute right after constructor
@@ -301,5 +303,24 @@ export class MatchTerminalComponent implements OnInit {
     this.authService.setStorage("session", object, "termData");
     return false;
   }
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
 
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }
