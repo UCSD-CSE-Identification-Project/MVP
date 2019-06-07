@@ -10,7 +10,7 @@
   <div class="previous">
     <mat-card class="termCard">
       <h2>Previous Term</h2>
-      <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexisting term</mat-checkbox>
+      <!-- <mat-checkbox [checked]="usePreexistTerm" (change)="usePreexistTerm = !usePreexistTerm">Use a preexisting term</mat-checkbox> -->
       <div *ngIf="!usePreexistTerm">
         <h5 style="margin-bottom: 3vh">Input term name: <input [(ngModel)]="prevTermName" type="text" (keyup)="checkPrevTermName()" placeholder="E.g. CSE100FA2018"></h5>
       </div>
