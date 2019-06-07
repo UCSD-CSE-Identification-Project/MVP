@@ -125,7 +125,7 @@
     <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200000" maxBufferPx="400000" *ngIf="!termMatching.termFinishedMatching" class="example-viewport">
       <div *cdkVirtualFor="let url of matchBar.matchUrl; let i = index;" class="example-item">
         <div *ngIf="( url | async ) as potentialMatch; else loading">
-          <img src="{{potentialMatch.data().downloadURL}}" [ngStyle]="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i)"/>
+          <img src="{{potentialMatch.data().downloadURL}}" [ngStyle]="matchBar.matchBorderStyle[i]" width="500px" (click) = "imgClick(i,potentialMatch.data().downloadURL )"/>
         </div>
         <ng-template #loading>
           Loading image...

@@ -65,8 +65,9 @@ export class MatchTerminalComponent implements OnInit {
         this.matchesFinished = true;
         this.matchBar = this.createMatchBarObject(data.lectureOrImageIndex);
         this.chooseToShowAll = false;
-        this.completeMatchBarObject();
-        this.ref.detectChanges();
+        this.completeMatchBarObject().then(()=>{
+          this.ref.detectChanges();
+        });
         // this.logoutEnabled = true;
       }
     });
@@ -84,9 +85,18 @@ export class MatchTerminalComponent implements OnInit {
     };
     return obj;
   }
-  completeMatchBarObject() {
+  async completeMatchBarObject() {
     var self = this;
     this.matchBar.keyImgUrl = this.getKeyImageURL(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
+    await this.populateIdsOfMatches(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]);
+    this.populateImageURLMatches();
+    this.matchBar.selectedURL = this.matchBar.matchUrl[0];
+    this.matchBar.indexSelected = 0;
+    for ( var i = 0; i < this.matchBar.matchIds.length; i++ ) this.matchBar.matchBorderStyle.push({ 'border-style': 'solid', 'border-width': '1px', 'border-color': 'black'});
+    this.matchBar.matchBorderStyle[0]['border-color'] = 'green';
+    this.matchBar.matchBorderStyle[0]['border-width'] = '5px';
+    // this.ref.detectChanges();
+    /*
     this.populateIdsOfMatches(this.termMatching.imageKeysSorted[this.matchBar.keyImgIndex]).then(()=>{
       self.populateImageURLMatches();
       self.matchBar.selectedURL = self.matchBar.matchUrl[0];
@@ -96,6 +106,7 @@ export class MatchTerminalComponent implements OnInit {
       self.matchBar.matchBorderStyle[0]['border-width'] = '5px';
       self.ref.detectChanges();
     });
+    */
   }
   createChooseMatchesTermObject(imgNames, imgIndex){
     let obj = {
@@ -146,7 +157,8 @@ export class MatchTerminalComponent implements OnInit {
       this.matchBar.matchUrl.push(this.db.collection('images').doc(id).ref.get());
     }
   }
-  imgClick( index: number) {
+  imgClick( index: number, test: any) {
+    console.log(test);
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-color'] = 'black';
     this.matchBar.matchBorderStyle[this.matchBar.indexSelected]['border-width'] = '1px';
 
@@ -192,6 +204,8 @@ export class MatchTerminalComponent implements OnInit {
     console.log(this.termMatching.numImages - this.termMatching.imageIndex);
     if ( (this.termMatching.numImages - this.termMatching.imageIndex) <= 1 ) {
       console.log(this.matchesFinished + " " + this.termMatching.numImages + " " + this.termMatching.imageIndex);
+      console.log(this.matchBar.matchIds.length);
+      console.log(this.matchBar.matchIds);
       this.matchesFinished = true;
       this.imagesFinished = true;
       this.termMatching.termFinishedMatching = true;
@@ -200,7 +214,7 @@ export class MatchTerminalComponent implements OnInit {
     }
     this.termMatching.imageIndex++;
     this.ref.detectChanges();
-    this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe((val) => {
+    this.curPic = this.db.collection('images').doc(this.termMatching.imageNames[this.termMatching.imageKeysSorted[this.termMatching.imageIndex]]).valueChanges().subscribe(async (val) => {
       console.log("value of val" );
       console.log(val);
       this.prevTermImageAnswer = val['correct_answers'];
@@ -209,8 +223,12 @@ export class MatchTerminalComponent implements OnInit {
       const containsCurrTerm = this.generalInfo.currTermIdVal in val["matches"];
       const lenMatchWithCurrTerm = Object.keys(val["matches"][this.generalInfo.currTermIdVal]).length;
       if( lenMatch > 0 && containsCurrTerm && lenMatchWithCurrTerm > 0 && !this.chooseToShowAll ) {
+        this.matchesFinished = true;
+        this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
+        await this.completeMatchBarObject();
         // put 95% or greater match logic here
         if ( lenMatchWithCurrTerm === 2 ) { // if there is only one match and one default no match image shown
+
           const idOfmatches = Object.keys(val["matches"][this.generalInfo.currTermIdVal]);
           const matchOne = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[0]];
           const matchTwo = val['matches'][this.generalInfo.currTermIdVal][idOfmatches[1]];
@@ -234,9 +252,6 @@ export class MatchTerminalComponent implements OnInit {
           this.nextImage();
           return;
         }
-        this.matchesFinished = true;
-        this.matchBar = this.createMatchBarObject(this.termMatching.imageIndex);
-        this.completeMatchBarObject();
         this.ref.detectChanges();
       }
     });
