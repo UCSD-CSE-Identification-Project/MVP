@@ -54,6 +54,7 @@ export class ChooseGroupsComponent implements OnInit {
   prevNumLectures: number = 0;
   currNumLectures: number = 0;
   canShowPreviousLecture: boolean = true;
+  allowReload: boolean = false;
 
   finishedUpdatingTermObjInFirestore;
 
@@ -96,6 +97,11 @@ export class ChooseGroupsComponent implements OnInit {
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     if ((this.whichTerm === "prev" && this.lectureNum === 0) || (this.whichTerm === "curr" && this.generalInfo.prevTermLoadedFromDatabase && this.lectureNum === 0)) {
       this.canShowPreviousLecture = false;
+    }
+
+    // If all are finished
+    if (this.generalInfo.currTermFinished) {
+      this.imagesFinished = true;
     }
   }
 
@@ -367,7 +373,7 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
 
-  previousLecture() {
+  updatePageForPreviousLecture() {
     if (this.whichTerm === "prev") {
       if (this.lectureNum - 1 === 0) {
         this.canShowPreviousLecture = false;
@@ -385,7 +391,7 @@ export class ChooseGroupsComponent implements OnInit {
         this.unwindTermFinishVariables(0);
       }
       // one more case of unwind after finished current term
-      else if (this.imagesFinished === true){
+      else if (this.imagesFinished === true) {
         console.log("Reached end of curr, going back");
         this.unwindTermFinishVariables(1);
       }
@@ -398,6 +404,22 @@ export class ChooseGroupsComponent implements OnInit {
     this.lectureName = this.whichTerm === "prev" ? Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum] : Object.keys(this.generalInfo.currTermLectureImage)[this.lectureNum];
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     this.viewport.scrollToIndex(0);
+    this.allowReload = true;
+  }
+
+  previousLecture() {
+    const dialogRef = this.dialog.open(Warning, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result) {
+        this.updatePageForPreviousLecture();
+        window.location.reload();
+        this.allowReload = false;
+      }
+    });
   }
 
   nextLecture() {
@@ -496,7 +518,7 @@ export class ChooseGroupsComponent implements OnInit {
       lectureOrImageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.lectureIndex : this.currTermGrouping.lectureIndex
     };
     this.authService.setStorage("session", object, "termData");
-    return false;
+    return this.allowReload;
   }
 
   openDialog() {
@@ -520,4 +542,15 @@ export class Guide {
     public dialogRef: MatDialogRef<Guide>) {
       dialogRef.disableClose = true;
     }
+}
+
+@Component({
+  selector: 'warning',
+  templateUrl: './warning.html',
+})
+export class Warning {
+  constructor(
+    public dialogRef: MatDialogRef<Warning>) {
+    dialogRef.disableClose = true;
+  }
 }

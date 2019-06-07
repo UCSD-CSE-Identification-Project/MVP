@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {ChooseViewComponent,Guide} from './choose-view/choose-view.component';
+import {ChooseViewComponent,Guide, Note} from './choose-view/choose-view.component';
 import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog'
 import {MatCardModule} from '@angular/material';
 
@@ -9,7 +9,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [Guide],
+  declarations: [Guide, Note],
   imports: [
     RouterModule.forChild(routes),
     MatDialogModule,
@@ -20,7 +20,8 @@ const routes: Routes = [
 		MatDialog
   ],
   entryComponents:[
-    Guide
+    Guide,
+    Note
   ]
 })
 export class ChooseAnswersRoutingModule { }
