@@ -116,6 +116,7 @@
   <div style="display: inline-flex">
     <h4>Image to Match:</h4>
     <button mat-raised-button type="submit" [disabled]="imagesFinished" (click)="nextImage()" class="activeButton"> Confirm and Next</button>
+    <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" (click)="showSummary()">Show Summary</button>
     <button mat-raised-button type="submit" *ngIf="imagesFinished" class="finishButton" routerLink="../navigator/match">Finish</button>
   </div>
 
@@ -133,6 +134,15 @@
     </cdk-virtual-scroll-viewport>
   </ng-container>
 
+</div>
+<div *ngIf="getSummary && prevTermURLs.length > 0">
+  <cdk-virtual-scroll-viewport itemSize="50" minBufferPx="200000" maxBufferPx="400000" class="example-viewport">
+    <div *cdkVirtualFor="let url of prevTermURLs; let i = index;" class="example-item">
+      <img src="{{(url | async)?.data().downloadURL}}" width="500px" />
+      <img src="{{(currTermURLs[i] | async)?.data().downloadURL}}" width="500px" />
+      <!--<img src="{{(currTermURLs[i] | async)?.data().downloadURL}}" width="500px" />-->
+    </div>
+  </cdk-virtual-scroll-viewport>
 </div>
 
 <!--<h2>matchesFinished: {{matchesFinished}}</h2>-->

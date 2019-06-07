@@ -119,6 +119,10 @@ export class ChooseViewComponent implements OnInit {
     return retVal;
   }
   ngOnInit() {
+    const dialogRef = this.dialog.open(Note, {
+      width: '500px'
+    });
+
     // might be memory error where you pass by reference
     this.boxOnScreen = this.createBoxObj();
     let data: termData = this.authService.getStorage("session", "termData");
@@ -143,9 +147,10 @@ export class ChooseViewComponent implements OnInit {
     }
     else {
       this.findNextImageToAnswerInPrevTerm().then(() => {
-        if (this.prevTermAnswerObj.imageIndex > this.prevTermAnswerObj.imageKeysSorted.length) {
+        if (this.prevTermAnswerObj.imageIndex >= this.prevTermAnswerObj.imageKeysSorted.length) {
           this.prevTermAnswerObj.needGrouping = false;
           this.prevTermAnswerObj.termFinishedAnswering = true;
+          this.imagesFinished = true;
         } else {
           this.getImageURLsetInHTML(this.prevTermAnswerObj.imageKeysSorted[this.prevTermAnswerObj.imageIndex]);
         }
@@ -340,4 +345,15 @@ export class Guide {
     public dialogRef: MatDialogRef<Guide>) {
       dialogRef.disableClose = true;
     }
+}
+
+@Component({
+  selector: 'note',
+  templateUrl: './note.html',
+})
+export class Note {
+  constructor(
+    public dialogRef: MatDialogRef<Note>) {
+    dialogRef.disableClose = true;
+  }
 }

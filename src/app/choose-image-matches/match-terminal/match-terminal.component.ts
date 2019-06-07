@@ -27,6 +27,9 @@ export class MatchTerminalComponent implements OnInit {
   border;
   prevTermName;
   currTermName;
+  prevTermURLs = [];
+  currTermURLs = [];
+  getSummary: boolean = false;
   prevTermImageAnswer: any;
   constructor(private db: AngularFirestore, private generalInfo: UserTermImageInformationService, private ref: ChangeDetectorRef, private authService: AuthService,private dialog: MatDialog){
   }
@@ -262,6 +265,33 @@ export class MatchTerminalComponent implements OnInit {
     this.matchBar.indexSelected = 0;
     this.matchesFinished = true;
     this.ref.detectChanges();
+  }
+
+  showSummary() {
+    this.getSummary = true;
+    let prevKeys = Object.keys(this.generalInfo.prevTermAllImages).sort();
+    let self = this;
+
+    for (let i = 0; i < prevKeys.length; i++) {
+      let imgKey = prevKeys[i];
+      let imgId = this.generalInfo.prevTermAllImages[imgKey];
+      let currTermID = this.generalInfo.currTermIdVal;
+      console.log("Prev term image id is: " + imgId);
+
+      this.db.collection('images').doc(imgId).ref.get().then(function (doc) {
+        if (doc.exists) {
+          self.prevTermURLs.push(self.db.collection('images').doc(imgId).ref.get());
+          if (doc.data().actual_matches) {
+            console.log("Pushed curr image id is: " + doc.data().actual_matches[currTermID]);
+            self.currTermURLs.push(self.db.collection('images').doc(doc.data().actual_matches[currTermID]).ref.get());
+          }
+          // No match found
+          else {
+            self.currTermURLs.push(self.db.collection('images').doc("notFound").ref.get());
+          }
+        }
+      });
+    }
   }
 
   storeSession() {
