@@ -7,6 +7,7 @@ import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
 import {ScrollDispatchModule} from '@angular/cdk/scrolling';
 import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
+// import { cursorTo } from 'readline';
 
 
 interface chooseGroupingBoxObj {
@@ -335,7 +336,7 @@ export class ChooseGroupsComponent implements OnInit {
     var curkeyImage = lectureImageIds[i];
     i++; // start looking at the image after the first key image
     for ( let box of this.lectureOnScreenBoxList.slice(i, ) ){
-
+      if ( box.boxVal.controls.option.value === "Ignore" ) continue; 
       if( box.boxVal.controls.box.value === true || box.boxVal.controls.option.value === "Individual" ) {
         const imgObj = {};
         imgObj["imagesInGroup"] = curSubGrouping;
@@ -355,12 +356,14 @@ export class ChooseGroupsComponent implements OnInit {
       } // end of if else statement
       i++;
     } // end of for loop
-
-    // add teh last key value manually because above for loop will not handle the case
-    // where the last sequence is ind group group group or just ind it wont add teh last group
-    const imgObj = {};
-    imgObj["imagesInGroup"] = curSubGrouping;
-    this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+    
+    if ( curSubGrouping.length != 0){
+      // add teh last key value manually because above for loop will not handle the case
+      // where the last sequence is ind group group group or just ind it wont add teh last group
+      const imgObj = {};
+      imgObj["imagesInGroup"] = curSubGrouping;
+      this.db.collection("images").doc(curkeyImage).ref.set(imgObj, { merge: true });
+    }
 
     // populate the variables in the service object
     if ( this.whichTerm === 'prev'){
