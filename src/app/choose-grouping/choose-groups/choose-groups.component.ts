@@ -5,6 +5,8 @@ import { AuthService, termData } from 'src/app/core/auth.service';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling'
 import {ScrollDispatchModule} from '@angular/cdk/scrolling';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 
 
 interface chooseGroupingBoxObj {
@@ -51,6 +53,8 @@ export class ChooseGroupsComponent implements OnInit {
   termName: string = "";
   prevNumLectures: number = 0;
   currNumLectures: number = 0;
+  canShowPreviousLecture: boolean = true;
+  allowReload: boolean = false;
 
   finishedUpdatingTermObjInFirestore;
 
@@ -60,7 +64,8 @@ export class ChooseGroupsComponent implements OnInit {
               private generalInfo: UserTermImageInformationService,
               private authService: AuthService,
               private db: AngularFirestore,
-              private ref: ChangeDetectorRef
+              private ref: ChangeDetectorRef,
+              private dialog: MatDialog
               ) {
     this.imagesFinished = false;
     this.partOfTheSameSubPair  = {};
@@ -90,12 +95,14 @@ export class ChooseGroupsComponent implements OnInit {
     this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
     this.whichTerm === "prev" ? this.prevTermGrouping.lectureIndex = this.lectureNum : this.currTermGrouping.lectureIndex = this.lectureNum;
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
-    // Comment this out before we merge
-    // if( this.prevTermGrouping.needGrouping ){
-    // }
-    // else{
-    // }
+    if ((this.whichTerm === "prev" && this.lectureNum === 0) || (this.whichTerm === "curr" && this.generalInfo.prevTermLoadedFromDatabase && this.lectureNum === 0)) {
+      this.canShowPreviousLecture = false;
+    }
 
+    // If all are finished
+    if (this.generalInfo.currTermFinished) {
+      this.imagesFinished = true;
+    }
   }
 
   createBoxObj(imageIndex: number, defaultTypeVal: number) {
@@ -213,9 +220,32 @@ export class ChooseGroupsComponent implements OnInit {
         this.imagesFinished = true;
         this.ref.detectChanges();
       });
-      this.generalInfo.makeSingleRequest();
+      //this.generalInfo.makeSingleRequest();
       this.finishedCurrentTerm = true;
       return;
+    }
+  }
+
+  // With previous term loaded from database, it won't invoke this function
+  unwindTermFinishVariables(whichPosition: number) {
+    // If this is the first lecture of current term
+    if (whichPosition === 0) {
+      this.lectureNum = Object.keys(this.generalInfo.prevTermLectureImage).length - 1;
+      this.prevTermGrouping.lectureIndex = Object.keys(this.generalInfo.prevTermLectureImage).length - 1;
+      this.whichTerm = "prev";
+      this.prevTermGrouping.needGrouping = true;
+      this.generalInfo.prevTermFinished = false;
+      this.prevTermGrouping.termFinishedAnswering = false;
+    }
+    // If this is after finishing the current term
+    else {
+      this.currTermGrouping.needGrouping = true;
+      this.generalInfo.currTermFinished = false;
+      this.currTermGrouping.termFinishedAnswering = false;
+      this.finishedCurrentTerm = false;
+      this.imagesFinished = false;
+      this.lectureNum = Object.keys(this.generalInfo.currTermLectureImage).length - 1;
+      this.currTermGrouping.lectureIndex = Object.keys(this.generalInfo.currTermLectureImage).length - 1;
     }
   }
 
@@ -343,6 +373,55 @@ export class ChooseGroupsComponent implements OnInit {
 
   }
 
+  updatePageForPreviousLecture() {
+    if (this.whichTerm === "prev") {
+      if (this.lectureNum - 1 === 0) {
+        this.canShowPreviousLecture = false;
+      }
+      this.lectureNum -= 1;
+      this.prevTermGrouping.lectureIndex -= 1;
+    }
+    else {
+      if (this.lectureNum - 1 === 0 && this.generalInfo.prevTermLoadedFromDatabase) {
+        this.canShowPreviousLecture = false
+        this.lectureNum -= 1;
+        this.currTermGrouping.lectureIndex -= 1;
+      }
+      else if (this.lectureNum === 0) {
+        this.unwindTermFinishVariables(0);
+      }
+      // one more case of unwind after finished current term
+      else if (this.imagesFinished === true) {
+        console.log("Reached end of curr, going back");
+        this.unwindTermFinishVariables(1);
+      }
+      else {
+        this.lectureNum -= 1;
+        this.currTermGrouping.lectureIndex -= 1;
+      }
+    }
+    this.termName = this.whichTerm === "prev" ? this.generalInfo.prevTermName : this.generalInfo.currTermName;
+    this.lectureName = this.whichTerm === "prev" ? Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum] : Object.keys(this.generalInfo.currTermLectureImage)[this.lectureNum];
+    this.populateLectureBoxList(this.lectureNum, this.whichTerm);
+    this.viewport.scrollToIndex(0);
+    this.allowReload = true;
+  }
+
+  previousLecture() {
+    const dialogRef = this.dialog.open(Warning, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      if (result) {
+        this.updatePageForPreviousLecture();
+        window.location.reload();
+        this.allowReload = false;
+      }
+    });
+  }
+
   nextLecture() {
     const termObj = this.whichTerm === 'prev' ? this.prevTermGrouping : this.currTermGrouping;
     const lectureKeys =  this.whichTerm === 'prev' ?
@@ -376,6 +455,7 @@ export class ChooseGroupsComponent implements OnInit {
     else {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.currTermLectureImage).length) {
         this.setResetTermFinishVariables();
+        this.canShowPreviousLecture = true;
         return;
       }
       else {
@@ -387,9 +467,14 @@ export class ChooseGroupsComponent implements OnInit {
     this.lectureName = this.whichTerm === "prev" ? Object.keys(this.generalInfo.prevTermLectureImage)[this.lectureNum] : Object.keys(this.generalInfo.currTermLectureImage)[this.lectureNum];
     this.populateLectureBoxList(this.lectureNum, this.whichTerm);
     this.viewport.scrollToIndex(0);
+    this.canShowPreviousLecture = true;
   }
 
+  issueMatchingAlgorithm() {
+    this.generalInfo.makeSingleRequest();
+  }
   storeSession() {
+    this.issueMatchingAlgorithm();
     let object: termData = {
       uid: this.generalInfo.userIdVal,
       usePrev: this.generalInfo.prevTermLoadedFromDatabase,
@@ -433,7 +518,39 @@ export class ChooseGroupsComponent implements OnInit {
       lectureOrImageIndex: this.prevTermGrouping.needGrouping ? this.prevTermGrouping.lectureIndex : this.currTermGrouping.lectureIndex
     };
     this.authService.setStorage("session", object, "termData");
-    return false;
+    return this.allowReload;
   }
 
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+  
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
+}
+
+@Component({
+  selector: 'warning',
+  templateUrl: './warning.html',
+})
+export class Warning {
+  constructor(
+    public dialogRef: MatDialogRef<Warning>) {
+    dialogRef.disableClose = true;
+  }
 }

@@ -9,6 +9,7 @@ import { AuthService, termData } from 'src/app/core/auth.service';
 import { ZipService } from '../../unzipFolder/zip.service';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { finalize, map, tap } from 'rxjs/internal/operators';
+import {MatDialogModule, MatDialog, MatDialogRef} from '@angular/material/dialog';
 
 @Component({
   selector: 'app-upload',
@@ -92,7 +93,8 @@ export class UploadComponent implements OnInit {
     private db: AngularFirestore,
     private authService: AuthService,
     private zipService: ZipService,
-    private generalInfo: UserTermImageInformationService) {
+    private generalInfo: UserTermImageInformationService,
+    private dialog: MatDialog) {
   }
 
   populatePrevTermsList() {
@@ -525,4 +527,25 @@ export class UploadComponent implements OnInit {
   logout() {
     this.authService.logout(this.generalInfo.prevTermLoadedFromDatabase, this.alreadyUpload === true ? 'navigator/upload' : 'upload', [this.generalInfo.prevTerm, this.generalInfo.currTerm], 0);
   }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+}
+
+@Component({
+  selector: 'pop-up',
+  templateUrl: './pop-up.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

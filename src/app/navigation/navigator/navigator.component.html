@@ -1,9 +1,10 @@
 <div>
   <div class="title">
     <h2>Next: {{stage[nextStage]}}</h2>
-    <h3>{{summary[nextStage]}}</h3>
+    <!--<h3>{{summary[nextStage]}}</h3>-->
+    <h3>{{description[nextStage]}}</h3>
   </div>
-
+  
   <br />
   <br />
   <br />
@@ -13,7 +14,7 @@
 
   <div class="container">
     <ul class="progressbar">
-      <li [ngClass]="show[0] ? 'active' : ''">{{stage[0]}}</li>
+      <li [ngClass]="show[0] ? 'active' : ''">{{stage[0]}} </li>
       <li [ngClass]="show[1] ? 'active' : ''">{{stage[1]}}</li>
       <!--<li [ngClass]="{'half-active' : false, 'active' : false}">{{stage[1]}}</li>-->
       <li [ngClass]="show[2] ? 'active' : ''">{{stage[2]}}</li>
@@ -22,7 +23,7 @@
       <li [ngClass]="show[5] ? 'active' : ''">{{stage[5]}}</li>
     </ul>
   </div>
-
+  
   <div style="float: right;">
     <nav>
       <button mat-raised-button routerLink={{url}}>CONTINUE</button>

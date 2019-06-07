@@ -5,7 +5,6 @@ import { AngularFirestore } from '@angular/fire/firestore';
 import { MatDialog, MatDialogRef } from '@angular/material';
 import { UserTermImageInformationService } from '../../core/user-term-image-information.service';
 import { AuthService, termData } from 'src/app/core/auth.service';
-
 @Component({
   selector: 'app-show-results',
   templateUrl: './show-results.component.html',
@@ -208,6 +207,16 @@ export class ShowResultsComponent implements OnInit {
     this.authService.setStorage("session", object, "termData");
     return false;
   }
+
+  openDialog() {
+    const dialogRef = this.dialog.open(Guide, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
 }
 
 export class CSVRecordComponent {
@@ -230,4 +239,15 @@ export class CautionDialog {
     dialogRef.disableClose = true;
   }
 
+}
+
+@Component({
+  selector: 'guide',
+  templateUrl: './guide.html',
+})
+export class Guide {
+  constructor(
+    public dialogRef: MatDialogRef<Guide>) {
+      dialogRef.disableClose = true;
+    }
 }

@@ -1,9 +1,13 @@
 <div>
   <div class="title">
     <h2 style="color: white">Choose Correct Answers</h2>
+    <button mat-raised-button (click)="openDialog()">Guide for this Page</button>
     <button mat-raised-button class="logoutButton" (click)="logout()">Save & Logout</button>
   </div>
 
+  <br>
+  <br>
+  <br>
   <br>
   <br>
   <br>
@@ -32,6 +36,7 @@
             <mat-checkbox name="multipleChoice" color="warn" (change)="boxChecked($event.checked)" formControlName="{{data.opt[0]}}" required>{{data.opt}}</mat-checkbox><br>
           </div>
         </form>
+        <button mat-raised-button class="activeButton" [disabled]="!canShowPreviousImage" (click)="previousImage('prev')"> Previous</button>
         <button mat-raised-button class="activeButton" [disabled]="boxOnScreen.numBoxesChecked <= 0" (click)="nextImage('prev')"> Next</button>
       </div>
 
@@ -42,8 +47,9 @@
 
   <div class="row">
 
-    <div style="text-align: center;">
-      <button mat-raised-button class="finishButton" *ngIf="imagesFinished" routerLink="../navigator/choose-ans" (click)="storeSession()"> Finish </button>
+    <div style="text-align: center;" *ngIf="imagesFinished">
+      <button mat-raised-button class="activeButton" (click)="previousImage('prev')" style="margin: 1%;"> Previous</button>
+      <button mat-raised-button class="finishButton" routerLink="../navigator/choose-ans" (click)="storeSession()" style="margin: 1%;"> Finish </button>
     </div>
 
     <!--<div>
