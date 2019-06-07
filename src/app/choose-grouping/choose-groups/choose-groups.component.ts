@@ -385,7 +385,7 @@ export class ChooseGroupsComponent implements OnInit {
         this.unwindTermFinishVariables(0);
       }
       // one more case of unwind after finished current term
-      else if (this.lectureNum === Object.keys(this.generalInfo.currTermLectureImage).length){
+      else if (this.imagesFinished === true){
         console.log("Reached end of curr, going back");
         this.unwindTermFinishVariables(1);
       }
@@ -433,7 +433,6 @@ export class ChooseGroupsComponent implements OnInit {
     else {
       if (this.lectureNum + 1 === Object.keys(this.generalInfo.currTermLectureImage).length) {
         this.setResetTermFinishVariables();
-        this.lectureNum += 1;
         this.canShowPreviousLecture = true;
         return;
       }

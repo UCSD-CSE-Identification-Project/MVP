@@ -39,35 +39,31 @@
 
     <br>
     <br>
-    <div class="row">
-      <!-- put virtual scroll here -->
-      <div *ngIf="lenOfVirtualScroll > 0" class="cdk-virtual-scroll-data-source-example">
-        <cdk-virtual-scroll-viewport orientation="horizontal" itemSize="100" minBufferPx="20000" maxBufferPx="40000" class="example-viewport">
-          <div *cdkVirtualFor="let box of lectureOnScreenBoxList; let i = index;" class="example-item">
-            <h5>Question {{i + 1}}</h5>
-            <img src="{{( box.imageSourceURL | async )?.data().downloadURL}}" width="500px"/>
-            <form [formGroup]="box.boxVal">
-              <div><h4>Classification of this Question</h4></div>
-              <div *ngFor="let data of boxValues;">
-                <input type="radio" formControlName="option" value="{{data.opt}}" (click)="toggleRestBoxes(i + 1)"> {{data.opt}}<br>
-              </div>
-              <div *ngIf="box.boxVal.controls.option.value === 'Group'">
-                <input type="checkbox" formControlName="box"> This is a Group vote without a preceding Individual vote
-              </div>
-            </form>
+  </div>
+</div>
+
+<div class="row">
+  <!-- put virtual scroll here -->
+  <div *ngIf="lenOfVirtualScroll > 0" class="cdk-virtual-scroll-data-source-example">
+    <cdk-virtual-scroll-viewport orientation="horizontal" itemSize="100" minBufferPx="20000" maxBufferPx="40000" class="example-viewport">
+      <div *cdkVirtualFor="let box of lectureOnScreenBoxList; let i = index;" class="example-item">
+        <h5>Question {{i + 1}}</h5>
+        <img src="{{( box.imageSourceURL | async )?.data().downloadURL}}" width="500px"/>
+        <form [formGroup]="box.boxVal">
+          <div><h4>Classification of this Question</h4></div>
+          <div *ngFor="let data of boxValues;">
+            <input type="radio" formControlName="option" value="{{data.opt}}" (click)="toggleRestBoxes(i + 1)"> {{data.opt}}<br>
           </div>
-        </cdk-virtual-scroll-viewport>
+          <div *ngIf="box.boxVal.controls.option.value === 'Group'">
+            <input type="checkbox" formControlName="box"> This is a Group vote without a preceding Individual vote
+          </div>
+        </form>
       </div>
-    </div>
+    </cdk-virtual-scroll-viewport>
   </div>
 </div>
 
 <div style="text-align: right">
-  <!--<div style="display:inline-block">
-    <button mat-raised-button class="activeButton" *ngIf="!prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('prev')" (click)="nextImage('prev')"> Next</button>
-    <button mat-raised-button class="activeButton" *ngIf="prevTermGrouping.termFinishedAnswering" [disabled]="!allChecked('curr') || imagesFinished" (click)="nextImage('curr')"> Next</button>
-  </div>
-  &nbsp;-->
   <div *ngIf="!imagesFinished && finishedCurrentTerm"> Updating grouping data of each image in the database </div>
   <div *ngIf="imagesFinished">
     <button *ngIf="canShowPreviousLecture" style="float: left; margin-left: 1%;" class="nextLectureButton" mat-raised-button (click)="previousLecture()">Previous Lecture</button>
