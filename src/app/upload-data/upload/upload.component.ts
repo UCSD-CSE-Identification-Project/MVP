@@ -400,7 +400,6 @@ export class UploadComponent implements OnInit {
 
     allPrevKeys.forEach((element: string) => {
       let lectureName = element.slice(0, element.lastIndexOf('_'));
-      console.log(lectureName);
       prevTermLectureImages[lectureName].push(this.generalInfo.prevTermAllImages[element]);
     });
 
@@ -408,6 +407,37 @@ export class UploadComponent implements OnInit {
       let lectureName = element.slice(0, element.lastIndexOf('_'));
       currTermLectureImages[lectureName].push(this.generalInfo.currTermAllImages[element]);
     });
+
+    // Need more cleaning and sanitiziing to deal with corner cases
+    // Remove lectures with no images
+    // Make default to be always selecting the first 6 lectures
+    let lectureNum = 0;
+
+    for (let key in prevTermLectureImages) {
+      if (prevTermLectureImages[key] === []) {
+        delete prevTermLectureImages[key];
+      }
+      else if (lectureNum < 6) {
+        lectureNum += 1
+      }
+      else {
+        delete prevTermLectureImages[key];
+      }
+    }
+
+    lectureNum = 0;
+
+    for (let key in currTermLectureImages) {
+      if (currTermLectureImages[key] === []) {
+        delete currTermLectureImages[key];
+      }
+      else if (lectureNum < 6) {
+        lectureNum += 1
+      }
+      else {
+        delete currTermLectureImages[key];
+      }
+    }
 
     this.generalInfo.prevTermLectureImage = prevTermLectureImages;
     this.generalInfo.currTermLectureImage = currTermLectureImages;
