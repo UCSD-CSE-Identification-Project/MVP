@@ -40,3 +40,21 @@
 
 
 5.	**Results** ?? xingyu
+
+
+### The image ids that we save in the term object, we store metadata of the image in image objects
+### The image object is composed of:
+1.	**Correct_answers:** the multiple choice of correct asnwers 
+
+
+2.	**downloadURL:** url of where to get the image
+
+
+3.	**Grouping:** if the image is Individual/Group/Iso
+
+
+4.	**imageInGroup:** if this image is the key image, then what are the images that are in the same group as it ( what are the images that have the same answer as this image )
+
+
+5.	**Matches:** will have an array as the value with the keys being term ids and the values being another array of currTermImageId -> the comparison value (to the image we are adding this value to)
+
